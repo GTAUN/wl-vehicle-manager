@@ -1,42 +1,28 @@
-/**
- * Copyright (C) 2013 MK124
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License version 2 as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- */
-
 package net.gtaun.wl.vehicle.dialog;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractPageListDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
-import net.gtaun.shoebill.constant.VehicleModel.VehicleType;
 import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.vehicle.VehicleManagerService;
 
-public class VehicleCreateTypeListDialog extends AbstractPageListDialog
+public class VehicleCreateSetListDialog extends AbstractPageListDialog
 {
 	private final VehicleManagerService vehicleManager;
-	private final String typeName;
+	private final String setName;
 	
 	
-	public VehicleCreateTypeListDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager, final String typename, final VehicleType type)
+	public VehicleCreateSetListDialog
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager, final String setname, int[] modelIds)
 	{
 		super(player, shoebill, eventManager);
 		this.vehicleManager = vehicleManager;
-		this.typeName = typename;
+		this.setName = setname;
 		
-		for(final int modelId : VehicleModel.getIds(type))
+		for(final int modelId : modelIds)
 		{
 			final String name = VehicleModel.getName(modelId);
 			final int seats = VehicleModel.getSeats(modelId);
@@ -57,7 +43,7 @@ public class VehicleCreateTypeListDialog extends AbstractPageListDialog
 	@Override
 	public void show()
 	{
-		setCaption(String.format("刷车 - 车辆类型选择 - 类型：%1$s (%2$d/%3$d)", typeName, getCurrentPage(), getMaxPage()));
+		setCaption(String.format("刷车 - 车辆类型选择 - 集合：%1$s (%2$d/%3$d)", setName, getCurrentPage(), getMaxPage()));
 		super.show();
 	}
 	
