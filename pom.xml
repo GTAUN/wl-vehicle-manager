@@ -17,13 +17,13 @@
 	</parent>
 	
 	<groupId>net.gtaun.wl</groupId>
-	<artifactId>wl-vehicle</artifactId>
+	<artifactId>wl-vehicle-manager</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	
-	<name>wl-vehicle</name>
+	<name>wl-vehicle-manager</name>
 	<description>WL Vehicle Manager Plugin</description>
-	<url>https://github.com/GTAUN/wl-vehicle</url>
+	<url>https://github.com/GTAUN/wl-vehicle-manager</url>
 	
 	<properties>
 		<shoebill.version>0.2.0-SNAPSHOT</shoebill.version>
@@ -38,9 +38,9 @@
 	</licenses>
 
 	<scm>
-		<url>https://github.com/GTAUN/wl-vehicle</url>
-		<connection>scm:git:git://github.com/GTAUN/wl-vehicle.git</connection>
-		<developerConnection>scm:git:git@github.com:GTAUN/wl-vehicle.git</developerConnection>
+		<url>https://github.com/GTAUN/wl-vehicle-manager</url>
+		<connection>scm:git:git://github.com/GTAUN/wl-vehicle-manager.git</connection>
+		<developerConnection>scm:git:git@github.com:GTAUN/wl-vehicle-manager.git</developerConnection>
 	</scm>
 
 	<developers>
