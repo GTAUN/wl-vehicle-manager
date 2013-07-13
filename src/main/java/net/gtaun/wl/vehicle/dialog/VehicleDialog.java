@@ -17,7 +17,7 @@ import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.VehicleUtils;
 import net.gtaun.shoebill.common.dialog.AbstractListDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
-import net.gtaun.shoebill.event.dialog.DialogCancelEvent;
+import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.shoebill.object.VehicleDamage;
@@ -56,6 +56,24 @@ public class VehicleDialog extends AbstractListDialog
 			public void onItemSelect()
 			{
 				vehicleManager.ownVehicle(player, vehicle);
+				show();
+			}
+		});
+		
+		dialogListItems.add(new DialogListItem("传送到身边")
+		{
+			@Override
+			public boolean isEnabled()
+			{
+				if (vehicleManager.isOwned(vehicle) == false) return false;
+				if (player.getVehicle() == vehicle) return false;
+				return true;
+			}
+			
+			@Override
+			public void onItemSelect()
+			{
+				vehicle.setLocation(player.getLocation());
 				show();
 			}
 		});
@@ -164,14 +182,18 @@ public class VehicleDialog extends AbstractListDialog
 		int modelId = vehicle.getModelId();
 		String name = VehicleModel.getName(modelId);
 		
-		setCaption(String.format("车辆 %1$s 菜单 - 车辆ID：%2$d, 模型：%3$d, HP：%4$0.1f", name, vehicle.getModelId(), modelId, vehicle.getHealth()));
+		setCaption(String.format("车辆 %1$s 菜单 - 车辆ID：%2$d, 模型：%3$d, HP：%4$1.1f", name, vehicle.getModelId(), modelId, vehicle.getHealth()));
 		super.show();
 	}
-
+	
 	@Override
-	protected void onDialogCancel(DialogCancelEvent event)
+	protected void onDialogResponse(DialogResponseEvent event)
 	{
-		new VehicleManagerDialog(player, shoebill, rootEventManager, vehicleManager).show();
-		super.onDialogCancel(event);
+		if (event.getDialogResponse() == 0)
+		{
+			new VehicleManagerDialog(player, shoebill, rootEventManager, vehicleManager).show();
+		}
+		
+		super.onDialogResponse(event);
 	}
 }

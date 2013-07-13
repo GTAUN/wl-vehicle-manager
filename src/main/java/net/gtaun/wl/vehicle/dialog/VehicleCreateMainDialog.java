@@ -19,7 +19,7 @@ import java.util.Map;
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractListDialog;
 import net.gtaun.shoebill.constant.VehicleModel.VehicleType;
-import net.gtaun.shoebill.event.dialog.DialogCancelEvent;
+import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.vehicle.VehicleManagerService;
@@ -63,17 +63,21 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 				@Override
 				public void onItemSelect()
 				{
-					new VehicleCreateTypeListDialog(player, shoebill, eventManager, vehicleManager, typename, type);
+					new VehicleCreateTypeListDialog(player, shoebill, eventManager, vehicleManager, typename, type).show();
 					destroy();
 				}
 			});
 		}
 	}
-	
+
 	@Override
-	protected void onDialogCancel(DialogCancelEvent event)
+	protected void onDialogResponse(DialogResponseEvent event)
 	{
-		new VehicleCreateMainDialog(player, shoebill, rootEventManager, vehicleManager).show();
-		super.onDialogCancel(event);
+		if (event.getDialogResponse() == 0)
+		{
+			new VehicleCreateMainDialog(player, shoebill, rootEventManager, vehicleManager).show();
+		}
+		
+		super.onDialogResponse(event);
 	}
 }

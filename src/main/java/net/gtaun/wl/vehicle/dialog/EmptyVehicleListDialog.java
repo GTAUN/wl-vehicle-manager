@@ -24,7 +24,7 @@ import net.gtaun.shoebill.SampObjectStore;
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractPageListDialog;
 import net.gtaun.shoebill.data.Location;
-import net.gtaun.shoebill.event.dialog.DialogCancelEvent;
+import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
@@ -82,9 +82,13 @@ public class EmptyVehicleListDialog extends AbstractPageListDialog
 	}
 
 	@Override
-	protected void onDialogCancel(DialogCancelEvent event)
+	protected void onDialogResponse(DialogResponseEvent event)
 	{
-		new VehicleManagerDialog(player, shoebill, rootEventManager, vehicleManager).show();
-		super.onDialogCancel(event);
+		if (event.getDialogResponse() == 0)
+		{
+			new VehicleManagerDialog(player, shoebill, rootEventManager, vehicleManager).show();
+		}
+		
+		super.onDialogResponse(event);
 	}
 }

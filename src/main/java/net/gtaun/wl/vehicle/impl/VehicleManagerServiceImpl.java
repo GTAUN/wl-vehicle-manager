@@ -100,6 +100,8 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	public Vehicle getOwnedVehicle(Player player)
 	{
 		Vehicle vehicle = playerOwnedVehicles.get(player);
+		if (vehicle == null) return null;
+		
 		if (vehicle.isDestroyed())
 		{
 			unownVehicle(player);
