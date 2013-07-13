@@ -22,16 +22,16 @@ import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.shoebill.object.VehicleDamage;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.wl.vehicle.VehicleManager;
+import net.gtaun.wl.vehicle.VehicleManagerService;
 
 public class VehicleDialog extends AbstractListDialog
 {
 	private final Vehicle vehicle;
-	private final VehicleManager vehicleManager;
+	private final VehicleManagerService vehicleManager;
 	
 	
 	public VehicleDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, final Vehicle vehicle, final VehicleManager vehicleManager)
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, final Vehicle vehicle, final VehicleManagerService vehicleManager)
 	{
 		super(player, shoebill, eventManager);
 		this.vehicle = vehicle;

@@ -22,7 +22,7 @@ import net.gtaun.shoebill.constant.VehicleModel.VehicleType;
 import net.gtaun.shoebill.event.dialog.DialogCancelEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.wl.vehicle.VehicleManager;
+import net.gtaun.wl.vehicle.VehicleManagerService;
 
 public class VehicleCreateMainDialog extends AbstractListDialog
 {
@@ -43,10 +43,10 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 	}
 	
 	
-	private final VehicleManager vehicleManager;
+	private final VehicleManagerService vehicleManager;
 	
 	
-	public VehicleCreateMainDialog(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManager vehicleManager)
+	public VehicleCreateMainDialog(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager)
 	{
 		super(player, shoebill, eventManager);
 		this.vehicleManager = vehicleManager;

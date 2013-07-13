@@ -18,13 +18,13 @@ import net.gtaun.shoebill.common.dialog.AbstractListDialog;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.wl.vehicle.VehicleManager;
+import net.gtaun.wl.vehicle.VehicleManagerService;
 import net.gtaun.wl.vehicle.util.NearbyVehicleComparator;
 
 public class VehicleManagerDialog extends AbstractListDialog
 {
 	public VehicleManagerDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManager vehicleManager)
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager)
 	{
 		super(player, shoebill, eventManager);
 

@@ -15,11 +15,10 @@ package net.gtaun.wl.vehicle;
 
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
+import net.gtaun.shoebill.service.Service;
 
-public interface VehicleManager
+public interface VehicleManagerService extends Service
 {
-	void uninitialize();
-	
 	void ownVehicle(Player player, Vehicle vehicle);
 	void unownVehicle(Player player);
 	

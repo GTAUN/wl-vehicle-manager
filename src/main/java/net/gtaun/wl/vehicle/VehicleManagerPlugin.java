@@ -14,6 +14,7 @@
 package net.gtaun.wl.vehicle;
 
 import net.gtaun.shoebill.common.ConfigurablePlugin;
+import net.gtaun.wl.vehicle.impl.VehicleManagerServiceImpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,9 @@ import org.slf4j.LoggerFactory;
 public class VehicleManagerPlugin extends ConfigurablePlugin
 {
 	public static final Logger LOGGER = LoggerFactory.getLogger(VehicleManagerPlugin.class);
+	
+	
+	private VehicleManagerServiceImpl vehicleManagerSerivce;
 	
 	
 	public VehicleManagerPlugin()
@@ -31,9 +35,8 @@ public class VehicleManagerPlugin extends ConfigurablePlugin
 	@Override
 	protected void onEnable() throws Throwable
 	{
-		//chatChannelService = new TeleportServiceImpl(getShoebill(), getEventManager());
-		//registerService(TeleportService.class, chatChannelService);
-		
+		vehicleManagerSerivce = new VehicleManagerServiceImpl(getShoebill(), getEventManager());
+		registerService(VehicleManagerService.class, vehicleManagerSerivce);
 		
 		LOGGER.info(getDescription().getName() + " " + getDescription().getVersion() + " Enabled.");
 	}
@@ -41,7 +44,10 @@ public class VehicleManagerPlugin extends ConfigurablePlugin
 	@Override
 	protected void onDisable() throws Throwable
 	{
-		//unregisterService(TeleportService.class);
+		unregisterService(VehicleManagerService.class);
+		
+		vehicleManagerSerivce.uninitialize();
+		vehicleManagerSerivce = null;
 		
 		LOGGER.info(getDescription().getName() + " " + getDescription().getVersion() + " Disabled.");
 	}

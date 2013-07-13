@@ -32,10 +32,10 @@ import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
 import net.gtaun.util.event.ManagedEventManager;
-import net.gtaun.wl.vehicle.VehicleManager;
+import net.gtaun.wl.vehicle.VehicleManagerService;
 import net.gtaun.wl.vehicle.dialog.VehicleManagerDialog;
 
-public class VehicleManagerImpl implements VehicleManager
+public class VehicleManagerServiceImpl implements VehicleManagerService
 {
 	private final Shoebill shoebill;
 	private final EventManager rootEventManager;
@@ -49,7 +49,7 @@ public class VehicleManagerImpl implements VehicleManager
 	private Set<Vehicle> ownedVehicles;
 	
 	
-	public VehicleManagerImpl(Shoebill shoebill, EventManager rootEventManager)
+	public VehicleManagerServiceImpl(Shoebill shoebill, EventManager rootEventManager)
 	{
 		this.shoebill = shoebill;
 		this.rootEventManager = rootEventManager;
@@ -69,7 +69,6 @@ public class VehicleManagerImpl implements VehicleManager
 		eventManager.registerHandler(PlayerCommandEvent.class, playerEventHandler, HandlerPriority.NORMAL);
 	}
 
-	@Override
 	public void uninitialize()
 	{
 		eventManager.cancelAll();
@@ -156,7 +155,7 @@ public class VehicleManagerImpl implements VehicleManager
 					return;
 				}
 				
-				new VehicleManagerDialog(player, shoebill, rootEventManager, VehicleManagerImpl.this).show();
+				new VehicleManagerDialog(player, shoebill, rootEventManager, VehicleManagerServiceImpl.this).show();
 				event.setProcessed();
 				return;
 			}

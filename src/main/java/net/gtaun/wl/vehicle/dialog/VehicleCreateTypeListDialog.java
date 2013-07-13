@@ -21,15 +21,15 @@ import net.gtaun.shoebill.event.dialog.DialogCancelEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.wl.vehicle.VehicleManager;
+import net.gtaun.wl.vehicle.VehicleManagerService;
 
 public class VehicleCreateTypeListDialog extends AbstractPageListDialog
 {
-	private final VehicleManager vehicleManager;
+	private final VehicleManagerService vehicleManager;
 	
 	
 	public VehicleCreateTypeListDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManager vehicleManager, final String typename, final VehicleType type)
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager, final String typename, final VehicleType type)
 	{
 		super(player, shoebill, eventManager);
 		this.vehicleManager = vehicleManager;
