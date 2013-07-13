@@ -17,6 +17,7 @@ import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.VehicleUtils;
 import net.gtaun.shoebill.common.dialog.AbstractListDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
+import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
@@ -43,7 +44,26 @@ public class VehicleDialog extends AbstractListDialog
 			return;
 		}
 		
-		dialogListItems.add(new DialogListItem("占用")
+		dialogListItems.add(new DialogListItem("上车")
+		{
+			@Override
+			public boolean isEnabled()
+			{
+				if (player.getVehicle() == vehicle) return false;
+				if (vehicleManager.getOwnedVehicle(player) == vehicle) return true;
+				if (VehicleUtils.getVehicleDriver(vehicle) != null) return false;
+				return true;
+			}
+			
+			@Override
+			public void onItemSelect()
+			{
+				vehicle.putPlayer(player, 0);
+				destroy();
+			}
+		});
+		
+		dialogListItems.add(new DialogListItem("成为我的车子")
 		{
 			@Override
 			public boolean isEnabled()
@@ -74,11 +94,11 @@ public class VehicleDialog extends AbstractListDialog
 			public void onItemSelect()
 			{
 				vehicle.setLocation(player.getLocation());
-				show();
+				destroy();
 			}
 		});
 		
-		dialogListItems.add(new DialogListItem("修复")
+		dialogListItems.add(new DialogListItem("修复车子")
 		{
 			@Override
 			public boolean isEnabled()
@@ -90,7 +110,7 @@ public class VehicleDialog extends AbstractListDialog
 				if (damage.getLights() != 0) return true;
 				if (damage.getPanels() != 0) return true;
 				if (damage.getTires() != 0) return true;
-				if (vehicle.getHealth() < 100.0f) return true;
+				if (vehicle.getHealth() < 1000.0f) return true;
 				return false;
 			}
 			
@@ -102,7 +122,7 @@ public class VehicleDialog extends AbstractListDialog
 			}
 		});
 		
-		dialogListItems.add(new DialogListItem("翻转")
+		dialogListItems.add(new DialogListItem("翻转车子")
 		{
 			@Override
 			public boolean isEnabled()
@@ -148,8 +168,8 @@ public class VehicleDialog extends AbstractListDialog
 				{
 					passenger.removeFromVehicle();
 				}
-				
-				show();
+
+				destroy();
 			}
 		});
 		
@@ -182,7 +202,18 @@ public class VehicleDialog extends AbstractListDialog
 		int modelId = vehicle.getModelId();
 		String name = VehicleModel.getName(modelId);
 		
-		setCaption(String.format("车辆 %1$s 菜单 - 车辆ID：%2$d, 模型：%3$d, HP：%4$1.1f", name, vehicle.getModelId(), modelId, vehicle.getHealth()));
+		boolean owned = vehicleManager.getOwnedVehicle(player) == vehicle;
+		String ownMessage = owned ? "我的车子" : "车辆";
+		
+		if (player.getVehicle() != vehicle)
+		{
+			Location loc = vehicle.getLocation();
+			player.setCameraLookAt(loc);
+			loc.setZ(loc.getZ() + 15.0f);
+			player.setCameraPosition(loc);
+		}
+		
+		setCaption(String.format("%1$s %2$s - 模型：%4$d, HP：%5$1.1f", ownMessage, name, vehicle.getModelId(), modelId, vehicle.getHealth()));
 		super.show();
 	}
 	
@@ -195,5 +226,12 @@ public class VehicleDialog extends AbstractListDialog
 		}
 		
 		super.onDialogResponse(event);
+	}
+	
+	@Override
+	protected void destroy()
+	{
+		player.setCameraBehind();
+		super.destroy();
 	}
 }

@@ -48,6 +48,7 @@ public class VehicleCreateTypeListDialog extends AbstractPageListDialog
 				{
 					Vehicle vehicle = shoebill.getSampObjectFactory().createVehicle(modelId, player.getLocation(), 0.0f, 0, 0, 3600);
 					vehicleManager.ownVehicle(player, vehicle);
+					vehicle.putPlayer(player, 0);
 					destroy();
 				}
 			});

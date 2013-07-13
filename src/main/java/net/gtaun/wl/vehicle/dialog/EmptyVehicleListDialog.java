@@ -23,6 +23,7 @@ import java.util.TreeSet;
 import net.gtaun.shoebill.SampObjectStore;
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractPageListDialog;
+import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
@@ -65,7 +66,7 @@ public class EmptyVehicleListDialog extends AbstractPageListDialog
 		for (final Vehicle vehicle : sortedVehicles)
 		{
 			final float distance = playerLoc.distance(vehicle.getLocation());
-			final String item = "ID: " + vehicle.getId() + "		车辆型号: " + vehicle.getModelId() + "	距离: " + distance;
+			final String item = "ID: " + vehicle.getId() + "		车辆: " + VehicleModel.getName(vehicle.getModelId()) + "		车辆型号: " + vehicle.getModelId() + "	距离: " + distance;
 			dialogListItems.add(new DialogListItem(item)
 			{
 				@Override
@@ -77,7 +78,7 @@ public class EmptyVehicleListDialog extends AbstractPageListDialog
 			});
 		}
 
-		setCaption("空车列表 - " + (getCurrentPage()+1) + "/" + (getMaxPage()+1));
+		setCaption("空车列表 (" + (getCurrentPage()+1) + "/" + (getMaxPage()+1) + ")");
 		super.show();
 	}
 
