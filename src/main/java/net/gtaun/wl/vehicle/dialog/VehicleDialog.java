@@ -213,7 +213,7 @@ public class VehicleDialog extends AbstractListDialog
 			player.setCameraPosition(loc);
 		}
 		
-		setCaption(String.format("%1$s %2$s - 模型：%4$d, HP：%5$1.1f", ownMessage, name, vehicle.getModelId(), modelId, vehicle.getHealth()));
+		setCaption(String.format("%1$s %2$s - 模型：%4$d, HP：%5$1.0f％", ownMessage, name, vehicle.getModelId(), modelId, vehicle.getHealth()/10));
 		super.show();
 	}
 	

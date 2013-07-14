@@ -76,7 +76,7 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 			final String setname = entry.getKey();
 			final int[] set = entry.getValue();
 			
-			dialogListItems.add(new DialogListItem("常用列表：" + setname)
+			dialogListItems.add(new DialogListItem("常用列表: " + setname)
 			{
 				@Override
 				public void onItemSelect()
@@ -92,7 +92,7 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 			final VehicleType type = entry.getKey();
 			final String typename = entry.getValue();
 			
-			dialogListItems.add(new DialogListItem("类型：" + typename)
+			dialogListItems.add(new DialogListItem("类型: " + typename)
 			{
 				@Override
 				public void onItemSelect()

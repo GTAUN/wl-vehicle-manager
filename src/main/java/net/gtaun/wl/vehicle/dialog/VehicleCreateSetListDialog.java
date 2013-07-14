@@ -27,7 +27,7 @@ public class VehicleCreateSetListDialog extends AbstractPageListDialog
 			final String name = VehicleModel.getName(modelId);
 			final int seats = VehicleModel.getSeats(modelId);
 			
-			dialogListItems.add(new DialogListItem(String.format("%1$d - %2$s (座位数: %3$d)", modelId, name, seats))
+			dialogListItems.add(new DialogListItem(String.format("%1$s (型号: %2$d , 座位数: %3$d)", name, modelId, seats))
 			{
 				@Override
 				public void onItemSelect()
@@ -44,7 +44,7 @@ public class VehicleCreateSetListDialog extends AbstractPageListDialog
 	@Override
 	public void show()
 	{
-		setCaption(String.format("刷车 - 车辆类型选择 - 集合：%1$s (%2$d/%3$d)", setName, getCurrentPage(), getMaxPage()));
+		setCaption(String.format("刷车 - 车辆类型选择 - 集合：%1$s (%2$d/%3$d)", setName, getCurrentPage() + 1, getMaxPage() + 1));
 		super.show();
 	}
 	

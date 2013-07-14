@@ -66,9 +66,20 @@ public class EmptyVehicleListDialog extends AbstractPageListDialog
 		for (final Vehicle vehicle : sortedVehicles)
 		{
 			final float distance = playerLoc.distance(vehicle.getLocation());
-			final String item = "ID: " + vehicle.getId() + "		车辆: " + VehicleModel.getName(vehicle.getModelId()) + "		车辆型号: " + vehicle.getModelId() + "	距离: " + distance;
-			dialogListItems.add(new DialogListItem(item)
+			dialogListItems.add(new DialogListItem()
 			{
+				@Override
+				public String toItemString()
+				{
+					String format = "%2$s	型号: %3$d	距离: %4$1.0f米";
+					if (player.isAdmin()) format = "ID: %1$d	%2$s	型号: %3$d	距离: %4$1.0f米";
+					
+					final int modelId = vehicle.getModelId();
+					final String modelName = VehicleModel.getName(modelId);
+					
+					return String.format(format, vehicle.getId(), modelName, modelId, distance);
+				}
+				
 				@Override
 				public void onItemSelect()
 				{
@@ -78,7 +89,7 @@ public class EmptyVehicleListDialog extends AbstractPageListDialog
 			});
 		}
 
-		setCaption("空车列表 (" + (getCurrentPage()+1) + "/" + (getMaxPage()+1) + ")");
+		setCaption(String.format("附近空车列表 (%1$d/%2$d)", getCurrentPage() + 1, getMaxPage() + 1));
 		super.show();
 	}
 
