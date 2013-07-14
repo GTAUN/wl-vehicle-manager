@@ -16,6 +16,7 @@ package net.gtaun.wl.vehicle.dialog;
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.VehicleUtils;
 import net.gtaun.shoebill.common.dialog.AbstractListDialog;
+import net.gtaun.shoebill.constant.VehicleComponentModel;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
@@ -173,7 +174,23 @@ public class VehicleDialog extends AbstractListDialog
 			}
 		});
 		
-		dialogListItems.add(new DialogListItemSwitch("锁车")
+		dialogListItems.add(new DialogListItem("改装车子")
+		{
+			@Override
+			public boolean isEnabled()
+			{
+				if (player.getVehicle() != vehicle) return false;
+				return VehicleComponentModel.isVehicleSupportAnyComponment(vehicle.getModelId());
+			}
+			
+			@Override
+			public void onItemSelect()
+			{
+				new VehicleComponentDialog(player, shoebill, eventManager, vehicle, vehicleManager).show();
+			}
+		});
+		
+		dialogListItems.add(new DialogListItemSwitch("锁车门")
 		{
 			@Override
 			public boolean isEnabled()
@@ -213,7 +230,7 @@ public class VehicleDialog extends AbstractListDialog
 			player.setCameraPosition(loc);
 		}
 		
-		setCaption(String.format("%1$s %2$s - 模型：%4$d, HP：%5$1.0f％", ownMessage, name, vehicle.getModelId(), modelId, vehicle.getHealth()/10));
+		setCaption(String.format("%1$s %2$s - 模型：%3$d, HP：%4$1.0f％", ownMessage, name, modelId, vehicle.getHealth()/10));
 		super.show();
 	}
 	
