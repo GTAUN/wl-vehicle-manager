@@ -33,6 +33,8 @@ public class VehicleCreateSetListDialog extends AbstractPageListDialog
 				@Override
 				public void onItemSelect()
 				{
+					player.playSound(1057, player.getLocation());
+					
 					Vehicle vehicle = shoebill.getSampObjectFactory().createVehicle(modelId, player.getLocation(), 0.0f, 0, 0, 3600);
 					vehicleManager.ownVehicle(player, vehicle);
 					vehicle.putPlayer(player, 0);
@@ -55,7 +57,7 @@ public class VehicleCreateSetListDialog extends AbstractPageListDialog
 	{
 		if (event.getDialogResponse() == 0)
 		{
-			player.playSound(1057, player.getLocation());
+			player.playSound(1084, player.getLocation());
 			new VehicleCreateMainDialog(player, shoebill, rootEventManager, vehicleManager).show();
 		}
 		

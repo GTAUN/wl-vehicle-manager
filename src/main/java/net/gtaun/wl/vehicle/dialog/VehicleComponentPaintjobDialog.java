@@ -38,7 +38,7 @@ public class VehicleComponentPaintjobDialog extends AbstractListDialog
 				public void onItemSelect()
 				{
 					player.playSound(1134, player.getLocation());
-					player.sendMessage(Color.BLUE, "%1$s: 您的车子 %2$s 已喷漆: %3$s %4$d 。", "车管", name, "喷漆", paintjobId);
+					player.sendMessage(Color.LIGHTBLUE, "%1$s: 您的车子 %2$s 已喷漆: %3$s %4$d 。", "车管", name, "喷漆", paintjobId);
 					
 					vehicle.setPaintjob(paintjobId);
 					new VehicleComponentDialog(player, shoebill, rootEventManager, vehicle, vehicleManager).show();

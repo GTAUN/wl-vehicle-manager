@@ -47,7 +47,7 @@ public class VehicleComponentAddDialog extends AbstractPageListDialog
 				public void onItemSelect()
 				{
 					player.playSound(1133, player.getLocation());
-					player.sendMessage(Color.WHITE, "%1$s: 您的车子 %2$s 已安装%3$s新组件: %4$s 。", "车管", name, slotName, componentName);
+					player.sendMessage(Color.LIGHTBLUE, "%1$s: 您的车子 %2$s 已安装%3$s新组件: %4$s 。", "车管", name, slotName, componentName);
 					
 					vehicle.getComponent().add(cid);
 					new VehicleComponentDialog(player, shoebill, rootEventManager, vehicle, vehicleManager).show();

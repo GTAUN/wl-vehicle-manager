@@ -26,14 +26,10 @@ import net.gtaun.wl.vehicle.util.NearbyVehicleComparator;
 
 public class VehicleManagerDialog extends AbstractListDialog
 {
-	private final VehicleManagerService vehicleManager;
-	
-	
 	public VehicleManagerDialog
 	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager)
 	{
 		super(player, shoebill, eventManager);
-		this.vehicleManager = vehicleManager;
 		
 		setCaption("车辆管理系统");
 
@@ -100,6 +96,40 @@ public class VehicleManagerDialog extends AbstractListDialog
 				destroy();
 			}
 		});
+		
+		dialogListItems.add(new DialogListItemSwitch("无限氮气加速")
+		{
+			@Override
+			public boolean isSwitched()
+			{
+				return vehicleManager.isPlayerLockNos(player);
+			}
+			
+			@Override
+			public void onItemSelect()
+			{
+				player.playSound(1083, player.getLocation());
+				vehicleManager.setPlayerLockNos(player, !vehicleManager.isPlayerLockNos(player));
+				show();
+			}
+		});
+		
+		dialogListItems.add(new DialogListItemSwitch("自动修复车辆")
+		{
+			@Override
+			public boolean isSwitched()
+			{
+				return vehicleManager.isPlayerLockVehicleHealth(player);
+			}
+			
+			@Override
+			public void onItemSelect()
+			{
+				player.playSound(1083, player.getLocation());
+				vehicleManager.setPlayerLockVehicleHealth(player, !vehicleManager.isPlayerLockVehicleHealth(player));
+				show();
+			}
+		});
 	}
 
 	@Override
@@ -108,7 +138,6 @@ public class VehicleManagerDialog extends AbstractListDialog
 		if (event.getDialogResponse() == 0)
 		{
 			player.playSound(1084, player.getLocation());
-			new VehicleCreateMainDialog(player, shoebill, rootEventManager, vehicleManager).show();
 		}
 		
 		super.onDialogResponse(event);

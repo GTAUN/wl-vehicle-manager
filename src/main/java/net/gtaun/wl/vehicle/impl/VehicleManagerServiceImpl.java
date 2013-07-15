@@ -22,12 +22,18 @@ import java.util.Queue;
 import java.util.Set;
 
 import net.gtaun.shoebill.Shoebill;
+import net.gtaun.shoebill.constant.VehicleComponentModel;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.event.PlayerEventHandler;
+import net.gtaun.shoebill.event.TimerEventHandler;
+import net.gtaun.shoebill.event.VehicleEventHandler;
 import net.gtaun.shoebill.event.player.PlayerCommandEvent;
 import net.gtaun.shoebill.event.player.PlayerConnectEvent;
 import net.gtaun.shoebill.event.player.PlayerDisconnectEvent;
+import net.gtaun.shoebill.event.timer.TimerTickEvent;
+import net.gtaun.shoebill.event.vehicle.VehicleUpdateDamageEvent;
 import net.gtaun.shoebill.object.Player;
+import net.gtaun.shoebill.object.Timer;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
@@ -37,6 +43,59 @@ import net.gtaun.wl.vehicle.dialog.VehicleManagerDialog;
 
 public class VehicleManagerServiceImpl implements VehicleManagerService
 {
+	private class PlayerTimerStore
+	{
+		private final Player player;
+		private final Timer timer;
+		private final EventManager eventManager;
+		
+		private boolean isLockNOS;
+		private boolean isLockVHP;
+		
+		public PlayerTimerStore(Player player)
+		{
+			eventManager = new ManagedEventManager(VehicleManagerServiceImpl.this.eventManager);
+			
+			this.player = player;
+			timer = shoebill.getSampObjectFactory().createTimer(10000);
+			
+			eventManager.registerHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.NORMAL);
+			eventManager.registerHandler(VehicleUpdateDamageEvent.class, timer, vehicleEventHandler, HandlerPriority.NORMAL);
+			timer.start();
+		}
+		
+		private TimerEventHandler timerEventHandler = new TimerEventHandler()
+		{
+			protected void onTimerTick(TimerTickEvent event)
+			{
+				if (player.isInAnyVehicle())
+				{
+					Vehicle vehicle = player.getVehicle();
+					int vehicleModel = vehicle.getModelId();
+					if (isLockNOS && VehicleComponentModel.isVehicleSupported(vehicleModel, VehicleComponentModel.NITRO_10_TIMES))
+					{
+						vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
+					}
+				}
+			}
+		};
+		
+		VehicleEventHandler vehicleEventHandler = new VehicleEventHandler()
+		{
+			protected void onVehicleUpdateDamage(VehicleUpdateDamageEvent event)
+			{
+				Vehicle vehicle = event.getVehicle();
+				if (isLockVHP && vehicle == player.getVehicle()) vehicle.repair();
+			}
+		};
+		
+		public void destroy()
+		{
+			timer.destroy();
+		}
+	}
+	
+	
 	private final Shoebill shoebill;
 	private final EventManager rootEventManager;
 	
@@ -48,6 +107,8 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	private Map<Player, Vehicle> playerOwnedVehicles;
 	private Set<Vehicle> ownedVehicles;
 	
+	private Map<Player, PlayerTimerStore> playerTimerStores;
+	
 	
 	public VehicleManagerServiceImpl(Shoebill shoebill, EventManager rootEventManager)
 	{
@@ -58,6 +119,8 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 		
 		playerOwnedVehicles = new HashMap<>();
 		ownedVehicles = new HashSet<>();
+		
+		playerTimerStores = new HashMap<>();
 		
 		initialize();
 	}
@@ -117,17 +180,49 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 		return ownedVehicles.contains(vehicle);
 	}
 	
+	@Override
+	public boolean isPlayerLockNos(Player player)
+	{
+		PlayerTimerStore timerStore = playerTimerStores.get(player);
+		return timerStore.isLockNOS;
+	}
+	
+	@Override
+	public void setPlayerLockNos(Player player, boolean lock)
+	{
+		PlayerTimerStore timerStore = playerTimerStores.get(player);
+		timerStore.isLockNOS = lock;
+	}
+	
+	@Override
+	public boolean isPlayerLockVehicleHealth(Player player)
+	{
+		PlayerTimerStore timerStore = playerTimerStores.get(player);
+		return timerStore.isLockVHP;
+	}
+
+	@Override
+	public void setPlayerLockVehicleHealth(Player player, boolean lock)
+	{
+		PlayerTimerStore timerStore = playerTimerStores.get(player);
+		timerStore.isLockVHP = lock;
+	}
+	
 	private PlayerEventHandler playerEventHandler = new PlayerEventHandler()
 	{
 		protected void onPlayerConnect(PlayerConnectEvent event)
 		{
-			
+			Player player = event.getPlayer();
+			playerTimerStores.put(player, new PlayerTimerStore(player));
 		}
 		
 		protected void onPlayerDisconnect(PlayerDisconnectEvent event)
 		{
 			Player player = event.getPlayer();
 			unownVehicle(player);
+			
+			playerTimerStores.get(player).destroy();
+			playerTimerStores.remove(player);
 		}
 		
 		protected void onPlayerCommand(PlayerCommandEvent event)
