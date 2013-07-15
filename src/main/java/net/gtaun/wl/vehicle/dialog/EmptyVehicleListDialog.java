@@ -22,6 +22,7 @@ import java.util.TreeSet;
 
 import net.gtaun.shoebill.SampObjectStore;
 import net.gtaun.shoebill.Shoebill;
+import net.gtaun.shoebill.common.Filter;
 import net.gtaun.shoebill.common.dialog.AbstractPageListDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.Location;
@@ -33,15 +34,17 @@ import net.gtaun.wl.vehicle.VehicleManagerService;
 
 public class EmptyVehicleListDialog extends AbstractPageListDialog
 {
-	private VehicleManagerService vehicleManager;
-	private Comparator<Vehicle> vehicleComparator;
+	private final VehicleManagerService vehicleManager;
+	private final Comparator<Vehicle> comparator;
+	private final Filter<Vehicle> filter;
 	
 	
-	public EmptyVehicleListDialog(Player player, Shoebill shoebill, EventManager eventManager, VehicleManagerService vehicleManager, Comparator<Vehicle> comparator)
+	public EmptyVehicleListDialog(Player player, Shoebill shoebill, EventManager eventManager, VehicleManagerService vehicleManager, Comparator<Vehicle> comparator, Filter<Vehicle> filter)
 	{
 		super(player, shoebill, eventManager);
 		this.vehicleManager = vehicleManager;
-		this.vehicleComparator = comparator;
+		this.comparator = comparator;
+		this.filter = filter;
 	}
 	
 	@Override
@@ -56,10 +59,13 @@ public class EmptyVehicleListDialog extends AbstractPageListDialog
 		Set<Vehicle> occupiedVehicles = new HashSet<>();
 		for (Player player : players) if (player.isInAnyVehicle()) occupiedVehicles.add(player.getVehicle());
 		
-		SortedSet<Vehicle> sortedVehicles = new TreeSet<>(vehicleComparator);
+		SortedSet<Vehicle> sortedVehicles = new TreeSet<>(comparator);
 		for (Vehicle vehicle : vehicles)
 		{
-			if (occupiedVehicles.contains(vehicle) == false && vehicleManager.isOwned(vehicle) == false) sortedVehicles.add(vehicle);
+			if (occupiedVehicles.contains(vehicle) == false && vehicleManager.isOwned(vehicle) == false && filter.isAcceptable(vehicle))
+			{
+				sortedVehicles.add(vehicle);
+			}
 		}
 		
 		dialogListItems.clear();
@@ -72,7 +78,7 @@ public class EmptyVehicleListDialog extends AbstractPageListDialog
 				public String toItemString()
 				{
 					String format = "%2$s	型号: %3$d	距离: %4$1.0f米";
-					if (player.isAdmin()) format = "ID: %1$d	%2$s	型号: %3$d	距离: %4$1.0f米";
+					if (player.isAdmin()) format = "%2$s (ID: %1$d)		型号: %3$d	距离: %4$1.0f米";
 					
 					final int modelId = vehicle.getModelId();
 					final String modelName = VehicleModel.getName(modelId);
@@ -83,13 +89,14 @@ public class EmptyVehicleListDialog extends AbstractPageListDialog
 				@Override
 				public void onItemSelect()
 				{
+					player.playSound(1083, player.getLocation());
 					new VehicleDialog(player, shoebill, rootEventManager, vehicle, vehicleManager).show();
 					destroy();
 				}
 			});
 		}
 
-		setCaption(String.format("附近空车列表 (%1$d/%2$d)", getCurrentPage() + 1, getMaxPage() + 1));
+		setCaption(String.format("%1$s: 附近空车列表 (%2$d/%3$d)", "车管", getCurrentPage() + 1, getMaxPage() + 1));
 		super.show();
 	}
 
@@ -98,6 +105,7 @@ public class EmptyVehicleListDialog extends AbstractPageListDialog
 	{
 		if (event.getDialogResponse() == 0)
 		{
+			player.playSound(1084, player.getLocation());
 			new VehicleManagerDialog(player, shoebill, rootEventManager, vehicleManager).show();
 		}
 		

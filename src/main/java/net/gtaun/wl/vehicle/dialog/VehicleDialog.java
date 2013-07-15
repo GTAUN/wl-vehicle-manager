@@ -13,11 +13,14 @@
 
 package net.gtaun.wl.vehicle.dialog;
 
+import java.util.List;
+
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.VehicleUtils;
 import net.gtaun.shoebill.common.dialog.AbstractListDialog;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
 import net.gtaun.shoebill.constant.VehicleModel;
+import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
@@ -59,6 +62,8 @@ public class VehicleDialog extends AbstractListDialog
 			@Override
 			public void onItemSelect()
 			{
+				player.playSound(1083, player.getLocation());
+				player.sendMessage(Color.LIGHTBLUE, "%1$s: 你已传送到车子 %2$s 里了。", "车管", VehicleModel.getName(vehicle.getModelId()));
 				vehicle.putPlayer(player, 0);
 				destroy();
 			}
@@ -76,12 +81,14 @@ public class VehicleDialog extends AbstractListDialog
 			@Override
 			public void onItemSelect()
 			{
+				player.playSound(1057, player.getLocation());
+				player.sendMessage(Color.LIGHTBLUE, "%1$s: 车子 %2$s 已成为您的专属座驾！", "车管", VehicleModel.getName(vehicle.getModelId()));
 				vehicleManager.ownVehicle(player, vehicle);
 				show();
 			}
 		});
 		
-		dialogListItems.add(new DialogListItem("传送到身边")
+		dialogListItems.add(new DialogListItem("传送到身边并上车")
 		{
 			@Override
 			public boolean isEnabled()
@@ -94,7 +101,12 @@ public class VehicleDialog extends AbstractListDialog
 			@Override
 			public void onItemSelect()
 			{
+				player.playSound(1083, player.getLocation());
+				
 				vehicle.setLocation(player.getLocation());
+				vehicle.putPlayer(player, 0);
+
+				player.sendMessage(Color.LIGHTBLUE, "%1$s: 车子 %2$s 已传送到你身边！", "车管", VehicleModel.getName(vehicle.getModelId()));
 				destroy();
 			}
 		});
@@ -118,6 +130,7 @@ public class VehicleDialog extends AbstractListDialog
 			@Override
 			public void onItemSelect()
 			{
+				player.playSound(1133, player.getLocation());
 				vehicle.repair();
 				show();
 			}
@@ -134,6 +147,7 @@ public class VehicleDialog extends AbstractListDialog
 			@Override
 			public void onItemSelect()
 			{
+				player.playSound(1083, player.getLocation());
 				vehicle.setLocation(vehicle.getLocation());
 				show();
 			}
@@ -150,6 +164,7 @@ public class VehicleDialog extends AbstractListDialog
 			@Override
 			public void onItemSelect()
 			{
+				player.playSound(1083, player.getLocation());
 				show();
 			}
 		});
@@ -165,11 +180,15 @@ public class VehicleDialog extends AbstractListDialog
 			@Override
 			public void onItemSelect()
 			{
-				for (Player passenger : VehicleUtils.getVehiclePassengers(vehicle))
+				player.playSound(1083, player.getLocation());
+				List<Player> passengers = VehicleUtils.getVehiclePassengers(vehicle);
+				for (Player passenger : passengers)
 				{
+					passenger.sendMessage(Color.LIGHTBLUE, "%1$s: 你被司机 %2$s 给踢下车了！", "车管", player.getName());
 					passenger.removeFromVehicle();
 				}
-
+				
+				player.sendMessage(Color.LIGHTBLUE, "%1$s: 已踢出 %2$d 个乘客！", "车管", passengers.size());
 				destroy();
 			}
 		});
@@ -186,7 +205,9 @@ public class VehicleDialog extends AbstractListDialog
 			@Override
 			public void onItemSelect()
 			{
+				player.playSound(1083, player.getLocation());
 				new VehicleComponentDialog(player, shoebill, eventManager, vehicle, vehicleManager).show();
+				destroy();
 			}
 		});
 		
@@ -207,6 +228,7 @@ public class VehicleDialog extends AbstractListDialog
 			@Override
 			public void onItemSelect()
 			{
+				player.playSound(1083, player.getLocation());
 				vehicle.getState().setDoors(vehicle.getState().getDoors() ^ 1);
 				show();
 			}
@@ -226,11 +248,11 @@ public class VehicleDialog extends AbstractListDialog
 		{
 			Location loc = vehicle.getLocation();
 			player.setCameraLookAt(loc);
-			loc.setZ(loc.getZ() + 15.0f);
+			loc.setZ(loc.getZ() + 10.0f);
 			player.setCameraPosition(loc);
 		}
 		
-		setCaption(String.format("%1$s %2$s - 模型：%3$d, HP：%4$1.0f％", ownMessage, name, modelId, vehicle.getHealth()/10));
+		setCaption(String.format("%1$s: %2$s %3$s - 模型：%4$d, HP：%5$1.0f％", "车管", ownMessage, name, modelId, vehicle.getHealth()/10));
 		super.show();
 	}
 	
@@ -239,6 +261,7 @@ public class VehicleDialog extends AbstractListDialog
 	{
 		if (event.getDialogResponse() == 0)
 		{
+			player.playSound(1084, player.getLocation());
 			new VehicleManagerDialog(player, shoebill, rootEventManager, vehicleManager).show();
 		}
 		

@@ -56,19 +56,21 @@ public class VehicleComponentDialog extends AbstractListDialog
 		super(player, shoebill, eventManager);
 		this.vehicle = vehicle;
 		this.vehicleManager = vehicleManager;
+
+		final int vehcileModelId = vehicle.getModelId();
 		
 		final String paintjobItem = String.format("%1$s", "喷漆");
-		displayedItems.add(new DialogListItem(paintjobItem)
+		if (VehicleModel.isPrintjobSupported(vehcileModelId)) displayedItems.add(new DialogListItem(paintjobItem)
 		{
 			@Override
 			public void onItemSelect()
 			{
+				player.playSound(1083, player.getLocation());
 				new VehicleComponentPaintjobDialog(player, shoebill, eventManager, vehicle, vehicleManager).show();
 				destroy();
 			}
 		});
 		
-		final int vehcileModelId = vehicle.getModelId();
 		for (final VehicleComponentSlot slot : VehicleComponentModel.getVehicleSupportedSlots(vehcileModelId))
 		{
 			final Set<Integer> components = VehicleComponentModel.getSlotSupportedComponents(vehcileModelId, slot);
@@ -81,6 +83,7 @@ public class VehicleComponentDialog extends AbstractListDialog
 				@Override
 				public void onItemSelect()
 				{
+					player.playSound(1083, player.getLocation());
 					new VehicleComponentAddDialog(player, shoebill, eventManager, vehicle, vehicleManager, slot).show();
 					destroy();
 				}
@@ -98,11 +101,11 @@ public class VehicleComponentDialog extends AbstractListDialog
 		{
 			Location loc = vehicle.getLocation();
 			player.setCameraLookAt(loc);
-			loc.setZ(loc.getZ() + 15.0f);
+			loc.setZ(loc.getZ() + 10.0f);
 			player.setCameraPosition(loc);
 		}
 		
-		setCaption(String.format("改装 %1$s - 模型：%2$d, HP：%3$1.0f％", name, modelId, vehicle.getHealth()/10));
+		setCaption(String.format("%1$s: 改装 %2$s (模型：%3$d, HP：%4$1.0f％)", "车管", name, modelId, vehicle.getHealth()/10));
 		super.show();
 	}
 	
@@ -111,6 +114,7 @@ public class VehicleComponentDialog extends AbstractListDialog
 	{
 		if (event.getDialogResponse() == 0)
 		{
+			player.playSound(1084, player.getLocation());
 			new VehicleDialog(player, shoebill, rootEventManager, vehicle, vehicleManager).show();
 		}
 		

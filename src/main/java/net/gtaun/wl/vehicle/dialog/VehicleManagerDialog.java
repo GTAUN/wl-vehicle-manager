@@ -15,18 +15,26 @@ package net.gtaun.wl.vehicle.dialog;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractListDialog;
+import net.gtaun.shoebill.data.Location;
+import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.vehicle.VehicleManagerService;
+import net.gtaun.wl.vehicle.util.DistanceVehicleFilter;
 import net.gtaun.wl.vehicle.util.NearbyVehicleComparator;
 
 public class VehicleManagerDialog extends AbstractListDialog
 {
+	private final VehicleManagerService vehicleManager;
+	
+	
 	public VehicleManagerDialog
 	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager)
 	{
 		super(player, shoebill, eventManager);
+		this.vehicleManager = vehicleManager;
+		
 		setCaption("车辆管理系统");
 
 		dialogListItems.add(new DialogListItem("当前车辆 ...")
@@ -34,12 +42,13 @@ public class VehicleManagerDialog extends AbstractListDialog
 			@Override
 			public boolean isEnabled()
 			{
-				return player.isInAnyVehicle();
+				return vehicleManager.getOwnedVehicle(player) != player.getVehicle();
 			}
 			
 			@Override
 			public void onItemSelect()
 			{
+				player.playSound(1083, player.getLocation());
 				Vehicle vehicle = player.getVehicle();
 				if (vehicle != null) new VehicleDialog(player, shoebill, eventManager, vehicle, vehicleManager).show();
 				destroy();
@@ -57,6 +66,7 @@ public class VehicleManagerDialog extends AbstractListDialog
 			@Override
 			public void onItemSelect()
 			{
+				player.playSound(1083, player.getLocation());
 				Vehicle vehicle = vehicleManager.getOwnedVehicle(player);
 				if (vehicle != null) new VehicleDialog(player, shoebill, eventManager, vehicle, vehicleManager).show();
 				destroy();
@@ -68,6 +78,7 @@ public class VehicleManagerDialog extends AbstractListDialog
 			@Override
 			public void onItemSelect()
 			{
+				player.playSound(1083, player.getLocation());
 				new VehicleCreateMainDialog(player, shoebill, eventManager, vehicleManager).show();
 				destroy();
 			}
@@ -78,13 +89,28 @@ public class VehicleManagerDialog extends AbstractListDialog
 			@Override
 			public void onItemSelect()
 			{
+				player.playSound(1083, player.getLocation());
+				
+				Location loc = player.getLocation();
 				new EmptyVehicleListDialog
 				(
 					player, shoebill, eventManager, vehicleManager,
-					new NearbyVehicleComparator(player.getLocation())
+					new NearbyVehicleComparator(loc), new DistanceVehicleFilter(loc, 500.0f)
 				).show();
 				destroy();
 			}
 		});
+	}
+
+	@Override
+	protected void onDialogResponse(DialogResponseEvent event)
+	{
+		if (event.getDialogResponse() == 0)
+		{
+			player.playSound(1084, player.getLocation());
+			new VehicleCreateMainDialog(player, shoebill, rootEventManager, vehicleManager).show();
+		}
+		
+		super.onDialogResponse(event);
 	}
 }

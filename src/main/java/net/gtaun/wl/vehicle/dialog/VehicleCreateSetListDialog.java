@@ -3,6 +3,7 @@ package net.gtaun.wl.vehicle.dialog;
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractPageListDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
+import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
@@ -35,6 +36,7 @@ public class VehicleCreateSetListDialog extends AbstractPageListDialog
 					Vehicle vehicle = shoebill.getSampObjectFactory().createVehicle(modelId, player.getLocation(), 0.0f, 0, 0, 3600);
 					vehicleManager.ownVehicle(player, vehicle);
 					vehicle.putPlayer(player, 0);
+					player.sendMessage(Color.LIGHTBLUE, "%1$s: 您的专属座驾 %2$s 已创建！", "车管", VehicleModel.getName(vehicle.getModelId()));
 					destroy();
 				}
 			});
@@ -44,7 +46,7 @@ public class VehicleCreateSetListDialog extends AbstractPageListDialog
 	@Override
 	public void show()
 	{
-		setCaption(String.format("刷车 - 车辆类型选择 - 集合：%1$s (%2$d/%3$d)", setName, getCurrentPage() + 1, getMaxPage() + 1));
+		setCaption(String.format("%1$s: 刷车 - 车辆类型选择 - 集合：%2$s (%3$d/%4$d)", "车管", setName, getCurrentPage() + 1, getMaxPage() + 1));
 		super.show();
 	}
 	
@@ -53,6 +55,7 @@ public class VehicleCreateSetListDialog extends AbstractPageListDialog
 	{
 		if (event.getDialogResponse() == 0)
 		{
+			player.playSound(1057, player.getLocation());
 			new VehicleCreateMainDialog(player, shoebill, rootEventManager, vehicleManager).show();
 		}
 		

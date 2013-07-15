@@ -69,7 +69,7 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 		super(player, shoebill, eventManager);
 		this.vehicleManager = vehicleManager;
 		
-		setCaption("刷车 - 车辆类型选择");
+		setCaption(String.format("%1$s: 刷车 - 车辆类型选择", "车管"));
 		
 		for (Entry<String, int[]> entry : COMMON_VEHICLES.entrySet())
 		{
@@ -81,6 +81,7 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 				@Override
 				public void onItemSelect()
 				{
+					player.playSound(1083, player.getLocation());
 					new VehicleCreateSetListDialog(player, shoebill, eventManager, vehicleManager, setname, set).show();
 					destroy();
 				}
@@ -97,6 +98,7 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 				@Override
 				public void onItemSelect()
 				{
+					player.playSound(1083, player.getLocation());
 					new VehicleCreateTypeListDialog(player, shoebill, eventManager, vehicleManager, typename, type).show();
 					destroy();
 				}
@@ -109,6 +111,7 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 	{
 		if (event.getDialogResponse() == 0)
 		{
+			player.playSound(1084, player.getLocation());
 			new VehicleManagerDialog(player, shoebill, rootEventManager, vehicleManager).show();
 		}
 		

@@ -7,6 +7,7 @@ import net.gtaun.shoebill.common.dialog.AbstractPageListDialog;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
 import net.gtaun.shoebill.constant.VehicleComponentSlot;
 import net.gtaun.shoebill.constant.VehicleModel;
+import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
@@ -28,9 +29,11 @@ public class VehicleComponentAddDialog extends AbstractPageListDialog
 		this.vehicle = vehicle;
 		this.vehicleManager = vehicleManager;
 		this.componentSlot = slot;
+
+		final int modelId = vehicle.getModelId();
+		final String name = VehicleModel.getName(modelId);
 		
-		final int vehcileModelId = vehicle.getModelId();
-		final Set<Integer> components = VehicleComponentModel.getSlotSupportedComponents(vehcileModelId, slot);
+		final Set<Integer> components = VehicleComponentModel.getSlotSupportedComponents(modelId, slot);
 		final String slotName = VehicleComponentDialog.getVehicleComponentSlotNames().get(slot);
 		
 		for (final int cid : components)
@@ -43,6 +46,9 @@ public class VehicleComponentAddDialog extends AbstractPageListDialog
 				@Override
 				public void onItemSelect()
 				{
+					player.playSound(1133, player.getLocation());
+					player.sendMessage(Color.WHITE, "%1$s: 您的车子 %2$s 已安装%3$s新组件: %4$s 。", "车管", name, slotName, componentName);
+					
 					vehicle.getComponent().add(cid);
 					new VehicleComponentDialog(player, shoebill, rootEventManager, vehicle, vehicleManager).show();
 					destroy();
@@ -65,7 +71,7 @@ public class VehicleComponentAddDialog extends AbstractPageListDialog
 			player.setCameraPosition(loc);
 		}
 		
-		setCaption(String.format("改装 %1$s - 选择%2$s部件", name, VehicleComponentDialog.getVehicleComponentSlotNames().get(componentSlot)));
+		setCaption(String.format("%1$s: 改装 %2$s - 选择%3$s部件", "车管", name, VehicleComponentDialog.getVehicleComponentSlotNames().get(componentSlot)));
 		super.show();
 	}
 	
@@ -74,6 +80,7 @@ public class VehicleComponentAddDialog extends AbstractPageListDialog
 	{
 		if (event.getDialogResponse() == 0)
 		{
+			player.playSound(1084, player.getLocation());
 			new VehicleComponentDialog(player, shoebill, rootEventManager, vehicle, vehicleManager).show();
 		}
 		

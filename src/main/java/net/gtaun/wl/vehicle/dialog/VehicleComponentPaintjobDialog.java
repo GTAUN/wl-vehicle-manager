@@ -3,6 +3,7 @@ package net.gtaun.wl.vehicle.dialog;
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractListDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
+import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
@@ -22,8 +23,9 @@ public class VehicleComponentPaintjobDialog extends AbstractListDialog
 		super(player, shoebill, eventManager);
 		this.vehicle = vehicle;
 		this.vehicleManager = vehicleManager;
-		
-		// final int vehcileModelId = vehicle.getModelId();
+
+		final int modelId = vehicle.getModelId();
+		final String name = VehicleModel.getName(modelId);
 		
 		for (int i=0; i<3; i++)
 		{
@@ -35,6 +37,9 @@ public class VehicleComponentPaintjobDialog extends AbstractListDialog
 				@Override
 				public void onItemSelect()
 				{
+					player.playSound(1134, player.getLocation());
+					player.sendMessage(Color.BLUE, "%1$s: 您的车子 %2$s 已喷漆: %3$s %4$d 。", "车管", name, "喷漆", paintjobId);
+					
 					vehicle.setPaintjob(paintjobId);
 					new VehicleComponentDialog(player, shoebill, rootEventManager, vehicle, vehicleManager).show();
 					destroy();
@@ -57,7 +62,7 @@ public class VehicleComponentPaintjobDialog extends AbstractListDialog
 			player.setCameraPosition(loc);
 		}
 		
-		setCaption(String.format("改装 %1$s - 选择%2$s部件", name, "喷漆"));
+		setCaption(String.format("%1$s: 改装 %2$s - 选择%3$s部件", "车管", name, "喷漆"));
 		super.show();
 	}
 	
@@ -66,6 +71,7 @@ public class VehicleComponentPaintjobDialog extends AbstractListDialog
 	{
 		if (event.getDialogResponse() == 0)
 		{
+			player.playSound(1084, player.getLocation());
 			new VehicleComponentDialog(player, shoebill, rootEventManager, vehicle, vehicleManager).show();
 		}
 		
