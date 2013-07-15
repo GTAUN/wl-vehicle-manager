@@ -1,6 +1,5 @@
 package net.gtaun.wl.vehicle.dialog;
 
-import java.awt.event.ItemEvent;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -57,6 +56,17 @@ public class VehicleComponentDialog extends AbstractListDialog
 		super(player, shoebill, eventManager);
 		this.vehicle = vehicle;
 		this.vehicleManager = vehicleManager;
+		
+		final String paintjobItem = String.format("%1$s", "喷漆");
+		displayedItems.add(new DialogListItem(paintjobItem)
+		{
+			@Override
+			public void onItemSelect()
+			{
+				new VehicleComponentPaintjobDialog(player, shoebill, eventManager, vehicle, vehicleManager).show();
+				destroy();
+			}
+		});
 		
 		final int vehcileModelId = vehicle.getModelId();
 		for (final VehicleComponentSlot slot : VehicleComponentModel.getVehicleSupportedSlots(vehcileModelId))
