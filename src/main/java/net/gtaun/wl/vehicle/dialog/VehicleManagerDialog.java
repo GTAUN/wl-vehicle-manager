@@ -38,7 +38,7 @@ public class VehicleManagerDialog extends AbstractListDialog
 			@Override
 			public boolean isEnabled()
 			{
-				return vehicleManager.getOwnedVehicle(player) != player.getVehicle();
+				return player.isInAnyVehicle() && vehicleManager.getOwnedVehicle(player) != player.getVehicle();
 			}
 			
 			@Override

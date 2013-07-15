@@ -47,7 +47,7 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	{
 		private final Player player;
 		private final Timer timer;
-		private final EventManager eventManager;
+		private final ManagedEventManager eventManager;
 		
 		private boolean isLockNOS;
 		private boolean isLockVHP;
@@ -60,7 +60,7 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 			timer = shoebill.getSampObjectFactory().createTimer(10000);
 			
 			eventManager.registerHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.NORMAL);
-			eventManager.registerHandler(VehicleUpdateDamageEvent.class, timer, vehicleEventHandler, HandlerPriority.NORMAL);
+			eventManager.registerHandler(VehicleUpdateDamageEvent.class, vehicleEventHandler, HandlerPriority.NORMAL);
 			timer.start();
 		}
 		
@@ -92,6 +92,7 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 		public void destroy()
 		{
 			timer.destroy();
+			eventManager.cancelAll();
 		}
 	}
 	

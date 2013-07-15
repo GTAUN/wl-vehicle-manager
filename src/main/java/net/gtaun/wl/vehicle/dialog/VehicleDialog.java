@@ -271,7 +271,7 @@ public class VehicleDialog extends AbstractListDialog
 	@Override
 	protected void destroy()
 	{
-		player.setCameraBehind();
+		if (player.getVehicle() != vehicle) player.setCameraBehind();
 		super.destroy();
 	}
 }

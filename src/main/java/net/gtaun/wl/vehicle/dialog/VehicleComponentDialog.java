@@ -60,7 +60,7 @@ public class VehicleComponentDialog extends AbstractListDialog
 		final int vehcileModelId = vehicle.getModelId();
 		
 		final String paintjobItem = String.format("%1$s", "喷漆");
-		if (VehicleModel.isPrintjobSupported(vehcileModelId)) displayedItems.add(new DialogListItem(paintjobItem)
+		if (VehicleModel.isPrintjobSupported(vehcileModelId)) dialogListItems.add(new DialogListItem(paintjobItem)
 		{
 			@Override
 			public void onItemSelect()
