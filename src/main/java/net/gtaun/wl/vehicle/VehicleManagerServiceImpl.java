@@ -11,7 +11,7 @@
  * GNU General Public License for more details.
  */
 
-package net.gtaun.wl.vehicle.impl;
+package net.gtaun.wl.vehicle;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,6 +20,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+
+import com.google.code.morphia.Datastore;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
@@ -38,8 +40,8 @@ import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
 import net.gtaun.util.event.ManagedEventManager;
-import net.gtaun.wl.vehicle.VehicleManagerService;
 import net.gtaun.wl.vehicle.dialog.VehicleManagerDialog;
+import net.gtaun.wl.vehicle.stat.VehicleStatisticManager;
 
 public class VehicleManagerServiceImpl implements VehicleManagerService
 {
@@ -99,11 +101,15 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	
 	private final Shoebill shoebill;
 	private final EventManager rootEventManager;
+	private final Datastore datastore;
 	
 	private final ManagedEventManager eventManager;
 	
 	private boolean isCommandEnabled = true;
 	private String commandOperation = "/v";
+	
+	private Timer statisticSaveTimer;
+	private VehicleStatisticManager statisticManager;
 	
 	private Map<Player, Vehicle> playerOwnedVehicles;
 	private Set<Vehicle> ownedVehicles;
@@ -111,12 +117,16 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	private Map<Player, PlayerTimerStore> playerTimerStores;
 	
 	
-	public VehicleManagerServiceImpl(Shoebill shoebill, EventManager rootEventManager)
+	public VehicleManagerServiceImpl(Shoebill shoebill, EventManager rootEventManager, Datastore datastore)
 	{
 		this.shoebill = shoebill;
 		this.rootEventManager = rootEventManager;
+		this.datastore = datastore;
 		
 		eventManager = new ManagedEventManager(rootEventManager);
+		
+		statisticSaveTimer = shoebill.getSampObjectFactory().createTimer(1000*60*5);
+		statisticManager = new VehicleStatisticManager(this.datastore);
 		
 		playerOwnedVehicles = new HashMap<>();
 		ownedVehicles = new HashSet<>();
@@ -128,6 +138,8 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	
 	private void initialize()
 	{
+		eventManager.registerHandler(TimerTickEvent.class, statisticSaveTimer, statisticSaveTimerEventHandler, HandlerPriority.NORMAL);
+		
 		eventManager.registerHandler(PlayerConnectEvent.class, playerEventHandler, HandlerPriority.NORMAL);
 		eventManager.registerHandler(PlayerDisconnectEvent.class, playerEventHandler, HandlerPriority.NORMAL);
 		eventManager.registerHandler(PlayerCommandEvent.class, playerEventHandler, HandlerPriority.NORMAL);
@@ -257,6 +269,14 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 				event.setProcessed();
 				return;
 			}
+		}
+	};
+	
+	private TimerEventHandler statisticSaveTimerEventHandler = new TimerEventHandler()
+	{
+		protected void onTimerTick(TimerTickEvent event)
+		{
+			statisticManager.save();
 		}
 	};
 }

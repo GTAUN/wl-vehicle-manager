@@ -13,16 +13,28 @@
 
 package net.gtaun.wl.vehicle;
 
+import java.io.File;
+
 import net.gtaun.shoebill.common.ConfigurablePlugin;
-import net.gtaun.wl.vehicle.impl.VehicleManagerServiceImpl;
+import net.gtaun.wl.vehicle.config.VehicleManagerConfig;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.code.morphia.Datastore;
+import com.google.code.morphia.Morphia;
+import com.mongodb.MongoClient;
 
 public class VehicleManagerPlugin extends ConfigurablePlugin
 {
 	public static final Logger LOGGER = LoggerFactory.getLogger(VehicleManagerPlugin.class);
 	
+	
+	private VehicleManagerConfig config;
+	
+	private MongoClient mongoClient;
+	private Morphia morphia;
+	private Datastore datastore;
 	
 	private VehicleManagerServiceImpl vehicleManagerSerivce;
 	
@@ -35,7 +47,21 @@ public class VehicleManagerPlugin extends ConfigurablePlugin
 	@Override
 	protected void onEnable() throws Throwable
 	{
-		vehicleManagerSerivce = new VehicleManagerServiceImpl(getShoebill(), getEventManager());
+		config = new VehicleManagerConfig(new File(getDataDir(), "config.yml"));
+		
+		mongoClient = new MongoClient(config.getDbHost());
+		morphia = new Morphia();
+		
+		if (config.getDbUser().isEmpty() || config.getDbPass().isEmpty())
+		{
+			datastore = morphia.createDatastore(mongoClient, config.getDbName());
+		}
+		else
+		{
+			datastore = morphia.createDatastore(mongoClient, config.getDbName(), config.getDbUser(), config.getDbPass().toCharArray());
+		}
+		
+		vehicleManagerSerivce = new VehicleManagerServiceImpl(getShoebill(), getEventManager(), datastore);
 		registerService(VehicleManagerService.class, vehicleManagerSerivce);
 		
 		LOGGER.info(getDescription().getName() + " " + getDescription().getVersion() + " Enabled.");
@@ -48,6 +74,12 @@ public class VehicleManagerPlugin extends ConfigurablePlugin
 		
 		vehicleManagerSerivce.uninitialize();
 		vehicleManagerSerivce = null;
+		
+		datastore = null;
+		morphia = null;
+		
+		mongoClient.close();
+		mongoClient = null;
 		
 		LOGGER.info(getDescription().getName() + " " + getDescription().getVersion() + " Disabled.");
 	}

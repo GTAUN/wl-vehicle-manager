@@ -19,6 +19,12 @@ import net.gtaun.shoebill.service.Service;
 
 public interface VehicleManagerService extends Service
 {
+	/**
+	 * 设置玩家拥有的车辆。
+	 * 
+	 * @param player
+	 * @param vehicle
+	 */
 	void ownVehicle(Player player, Vehicle vehicle);
 	void unownVehicle(Player player);
 	
