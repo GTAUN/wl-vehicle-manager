@@ -7,6 +7,7 @@ import net.gtaun.shoebill.event.TimerEventHandler;
 import net.gtaun.shoebill.event.VehicleEventHandler;
 import net.gtaun.shoebill.event.timer.TimerTickEvent;
 import net.gtaun.shoebill.event.vehicle.VehicleUpdateDamageEvent;
+import net.gtaun.shoebill.event.vehicle.VehicleUpdateEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Timer;
 import net.gtaun.shoebill.object.Vehicle;
@@ -32,7 +33,8 @@ class PlayerVehicleActuator extends PlayerLifecycleObject
 	protected void onInitialize()
 	{
 		eventManager.registerHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.NORMAL);
-		eventManager.registerHandler(VehicleUpdateDamageEvent.class, vehicleEventHandler, HandlerPriority.NORMAL);
+		eventManager.registerHandler(VehicleUpdateEvent.class, vehicleEventHandler, HandlerPriority.BOTTOM);
+		eventManager.registerHandler(VehicleUpdateDamageEvent.class, vehicleEventHandler, HandlerPriority.BOTTOM);
 		timer.start();
 	}
 
@@ -60,6 +62,12 @@ class PlayerVehicleActuator extends PlayerLifecycleObject
 	
 	private VehicleEventHandler vehicleEventHandler = new VehicleEventHandler()
 	{
+		protected void onVehicleUpdate(VehicleUpdateEvent event)
+		{
+			Vehicle vehicle = event.getVehicle();
+			if (isLockVHP && vehicle.getHealth() < 1000.0f) vehicle.repair();
+		}
+		
 		protected void onVehicleUpdateDamage(VehicleUpdateDamageEvent event)
 		{
 			Vehicle vehicle = event.getVehicle();
