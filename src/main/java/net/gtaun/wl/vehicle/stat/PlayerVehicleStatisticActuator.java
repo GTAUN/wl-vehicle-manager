@@ -1,6 +1,7 @@
 package net.gtaun.wl.vehicle.stat;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.google.code.morphia.Datastore;
@@ -27,22 +28,29 @@ public class PlayerVehicleStatisticActuator extends PlayerLifecycleObject
 	@Override
 	protected void onInitialize()
 	{
-		
+		load();
 	}
 	
 	@Override
 	protected void onUninitialize()
 	{
-		
+		save();
 	}
 	
 	public void load()
 	{
+		List<PlayerVehicleStatistic> statistics = datastore.createQuery(PlayerVehicleStatistic.class).asList();
+		for (PlayerVehicleStatistic statistic : statistics)
+		{
+			vehicleStatistics.put(statistic.getModelId(), statistic);
+		}
+		
 		for (int id : VehicleModel.getIds())
 		{
+			if (vehicleStatistics.containsKey(id)) continue;
+			
 			PlayerVehicleStatistic statistic = new PlayerVehicleStatistic(player, player.getName(), id);
 			vehicleStatistics.put(id, statistic);
-			datastore.get(statistic);
 		}
 	}
 	

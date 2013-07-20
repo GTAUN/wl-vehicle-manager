@@ -21,7 +21,7 @@ class PlayerVehicleActuator extends PlayerLifecycleObject
 	boolean isLockVHP;
 	
 	
-	PlayerVehicleActuator(Shoebill shoebill, EventManager eventManager, Player player)
+	public PlayerVehicleActuator(Shoebill shoebill, EventManager eventManager, Player player)
 	{
 		super(shoebill, eventManager, player);
 		timer = shoebill.getSampObjectFactory().createTimer(10000);

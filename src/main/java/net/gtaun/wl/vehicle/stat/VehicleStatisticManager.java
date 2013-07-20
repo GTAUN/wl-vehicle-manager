@@ -1,5 +1,6 @@
 package net.gtaun.wl.vehicle.stat;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,9 +8,13 @@ import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder.PlayerLifecycleObjectFactory;
 import net.gtaun.shoebill.constant.VehicleModel;
+import net.gtaun.shoebill.event.TimerEventHandler;
+import net.gtaun.shoebill.event.timer.TimerTickEvent;
 import net.gtaun.shoebill.object.Player;
+import net.gtaun.shoebill.object.Timer;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.ManagedEventManager;
+import net.gtaun.util.event.EventManager.HandlerPriority;
 
 import com.google.code.morphia.Datastore;
 
@@ -20,9 +25,10 @@ public class VehicleStatisticManager
 	private final Datastore datastore;
 
 	private Map<Integer, VehicleStatistic> globalVehicleStatistics;
+	private Timer saveTimer;
 	
 	
-	public VehicleStatisticManager(EventManager rootEventManager, PlayerLifecycleHolder holder, Datastore datastore)
+	public VehicleStatisticManager(Shoebill shoebill, EventManager rootEventManager, PlayerLifecycleHolder holder, Datastore datastore)
 	{
 		this.eventManager = new ManagedEventManager(rootEventManager);
 		this.playerLifecycleHolder = holder;
@@ -40,11 +46,17 @@ public class VehicleStatisticManager
 			}
 		};
 		playerLifecycleHolder.registerClass(PlayerVehicleStatisticActuator.class, factory);
+		
+		saveTimer = shoebill.getSampObjectFactory().createTimer(1000*60*5);
+		saveTimer.start();
+		
+		eventManager.registerHandler(TimerTickEvent.class, saveTimer, saveTimerEventHandler, HandlerPriority.NORMAL);
 	}
 	
 	public void destroy()
 	{
 		eventManager.cancelAll();
+		saveTimer.destroy();
 	}
 	
 	public void load()
@@ -60,6 +72,9 @@ public class VehicleStatisticManager
 	public void save()
 	{
 		datastore.save(globalVehicleStatistics.values());
+		
+		Collection<PlayerVehicleStatisticActuator> actuators = playerLifecycleHolder.getObjects(PlayerVehicleStatisticActuator.class);
+		for (PlayerVehicleStatisticActuator actuator : actuators) actuator.save();
 	}
 	
 	public VehicleStatistic getGlobalVehicleStatistic(int modelId)
@@ -73,4 +88,12 @@ public class VehicleStatisticManager
 		PlayerVehicleStatisticActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticActuator.class);
 		return actuator.getVehicleStatistic(modelId);
 	}
+	
+	private TimerEventHandler saveTimerEventHandler = new TimerEventHandler()
+	{
+		protected void onTimerTick(TimerTickEvent event)
+		{
+			save();
+		}
+	};
 }

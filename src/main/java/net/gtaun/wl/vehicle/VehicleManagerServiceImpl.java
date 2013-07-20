@@ -25,13 +25,10 @@ import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.event.PlayerEventHandler;
-import net.gtaun.shoebill.event.TimerEventHandler;
 import net.gtaun.shoebill.event.player.PlayerCommandEvent;
 import net.gtaun.shoebill.event.player.PlayerConnectEvent;
 import net.gtaun.shoebill.event.player.PlayerDisconnectEvent;
-import net.gtaun.shoebill.event.timer.TimerTickEvent;
 import net.gtaun.shoebill.object.Player;
-import net.gtaun.shoebill.object.Timer;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
@@ -53,7 +50,6 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	private boolean isCommandEnabled = true;
 	private String commandOperation = "/v";
 	
-	private Timer statisticSaveTimer;
 	private VehicleStatisticManager statisticManager;
 	
 	private Map<Player, Vehicle> playerOwnedVehicles;
@@ -69,8 +65,7 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 		eventManager = new ManagedEventManager(rootEventManager);
 		playerLifecycleHolder = new PlayerLifecycleHolder(shoebill, eventManager);
 		
-		statisticSaveTimer = shoebill.getSampObjectFactory().createTimer(1000*60*5);
-		statisticManager = new VehicleStatisticManager(eventManager, playerLifecycleHolder, this.datastore);
+		statisticManager = new VehicleStatisticManager(shoebill, eventManager, playerLifecycleHolder, this.datastore);
 		
 		playerOwnedVehicles = new HashMap<>();
 		ownedVehicles = new HashSet<>();
@@ -82,8 +77,6 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	{
 		playerLifecycleHolder.registerClass(PlayerVehicleActuator.class);
 		
-		eventManager.registerHandler(TimerTickEvent.class, statisticSaveTimer, statisticSaveTimerEventHandler, HandlerPriority.NORMAL);
-		
 		eventManager.registerHandler(PlayerConnectEvent.class, playerEventHandler, HandlerPriority.NORMAL);
 		eventManager.registerHandler(PlayerDisconnectEvent.class, playerEventHandler, HandlerPriority.NORMAL);
 		eventManager.registerHandler(PlayerCommandEvent.class, playerEventHandler, HandlerPriority.NORMAL);
@@ -91,8 +84,9 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 
 	public void uninitialize()
 	{
+		playerLifecycleHolder.destroy();
+		statisticManager.destroy();
 		eventManager.cancelAll();
-		
 	}
 
 	@Override
@@ -209,14 +203,6 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 				event.setProcessed();
 				return;
 			}
-		}
-	};
-	
-	private TimerEventHandler statisticSaveTimerEventHandler = new TimerEventHandler()
-	{
-		protected void onTimerTick(TimerTickEvent event)
-		{
-			statisticManager.save();
 		}
 	};
 }
