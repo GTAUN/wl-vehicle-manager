@@ -233,6 +233,17 @@ public class VehicleDialog extends AbstractListDialog
 				show();
 			}
 		});
+		
+		dialogListItems.add(new DialogListItem("显示此车辆的个人统计信息")
+		{
+			@Override
+			public void onItemSelect()
+			{
+				player.playSound(1083, player.getLocation());
+				new VehiclePlayerStatisticDialog(player, shoebill, eventManager, vehicle, vehicleManager).show();
+				destroy();
+			}
+		});
 	}
 	
 	@Override
@@ -252,7 +263,7 @@ public class VehicleDialog extends AbstractListDialog
 			player.setCameraPosition(loc);
 		}
 		
-		setCaption(String.format("%1$s: %2$s %3$s - 模型：%4$d, HP：%5$1.0f％", "车管", ownMessage, name, modelId, vehicle.getHealth()/10));
+		setCaption(String.format("%1$s: %2$s %3$s - 模型: %4$d, HP: %5$1.0f％", "车管", ownMessage, name, modelId, vehicle.getHealth()/10));
 		super.show();
 	}
 	

@@ -13,12 +13,18 @@
 
 package net.gtaun.wl.vehicle;
 
+import java.util.Collection;
+
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.shoebill.service.Service;
+import net.gtaun.wl.vehicle.stat.GlobalVehicleStatistic;
+import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
 
 public interface VehicleManagerService extends Service
 {
+	Vehicle createOwnVehicle(Player player, int modelId);
+	
 	/**
 	 * 设置玩家拥有的车辆。
 	 * 
@@ -36,4 +42,10 @@ public interface VehicleManagerService extends Service
 	
 	boolean isPlayerLockVehicleHealth(Player player);
 	void setPlayerLockVehicleHealth(Player player, boolean lock);
+
+	GlobalVehicleStatistic getGlobalVehicleStatistic(int modelId);
+	Collection<GlobalVehicleStatistic> getGlobalVehicleStatistics();
+
+	PlayerVehicleStatistic getPlayerVehicleStatistic(Player player, int modelId);
+	Collection<PlayerVehicleStatistic> getPlayerVehicleStatistics(Player player);
 }

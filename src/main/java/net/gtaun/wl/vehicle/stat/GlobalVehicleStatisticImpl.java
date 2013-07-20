@@ -8,15 +8,15 @@ import com.google.code.morphia.annotations.Id;
 import com.google.code.morphia.annotations.PostLoad;
 
 @Entity("GlobalVehicleStatistic")
-public class VehicleStatistic
+public class GlobalVehicleStatisticImpl implements GlobalVehicleStatistic
 {
 	@Id private int modelId;					// 车辆模型ID
 	
-	private int spawnCount;						// 刷车总计数器
-	private int favoriteCount;					// 被收藏数
+	private long spawnCount;						// 刷车总计数器
+	private long favoriteCount;					// 被收藏数
 	private double damageCount;					// 总伤害值计数器
 	
-	private int driveCount;						// 驾驶次数
+	private long driveCount;						// 驾驶次数
 	private long driveTimeCount;				// 总驾驶时间，单位秒
 	private double driveOdometer;				// 总驾驶距离，单位米
 	
@@ -24,7 +24,7 @@ public class VehicleStatistic
 	private Date lastUpdate;					// 上次更新时间
 	
 
-	public VehicleStatistic(int modelId)
+	public GlobalVehicleStatisticImpl(int modelId)
 	{
 		this.modelId = modelId;
 	}
@@ -35,41 +35,49 @@ public class VehicleStatistic
 		
 	}
 	
+	@Override
 	public int getModelId()
 	{
 		return modelId;
 	}
-	
-	public int getSpawnCount()
+
+	@Override
+	public long getSpawnCount()
 	{
 		return spawnCount;
 	}
-	
-	public int getFavoriteCount()
+
+	@Override
+	public long getFavoriteCount()
 	{
 		return favoriteCount;
 	}
-	
+
+	@Override
 	public double getDamageCount()
 	{
 		return damageCount;
 	}
-	
-	public int getDriveCount()
+
+	@Override
+	public long getDriveCount()
 	{
 		return driveCount;
 	}
-	
+
+	@Override
 	public long getDriveTimeCount()
 	{
 		return driveTimeCount;
 	}
-	
+
+	@Override
 	public double getDriveOdometer()
 	{
 		return driveOdometer;
 	}
-	
+
+	@Override
 	public Date getLastUpdate()
 	{
 		return lastUpdate;

@@ -2,13 +2,11 @@ package net.gtaun.wl.vehicle.stat;
 
 import java.util.Date;
 
-import net.gtaun.shoebill.object.Player;
-
-public interface PlayerVehicleStatistic
+public interface GlobalVehicleStatistic
 {
-	Player getPlayer();
 	int getModelId();
 	long getSpawnCount();
+	long getFavoriteCount();
 	double getDamageCount();
 	long getDriveCount();
 	long getDriveTimeCount();

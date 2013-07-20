@@ -1,6 +1,7 @@
 package net.gtaun.wl.vehicle.stat;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,8 +14,8 @@ import net.gtaun.shoebill.event.timer.TimerTickEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Timer;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.util.event.ManagedEventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
+import net.gtaun.util.event.ManagedEventManager;
 
 import com.google.code.morphia.Datastore;
 
@@ -24,7 +25,7 @@ public class VehicleStatisticManager
 	private final PlayerLifecycleHolder playerLifecycleHolder;
 	private final Datastore datastore;
 
-	private Map<Integer, VehicleStatistic> globalVehicleStatistics;
+	private Map<Integer, GlobalVehicleStatisticImpl> globalVehicleStatistics;
 	private Timer saveTimer;
 	
 	
@@ -63,7 +64,7 @@ public class VehicleStatisticManager
 	{
 		for (int id : VehicleModel.getIds())
 		{
-			VehicleStatistic statistic = new VehicleStatistic(id);
+			GlobalVehicleStatisticImpl statistic = new GlobalVehicleStatisticImpl(id);
 			globalVehicleStatistics.put(id, statistic);
 			datastore.get(statistic);
 		}
@@ -76,17 +77,28 @@ public class VehicleStatisticManager
 		Collection<PlayerVehicleStatisticActuator> actuators = playerLifecycleHolder.getObjects(PlayerVehicleStatisticActuator.class);
 		for (PlayerVehicleStatisticActuator actuator : actuators) actuator.save();
 	}
-	
-	public VehicleStatistic getGlobalVehicleStatistic(int modelId)
+
+	public GlobalVehicleStatisticImpl getGlobalVehicleStatistic(int modelId)
 	{
-		VehicleStatistic statistic = globalVehicleStatistics.get(modelId);
+		GlobalVehicleStatisticImpl statistic = globalVehicleStatistics.get(modelId);
 		return statistic;
 	}
 	
-	public PlayerVehicleStatistic getPlayerVehicleStatistic(Player player, int modelId)
+	public Collection<GlobalVehicleStatistic> getGlobalVehicleStatistics()
+	{
+		return Collections.unmodifiableCollection((Collection<? extends GlobalVehicleStatistic>) globalVehicleStatistics.values());
+	}
+	
+	public PlayerVehicleStatisticImpl getPlayerVehicleStatistic(Player player, int modelId)
 	{
 		PlayerVehicleStatisticActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticActuator.class);
 		return actuator.getVehicleStatistic(modelId);
+	}
+	
+	public Collection<PlayerVehicleStatistic> getPlayerVehicleStatistics(Player player)
+	{
+		PlayerVehicleStatisticActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticActuator.class);
+		return Collections.unmodifiableCollection((Collection<? extends PlayerVehicleStatistic>) actuator.getVehicleStatistics());
 	}
 	
 	private TimerEventHandler saveTimerEventHandler = new TimerEventHandler()

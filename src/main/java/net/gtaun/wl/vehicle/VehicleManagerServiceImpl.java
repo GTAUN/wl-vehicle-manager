@@ -14,6 +14,7 @@
 package net.gtaun.wl.vehicle;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -34,6 +35,8 @@ import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
 import net.gtaun.util.event.ManagedEventManager;
 import net.gtaun.wl.vehicle.dialog.VehicleManagerDialog;
+import net.gtaun.wl.vehicle.stat.GlobalVehicleStatistic;
+import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
 import net.gtaun.wl.vehicle.stat.VehicleStatisticManager;
 
 import com.google.code.morphia.Datastore;
@@ -88,6 +91,15 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 		statisticManager.destroy();
 		eventManager.cancelAll();
 	}
+	
+	@Override
+	public Vehicle createOwnVehicle(Player player, int modelId)
+	{
+		Vehicle vehicle = shoebill.getSampObjectFactory().createVehicle(modelId, player.getLocation(), 0, 0, 3600);
+		ownVehicle(player, vehicle);
+		statisticManager.getPlayerVehicleStatistic(player, modelId).onSpawn();
+		return vehicle;
+	}
 
 	@Override
 	public void ownVehicle(Player player, Vehicle vehicle)
@@ -129,6 +141,30 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	public boolean isOwned(Vehicle vehicle)
 	{
 		return ownedVehicles.contains(vehicle);
+	}
+
+	@Override
+	public GlobalVehicleStatistic getGlobalVehicleStatistic(int modelId)
+	{
+		return null;
+	}
+
+	@Override
+	public Collection<GlobalVehicleStatistic> getGlobalVehicleStatistics()
+	{
+		return statisticManager.getGlobalVehicleStatistics();
+	}
+
+	@Override
+	public PlayerVehicleStatistic getPlayerVehicleStatistic(Player player, int modelId)
+	{
+		return statisticManager.getPlayerVehicleStatistic(player, modelId);
+	}
+
+	@Override
+	public Collection<PlayerVehicleStatistic> getPlayerVehicleStatistics(Player player)
+	{
+		return statisticManager.getPlayerVehicleStatistics(player);
 	}
 	
 	@Override

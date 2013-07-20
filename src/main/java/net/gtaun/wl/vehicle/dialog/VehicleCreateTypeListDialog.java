@@ -49,8 +49,7 @@ public class VehicleCreateTypeListDialog extends AbstractPageListDialog
 				{
 					player.playSound(1057, player.getLocation());
 					
-					Vehicle vehicle = shoebill.getSampObjectFactory().createVehicle(modelId, player.getLocation(), 0.0f, 0, 0, 3600);
-					vehicleManager.ownVehicle(player, vehicle);
+					Vehicle vehicle = vehicleManager.createOwnVehicle(player, modelId);
 					vehicle.putPlayer(player, 0);
 					player.sendMessage(Color.LIGHTBLUE, "%1$s: 您的专属座驾 %2$s 已创建！", "车管", VehicleModel.getName(vehicle.getModelId()));
 					destroy();
