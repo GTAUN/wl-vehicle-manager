@@ -16,8 +16,8 @@ package net.gtaun.wl.vehicle.dialog;
 import java.util.List;
 
 import net.gtaun.shoebill.Shoebill;
-import net.gtaun.shoebill.common.VehicleUtils;
 import net.gtaun.shoebill.common.dialog.AbstractListDialog;
+import net.gtaun.shoebill.common.vehicle.VehicleUtils;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.Color;
