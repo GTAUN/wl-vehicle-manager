@@ -24,18 +24,13 @@ public class VehicleStatistic
 	private Date lastUpdate;					// 上次更新时间
 	
 
-	public VehicleStatistic()
-	{
-		
-	}
-	
 	public VehicleStatistic(int modelId)
 	{
 		this.modelId = modelId;
 	}
 	
 	@PostLoad
-	void PostLoad()
+	void postLoad()
 	{
 		
 	}

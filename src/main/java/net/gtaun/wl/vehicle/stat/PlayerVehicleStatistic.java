@@ -2,12 +2,22 @@ package net.gtaun.wl.vehicle.stat;
 
 import java.util.Date;
 
+import net.gtaun.shoebill.object.Player;
+
+import org.bson.types.ObjectId;
+
 import com.google.code.morphia.annotations.Id;
+import com.google.code.morphia.annotations.Indexed;
+import com.google.code.morphia.annotations.Transient;
 
 public class PlayerVehicleStatistic
 {
-	@Id private String playerUniqueId;		// 玩家唯一ID
-	private int modelId;					// 车辆模型ID
+	@Transient private Player player;
+	
+	@Id private ObjectId objectId;
+	
+	@Indexed private String playerUniqueId;			// 玩家唯一ID
+	@Indexed private int modelId;					// 车辆模型ID
 	
 	private int spawnCount;					// 刷车计数器
 	private double damageCount;				// 总伤害值计数器
@@ -18,10 +28,12 @@ public class PlayerVehicleStatistic
 	
 	private Date lastUpdate;				// 上次更新时间
 	
-	
-	public PlayerVehicleStatistic()
-	{
 
+	public PlayerVehicleStatistic(Player player, String playerUniqueId, int modelId)
+	{
+		this.player = player;
+		this.playerUniqueId = playerUniqueId;
+		this.modelId = modelId;
 	}
 	
 	public String getPlayerUniqueId()

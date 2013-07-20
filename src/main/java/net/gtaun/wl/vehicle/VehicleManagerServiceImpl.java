@@ -23,7 +23,6 @@ import java.util.Set;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder;
-import net.gtaun.shoebill.common.player.PlayerLifecycleHolder.PlayerLifecycleObjectFactory;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.event.PlayerEventHandler;
 import net.gtaun.shoebill.event.TimerEventHandler;
@@ -71,7 +70,7 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 		playerLifecycleHolder = new PlayerLifecycleHolder(shoebill, eventManager);
 		
 		statisticSaveTimer = shoebill.getSampObjectFactory().createTimer(1000*60*5);
-		statisticManager = new VehicleStatisticManager(eventManager, this.datastore);
+		statisticManager = new VehicleStatisticManager(eventManager, playerLifecycleHolder, this.datastore);
 		
 		playerOwnedVehicles = new HashMap<>();
 		ownedVehicles = new HashSet<>();
@@ -81,15 +80,7 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	
 	private void initialize()
 	{
-		PlayerLifecycleObjectFactory<PlayerVehicleActuator> playerVehicleActuatorFactory = new PlayerLifecycleObjectFactory<PlayerVehicleActuator>()
-		{
-			@Override
-			public PlayerVehicleActuator create(Player player)
-			{
-				return new PlayerVehicleActuator(shoebill, eventManager, player);
-			}
-		};
-		playerLifecycleHolder.registerClass(PlayerVehicleActuator.class, playerVehicleActuatorFactory);
+		playerLifecycleHolder.registerClass(PlayerVehicleActuator.class);
 		
 		eventManager.registerHandler(TimerTickEvent.class, statisticSaveTimer, statisticSaveTimerEventHandler, HandlerPriority.NORMAL);
 		
