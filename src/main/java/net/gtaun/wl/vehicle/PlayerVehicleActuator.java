@@ -1,10 +1,18 @@
 package net.gtaun.wl.vehicle;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder.PlayerLifecycleObject;
 import net.gtaun.shoebill.constant.PlayerKey;
 import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
+import net.gtaun.shoebill.constant.VehicleModel;
+import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Quaternion;
 import net.gtaun.shoebill.data.Velocity;
 import net.gtaun.shoebill.event.PlayerEventHandler;
@@ -12,6 +20,7 @@ import net.gtaun.shoebill.event.TimerEventHandler;
 import net.gtaun.shoebill.event.VehicleEventHandler;
 import net.gtaun.shoebill.event.player.PlayerKeyStateChangeEvent;
 import net.gtaun.shoebill.event.player.PlayerStateChangeEvent;
+import net.gtaun.shoebill.event.player.PlayerTextEvent;
 import net.gtaun.shoebill.event.timer.TimerTickEvent;
 import net.gtaun.shoebill.event.vehicle.VehicleUpdateDamageEvent;
 import net.gtaun.shoebill.event.vehicle.VehicleUpdateEvent;
@@ -24,6 +33,24 @@ import net.gtaun.util.event.EventManager.HandlerPriority;
 
 class PlayerVehicleActuator extends PlayerLifecycleObject
 {
+	private static final Map<String, Integer> VEHICLE_SHORT_NAMES = createVehicleShortNames();
+	private static Map<String, Integer> createVehicleShortNames()
+	{
+		Map<String, Integer> map = new HashMap<>();
+		for (int id : VehicleModel.getIds())
+		{
+			String name = VehicleModel.getName(id);
+			name = StringUtils.replace(name, " ", "");
+			name = StringUtils.replace(name, "-", "");
+			name = name.substring(0, 3).toUpperCase();
+			map.put(name, id);
+		}
+		
+		return Collections.unmodifiableMap(map);
+	}
+	
+	
+	private final VehicleManagerService vehicleManager;
 	private final Timer timer;
 	
 	boolean isLockNOS;
@@ -31,9 +58,11 @@ class PlayerVehicleActuator extends PlayerLifecycleObject
 	boolean isAutoFlip;
 	
 	
-	public PlayerVehicleActuator(Shoebill shoebill, EventManager eventManager, Player player)
+	public PlayerVehicleActuator(Shoebill shoebill, EventManager eventManager, Player player, VehicleManagerService vehicleManager)
 	{
 		super(shoebill, eventManager, player);
+		this.vehicleManager = vehicleManager;
+		
 		timer = shoebill.getSampObjectFactory().createTimer(10000);
 		addDestroyable(timer);
 	}
@@ -43,6 +72,7 @@ class PlayerVehicleActuator extends PlayerLifecycleObject
 	{
 		eventManager.registerHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.NORMAL);
 		
+		eventManager.registerHandler(PlayerTextEvent.class, player, playerEventHandler, HandlerPriority.MONITOR);
 		eventManager.registerHandler(PlayerKeyStateChangeEvent.class, player, playerEventHandler, HandlerPriority.NORMAL);
 		eventManager.registerHandler(PlayerStateChangeEvent.class, player, playerEventHandler, HandlerPriority.NORMAL);
 		
@@ -75,6 +105,53 @@ class PlayerVehicleActuator extends PlayerLifecycleObject
 	
 	private PlayerEventHandler playerEventHandler = new PlayerEventHandler()
 	{
+		protected void onPlayerText(PlayerTextEvent event)
+		{
+			Player player = event.getPlayer();
+			String text = event.getText();
+			
+			if (text.charAt(0) != '\\') return;
+			
+			event.disallow();
+			event.interrupt();
+			
+			if (text.length() < 4)
+			{
+				player.sendMessage(Color.LIGHTBLUE, "%1$s: 快捷刷车命令用法：\\[车辆模型ID] 或者 \\[车辆名字前三位] ，比如 \\411 或者 \\tur 。", "车管");
+				return;
+			}
+			
+			String name = text.substring(1);
+			name = StringUtils.replace(name, " ", "");
+			name = StringUtils.replace(name, "-", "");
+			name = name.substring(0, Math.min(name.length(), 3)).toUpperCase();
+			
+			int modelId;
+			if (StringUtils.isNumeric(name))
+			{
+				modelId = Integer.parseInt(name);
+				if (VehicleModel.isVaildId(modelId) == false)
+				{
+					player.sendMessage(Color.LIGHTBLUE, "%1$s: 不是合法的车辆模型ID %2$d 。", "车管", modelId);
+					return;
+				}
+			}
+			else if (VEHICLE_SHORT_NAMES.containsKey(name) == false)
+			{
+				player.sendMessage(Color.LIGHTBLUE, "%1$s: 不存在这个车辆简写名称 %2$s 。", "车管", name);
+				return;
+			}
+			else
+			{
+				modelId = VEHICLE_SHORT_NAMES.get(name);
+			}
+			
+			player.playSound(1057, player.getLocation());
+			Vehicle vehicle = vehicleManager.createOwnVehicle(player, modelId);
+			vehicle.putPlayer(player, 0);
+			player.sendMessage(Color.LIGHTBLUE, "%1$s: 您的专属座驾 %2$s 已创建！", "车管", VehicleModel.getName(vehicle.getModelId()));
+		}
+		
 		protected void onPlayerStateChange(PlayerStateChangeEvent event)
 		{
 			Player player = event.getPlayer();

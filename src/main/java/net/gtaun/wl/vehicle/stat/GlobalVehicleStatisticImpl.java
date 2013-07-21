@@ -1,7 +1,6 @@
 package net.gtaun.wl.vehicle.stat;
 
 import java.util.Date;
-import java.util.List;
 
 import com.google.code.morphia.annotations.Entity;
 import com.google.code.morphia.annotations.Id;
@@ -20,7 +19,7 @@ public class GlobalVehicleStatisticImpl implements GlobalVehicleStatistic
 	private long driveTimeCount;				// 总驾驶时间，单位秒
 	private double driveOdometer;				// 总驾驶距离，单位米
 	
-	private List<Integer> dailySpawnCount;		// 最近 n 日刷车数，计划 n=30
+	//private List<Integer> dailySpawnCount;		// 最近 n 日刷车数，计划 n=30
 	private Date lastUpdate;					// 上次更新时间
 	
 

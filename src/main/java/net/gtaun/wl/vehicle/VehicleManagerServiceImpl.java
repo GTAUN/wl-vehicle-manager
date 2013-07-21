@@ -20,10 +20,12 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Random;
 import java.util.Set;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder;
+import net.gtaun.shoebill.common.player.PlayerLifecycleHolder.PlayerLifecycleObjectFactory;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.event.PlayerEventHandler;
 import net.gtaun.shoebill.event.player.PlayerCommandEvent;
@@ -78,7 +80,15 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	
 	private void initialize()
 	{
-		playerLifecycleHolder.registerClass(PlayerVehicleActuator.class);
+		PlayerLifecycleObjectFactory<PlayerVehicleActuator> factory = new PlayerLifecycleObjectFactory<PlayerVehicleActuator>()
+		{
+			@Override
+			public PlayerVehicleActuator create(Shoebill shoebill, EventManager eventManager, Player player)
+			{
+				return new PlayerVehicleActuator(shoebill, eventManager, player, VehicleManagerServiceImpl.this);
+			}
+		};
+		playerLifecycleHolder.registerClass(PlayerVehicleActuator.class, factory);
 		
 		eventManager.registerHandler(PlayerConnectEvent.class, playerEventHandler, HandlerPriority.NORMAL);
 		eventManager.registerHandler(PlayerDisconnectEvent.class, playerEventHandler, HandlerPriority.NORMAL);
@@ -95,7 +105,9 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	@Override
 	public Vehicle createOwnVehicle(Player player, int modelId)
 	{
-		Vehicle vehicle = shoebill.getSampObjectFactory().createVehicle(modelId, player.getLocation(), 0, 0, 3600);
+		Random random = new Random();
+		
+		Vehicle vehicle = shoebill.getSampObjectFactory().createVehicle(modelId, player.getLocation(), random.nextInt(256), random.nextInt(256), 3600);
 		ownVehicle(player, vehicle);
 		
 		statisticManager.getPlayerVehicleStatistic(player, modelId).onSpawn();
