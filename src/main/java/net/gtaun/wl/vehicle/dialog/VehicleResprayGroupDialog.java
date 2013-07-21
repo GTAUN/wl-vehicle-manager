@@ -96,7 +96,7 @@ public class VehicleResprayGroupDialog extends AbstractListDialog
 				public void onItemSelect()
 				{
 					player.playSound(1083, player.getLocation());
-					new VehicleResprayDialog(player, shoebill, eventManager, vehicle, vehicleManager, index, max).show();
+					new VehicleResprayDialog(player, shoebill, eventManager, vehicle, vehicleManager, index, max, color1).show();
 					destroy();
 				}
 			});

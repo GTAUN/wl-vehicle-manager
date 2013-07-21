@@ -19,11 +19,14 @@ import java.util.Map.Entry;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractListDialog;
+import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.constant.VehicleModel.VehicleType;
 import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.vehicle.VehicleManagerService;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 public class VehicleCreateMainDialog extends AbstractListDialog
 {
@@ -70,6 +73,18 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 		this.vehicleManager = vehicleManager;
 		
 		setCaption(String.format("%1$s: 刷车 - 车辆类型选择", "车管"));
+		
+		dialogListItems.add(new DialogListItem("列出所有车辆 - 按人气排序")
+		{
+			@Override
+			public void onItemSelect()
+			{
+				player.playSound(1083, player.getLocation());
+				int[] vehicleModelIds = ArrayUtils.toPrimitive(VehicleModel.getIds().toArray(new Integer[0]));
+				new VehicleCreateSetListDialog(player, shoebill, eventManager, vehicleManager, "所有车辆", vehicleModelIds).show();
+				destroy();
+			}
+		});
 		
 		for (Entry<String, int[]> entry : COMMON_VEHICLES.entrySet())
 		{
