@@ -50,7 +50,7 @@ public class PlayerVehicleStatisticDialog extends AbstractDialog
 		double avgDamagePer10Minutes = stat.getDamageCount() / 1000.0f / stat.getDriveTimeCount() * 60 * 10;
 		
 		long seconds = stat.getDriveTimeCount() % 60;
-		long minutes = stat.getDriveTimeCount() / 60;
+		long minutes = (stat.getDriveTimeCount() / 60) % 60;
 		long hours = stat.getDriveTimeCount() / 60 / 60;
 		String formatedTime = String.format("%1$d小时 %2$d分 %3$d秒", hours, minutes, seconds);
 		

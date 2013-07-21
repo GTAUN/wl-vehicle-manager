@@ -62,7 +62,7 @@ public class GlobalStatisticDialog extends AbstractDialog
 		double avgDamagePer10Minutes = damageCount / 1000.0f / driveSecondCount * 60 * 10;
 		
 		long seconds = driveSecondCount % 60;
-		long minutes = driveSecondCount / 60;
+		long minutes = (driveSecondCount / 60) % 60;
 		long hours = driveSecondCount / 60 / 60;
 		String formatedTime = String.format("%1$d小时 %2$d分 %3$d秒", hours, minutes, seconds);
 		

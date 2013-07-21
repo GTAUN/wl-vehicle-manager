@@ -174,7 +174,8 @@ public class VehicleDialog extends AbstractListDialog
 			@Override
 			public boolean isEnabled()
 			{
-				return VehicleUtils.getVehiclePassengers(vehicle).isEmpty() == false;
+				if (VehicleUtils.getVehiclePassengers(vehicle).isEmpty()) return false;
+				return VehicleUtils.isVehicleDriver(vehicle, player);
 			}
 			
 			@Override
@@ -198,7 +199,7 @@ public class VehicleDialog extends AbstractListDialog
 			@Override
 			public boolean isEnabled()
 			{
-				if (player.getVehicle() != vehicle) return false;
+				if (VehicleUtils.isVehicleDriver(vehicle, player) == false) return false;
 				return VehicleComponentModel.isVehicleSupportAnyComponment(vehicle.getModelId());
 			}
 			
