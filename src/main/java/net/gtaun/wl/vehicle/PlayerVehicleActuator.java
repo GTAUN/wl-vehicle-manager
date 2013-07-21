@@ -2,18 +2,22 @@ package net.gtaun.wl.vehicle;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder.PlayerLifecycleObject;
+import net.gtaun.shoebill.constant.PlayerKey;
 import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
+import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Quaternion;
 import net.gtaun.shoebill.data.Velocity;
 import net.gtaun.shoebill.event.PlayerEventHandler;
 import net.gtaun.shoebill.event.TimerEventHandler;
 import net.gtaun.shoebill.event.VehicleEventHandler;
+import net.gtaun.shoebill.event.player.PlayerKeyStateChangeEvent;
 import net.gtaun.shoebill.event.player.PlayerStateChangeEvent;
 import net.gtaun.shoebill.event.timer.TimerTickEvent;
 import net.gtaun.shoebill.event.vehicle.VehicleUpdateDamageEvent;
 import net.gtaun.shoebill.event.vehicle.VehicleUpdateEvent;
 import net.gtaun.shoebill.object.Player;
+import net.gtaun.shoebill.object.PlayerKeyState;
 import net.gtaun.shoebill.object.Timer;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
@@ -40,6 +44,7 @@ class PlayerVehicleActuator extends PlayerLifecycleObject
 	{
 		eventManager.registerHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.NORMAL);
 		
+		eventManager.registerHandler(PlayerKeyStateChangeEvent.class, player, playerEventHandler, HandlerPriority.NORMAL);
 		eventManager.registerHandler(PlayerStateChangeEvent.class, player, playerEventHandler, HandlerPriority.NORMAL);
 		
 		eventManager.registerHandler(VehicleUpdateEvent.class, vehicleEventHandler, HandlerPriority.BOTTOM);
@@ -85,6 +90,41 @@ class PlayerVehicleActuator extends PlayerLifecycleObject
 				}
 				
 				if (isAutoRepair && vehicle.getHealth() < 1000.0f) vehicle.repair();
+			}
+		}
+		
+		protected void onPlayerKeyStateChange(PlayerKeyStateChangeEvent event)
+		{
+			Player player = event.getPlayer();
+			PlayerKeyState state = player.getKeyState();
+			
+			Vehicle vehicle = player.getVehicle();
+			if (vehicle == null || player.getState() != PlayerState.DRIVER) return;
+
+			if (state.isKeyPressed(PlayerKey.ACTION))
+			{
+				if (state.isKeyPressed(PlayerKey.ANALOG_LEFT))
+				{
+					int color1 = vehicle.getColor1() - 1;
+					if (color1 < 0) color1 += 256;
+					vehicle.setColor(color1, vehicle.getColor2());
+				}
+				else if (state.isKeyPressed(PlayerKey.ANALOG_RIGHT))
+				{
+					int color1 = (vehicle.getColor1() + 1) % 256;
+					vehicle.setColor(color1, vehicle.getColor2());
+				}
+				else if (state.isKeyPressed(PlayerKey.ANALOG_UP))
+				{
+					int color2 = vehicle.getColor2() - 1;
+					if (color2 < 0) color2 += 256;
+					vehicle.setColor(vehicle.getColor1(), color2);
+				}
+				else if (state.isKeyPressed(PlayerKey.ANALOG_DOWN))
+				{
+					int color2 = (vehicle.getColor2() + 1) % 256;
+					vehicle.setColor(vehicle.getColor1(), color2);
+				}
 			}
 		}
 	};
