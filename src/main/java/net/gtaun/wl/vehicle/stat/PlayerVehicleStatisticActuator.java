@@ -9,12 +9,16 @@ import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder.PlayerLifecycleObject;
 import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.constant.VehicleModel;
-import net.gtaun.shoebill.data.Color;
+import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.event.PlayerEventHandler;
+import net.gtaun.shoebill.event.TimerEventHandler;
 import net.gtaun.shoebill.event.VehicleEventHandler;
 import net.gtaun.shoebill.event.player.PlayerStateChangeEvent;
+import net.gtaun.shoebill.event.timer.TimerTickEvent;
+import net.gtaun.shoebill.event.vehicle.VehicleUpdateDamageEvent;
 import net.gtaun.shoebill.event.vehicle.VehicleUpdateEvent;
 import net.gtaun.shoebill.object.Player;
+import net.gtaun.shoebill.object.Timer;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
@@ -26,12 +30,15 @@ public class PlayerVehicleStatisticActuator extends PlayerLifecycleObject
 	private final Datastore datastore;
 	private Map<Integer, PlayerVehicleStatisticImpl> vehicleStatistics;
 	
+	private Timer timer;
+	
 	
 	public PlayerVehicleStatisticActuator(Shoebill shoebill, EventManager eventManager, Player player, Datastore datastore)
 	{
 		super(shoebill, eventManager, player);
 		this.datastore = datastore;
 		vehicleStatistics = new HashMap<>();
+		timer = shoebill.getSampObjectFactory().createTimer(1000);
 	}
 	
 	@Override
@@ -40,13 +47,21 @@ public class PlayerVehicleStatisticActuator extends PlayerLifecycleObject
 		load();
 		
 		eventManager.registerHandler(PlayerStateChangeEvent.class, player, playerEventHandler, HandlerPriority.MONITOR);
+
 		eventManager.registerHandler(VehicleUpdateEvent.class, vehicleEventHandler, HandlerPriority.MONITOR);
+		eventManager.registerHandler(VehicleUpdateDamageEvent.class, vehicleEventHandler, HandlerPriority.MONITOR);
+		
+		eventManager.registerHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.MONITOR);
+		
+		timer.start();
 	}
 	
 	@Override
 	protected void onUninitialize()
 	{
 		save();
+		
+		timer.destroy();
 	}
 	
 	public void load()
@@ -82,6 +97,7 @@ public class PlayerVehicleStatisticActuator extends PlayerLifecycleObject
 		return vehicleStatistics.values();
 	}
 	
+	private Location lastVehicleLocation;
 	private float lastVehicleHealth;
 	
 	private PlayerEventHandler playerEventHandler = new PlayerEventHandler()
@@ -94,6 +110,8 @@ public class PlayerVehicleStatisticActuator extends PlayerLifecycleObject
 				PlayerVehicleStatisticImpl statistic = getVehicleStatistic(vehicle.getModelId());
 				lastVehicleHealth = vehicle.getHealth();
 				statistic.onDrive();
+				
+				lastVehicleLocation = vehicle.getLocation();
 			}
 			else
 			{
@@ -110,17 +128,44 @@ public class PlayerVehicleStatisticActuator extends PlayerLifecycleObject
 			if (vehicle != player.getVehicle()) return;
 
 			PlayerVehicleStatisticImpl statistic = getVehicleStatistic(vehicle.getModelId());
-			float health = vehicle.getHealth();
 			
+			float health = vehicle.getHealth();
 			if (lastVehicleHealth > health)
 			{
 				float damage = lastVehicleHealth - health;
 				statistic.onDamage(damage);
-				
-				player.sendMessage(Color.WHITE, "DEBUG: 车子损伤 " + damage);
+			}
+			lastVehicleHealth = health;
+		}
+	};
+	
+	private TimerEventHandler timerEventHandler = new TimerEventHandler()
+	{
+		@Override
+		protected void onTimerTick(TimerTickEvent event)
+		{
+			Vehicle vehicle = player.getVehicle();
+			if (vehicle == null) return;
+			
+			PlayerVehicleStatisticImpl statistic = getVehicleStatistic(vehicle.getModelId());
+			
+			float speed = vehicle.getVelocity().speed3d() * 50;
+			if (speed > 0.0f) statistic.onDriveTick();
+			
+			Location location = vehicle.getLocation();
+			float distance = location.distance(lastVehicleLocation);
+			if (distance == Float.POSITIVE_INFINITY) distance = 0.0f;
+			
+			if (distance > 0.0f && distance < 150.0f && distance > speed*2/3)
+			{
+				statistic.onDriveMove(distance);
+			}
+			else
+			{
+				statistic.onDriveMove(speed);
 			}
 			
-			lastVehicleHealth = health;
+			lastVehicleLocation = location;
 		}
 	};
 }

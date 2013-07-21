@@ -113,4 +113,16 @@ public class PlayerVehicleStatisticImpl implements PlayerVehicleStatistic
 		damageCount += val;
 		lastUpdate = new Date();
 	}
+	
+	public void onDriveTick()
+	{
+		driveTimeCount++;
+		lastUpdate = new Date();
+	}
+	
+	public void onDriveMove(float distance)
+	{
+		driveOdometer += distance;
+		lastUpdate = new Date();
+	}
 }

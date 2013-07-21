@@ -12,11 +12,11 @@ public class GlobalVehicleStatisticImpl implements GlobalVehicleStatistic
 {
 	@Id private int modelId;					// 车辆模型ID
 	
-	private long spawnCount;						// 刷车总计数器
+	private long spawnCount;					// 刷车总计数器
 	private long favoriteCount;					// 被收藏数
 	private double damageCount;					// 总伤害值计数器
 	
-	private long driveCount;						// 驾驶次数
+	private long driveCount;					// 驾驶次数
 	private long driveTimeCount;				// 总驾驶时间，单位秒
 	private double driveOdometer;				// 总驾驶距离，单位米
 	
@@ -27,6 +27,11 @@ public class GlobalVehicleStatisticImpl implements GlobalVehicleStatistic
 	public GlobalVehicleStatisticImpl(int modelId)
 	{
 		this.modelId = modelId;
+	}
+	
+	protected GlobalVehicleStatisticImpl()
+	{
+
 	}
 	
 	@PostLoad

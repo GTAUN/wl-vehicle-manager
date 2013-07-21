@@ -182,17 +182,30 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	}
 	
 	@Override
-	public boolean isPlayerLockVehicleHealth(Player player)
+	public boolean isPlayerAutoRepair(Player player)
 	{
 		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		return actuator.isLockVHP;
+		return actuator.isAutoRepair;
 	}
 
 	@Override
-	public void setPlayerLockVehicleHealth(Player player, boolean lock)
+	public void setPlayerAutoRepair(Player player, boolean lock)
 	{
 		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		actuator.isLockVHP = lock;
+		actuator.isAutoRepair = lock;
+	}
+	
+	@Override
+	public boolean isPlayerAutoFlip(Player player)
+	{
+		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
+		return actuator.isAutoFlip;
+	}
+	
+	public void setPlayerAutoFlip(Player player, boolean lock)
+	{
+		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
+		actuator.isAutoFlip = lock;
 	}
 	
 	private PlayerEventHandler playerEventHandler = new PlayerEventHandler()

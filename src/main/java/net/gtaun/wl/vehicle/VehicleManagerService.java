@@ -28,8 +28,8 @@ public interface VehicleManagerService extends Service
 	/**
 	 * 设置玩家拥有的车辆。
 	 * 
-	 * @param player
-	 * @param vehicle
+	 * @param player 目标玩家
+	 * @param vehicle 目标车辆
 	 */
 	void ownVehicle(Player player, Vehicle vehicle);
 	void unownVehicle(Player player);
@@ -40,8 +40,11 @@ public interface VehicleManagerService extends Service
 	boolean isPlayerLockNos(Player player);
 	void setPlayerLockNos(Player player, boolean lock);
 	
-	boolean isPlayerLockVehicleHealth(Player player);
-	void setPlayerLockVehicleHealth(Player player, boolean lock);
+	boolean isPlayerAutoRepair(Player player);
+	void setPlayerAutoRepair(Player player, boolean lock);
+	
+	boolean isPlayerAutoFlip(Player player);
+	void setPlayerAutoFlip(Player player, boolean lock);
 
 	GlobalVehicleStatistic getGlobalVehicleStatistic(int modelId);
 	Collection<GlobalVehicleStatistic> getGlobalVehicleStatistics();

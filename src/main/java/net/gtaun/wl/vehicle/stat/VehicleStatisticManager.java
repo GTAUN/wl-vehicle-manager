@@ -3,6 +3,7 @@ package net.gtaun.wl.vehicle.stat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.gtaun.shoebill.Shoebill;
@@ -62,11 +63,18 @@ public class VehicleStatisticManager
 	
 	public void load()
 	{
+		List<GlobalVehicleStatisticImpl> statistics = datastore.createQuery(GlobalVehicleStatisticImpl.class).asList();
+		for (GlobalVehicleStatisticImpl statistic : statistics)
+		{
+			globalVehicleStatistics.put(statistic.getModelId(), statistic);
+		}
+		
 		for (int id : VehicleModel.getIds())
 		{
+			if (globalVehicleStatistics.containsKey(id)) continue;
+			
 			GlobalVehicleStatisticImpl statistic = new GlobalVehicleStatisticImpl(id);
 			globalVehicleStatistics.put(id, statistic);
-			datastore.get(statistic);
 		}
 	}
 	

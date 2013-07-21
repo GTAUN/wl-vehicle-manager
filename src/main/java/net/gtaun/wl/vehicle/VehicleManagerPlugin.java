@@ -17,12 +17,16 @@ import java.io.File;
 
 import net.gtaun.shoebill.common.ConfigurablePlugin;
 import net.gtaun.wl.vehicle.config.VehicleManagerConfig;
+import net.gtaun.wl.vehicle.stat.GlobalVehicleStatisticImpl;
+import net.gtaun.wl.vehicle.stat.PlayerVehicleStatisticImpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.code.morphia.Datastore;
 import com.google.code.morphia.Morphia;
+import com.google.code.morphia.mapping.DefaultCreator;
+import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
 public class VehicleManagerPlugin extends ConfigurablePlugin
@@ -50,7 +54,18 @@ public class VehicleManagerPlugin extends ConfigurablePlugin
 		config = new VehicleManagerConfig(new File(getDataDir(), "config.yml"));
 		
 		mongoClient = new MongoClient(config.getDbHost());
+		
 		morphia = new Morphia();
+		morphia.getMapper().getOptions().objectFactory = new DefaultCreator()
+		{
+            @Override
+            protected ClassLoader getClassLoaderForClass(String clazz, DBObject object)
+            {
+                return getClass().getClassLoader();
+            }
+        };
+		morphia.map(GlobalVehicleStatisticImpl.class);
+		morphia.map(PlayerVehicleStatisticImpl.class);
 		
 		if (config.getDbUser().isEmpty() || config.getDbPass().isEmpty())
 		{

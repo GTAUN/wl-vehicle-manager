@@ -3,6 +3,8 @@ package net.gtaun.wl.vehicle;
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder.PlayerLifecycleObject;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
+import net.gtaun.shoebill.data.Quaternion;
+import net.gtaun.shoebill.data.Velocity;
 import net.gtaun.shoebill.event.TimerEventHandler;
 import net.gtaun.shoebill.event.VehicleEventHandler;
 import net.gtaun.shoebill.event.timer.TimerTickEvent;
@@ -19,7 +21,8 @@ class PlayerVehicleActuator extends PlayerLifecycleObject
 	private final Timer timer;
 	
 	boolean isLockNOS;
-	boolean isLockVHP;
+	boolean isAutoRepair;
+	boolean isAutoFlip;
 	
 	
 	public PlayerVehicleActuator(Shoebill shoebill, EventManager eventManager, Player player)
@@ -65,13 +68,35 @@ class PlayerVehicleActuator extends PlayerLifecycleObject
 		protected void onVehicleUpdate(VehicleUpdateEvent event)
 		{
 			Vehicle vehicle = event.getVehicle();
-			if (isLockVHP && vehicle.getHealth() < 1000.0f) vehicle.repair();
+
+			if (isAutoFlip)
+			{
+				Quaternion quat = vehicle.getRotationQuat();
+				final float w = quat.getW();
+				final float x = quat.getX();
+				final float y = quat.getY();
+				final float z = quat.getZ();
+				
+				float t11 = 2*(w*x+y*z);
+				float t12 = 1-2*(x*x+y*y);
+				float rx = (float) Math.atan2(t11,t12);
+
+				Velocity velocity = vehicle.getVelocity();
+				if( (vehicle.getHealth() < 250.0f || velocity.speed3d()*50 < 5.0f) &&
+					(rx < -Math.PI/4*3 || rx > Math.PI/4*3) )
+				{
+					vehicle.setLocation(vehicle.getLocation());
+					vehicle.setVelocity(velocity);
+				}
+			}
+			
+			if (isAutoRepair && vehicle.getHealth() < 1000.0f) vehicle.repair();
 		}
 		
 		protected void onVehicleUpdateDamage(VehicleUpdateDamageEvent event)
 		{
 			Vehicle vehicle = event.getVehicle();
-			if (isLockVHP && vehicle == player.getVehicle()) vehicle.repair();
+			if (isAutoRepair && vehicle == player.getVehicle()) vehicle.repair();
 		}
 	};
 }
