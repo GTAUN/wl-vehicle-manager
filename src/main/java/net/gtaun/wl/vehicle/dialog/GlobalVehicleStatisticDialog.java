@@ -9,17 +9,17 @@ import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.vehicle.VehicleManagerService;
-import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
+import net.gtaun.wl.vehicle.stat.GlobalVehicleStatistic;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 
-public class VehiclePlayerStatisticDialog extends AbstractDialog
+public class GlobalVehicleStatisticDialog extends AbstractDialog
 {
 	private final Vehicle vehicle;
 	private final VehicleManagerService vehicleManager;
 	
 	
-	public VehiclePlayerStatisticDialog(Player player, Shoebill shoebill, EventManager rootEventManager, final Vehicle vehicle, final VehicleManagerService vehicleManager)
+	public GlobalVehicleStatisticDialog(Player player, Shoebill shoebill, EventManager rootEventManager, final Vehicle vehicle, final VehicleManagerService vehicleManager)
 	{
 		super(DialogStyle.MSGBOX, player, shoebill, rootEventManager);
 		this.vehicle = vehicle;
@@ -31,9 +31,9 @@ public class VehiclePlayerStatisticDialog extends AbstractDialog
 	{
 		int modelId = vehicle.getModelId();
 		String name = VehicleModel.getName(modelId);
-		PlayerVehicleStatistic stat = vehicleManager.getPlayerVehicleStatistic(player, modelId);
+		GlobalVehicleStatistic stat = vehicleManager.getGlobalVehicleStatistic(modelId);
 		
-		String caption = String.format("%1$s: %2$s (模型: %3$d) 的个人统计信息", "车管", name, modelId);
+		String caption = String.format("%1$s: %2$s (模型: %3$d) 的全局统计信息", "车管", name, modelId);
 		setCaption(caption);
 		
 		String textFormat = caption + "\n" +
@@ -46,7 +46,7 @@ public class VehiclePlayerStatisticDialog extends AbstractDialog
 						"平均爆车率: %7$1.1f辆 / 10分钟\n" +
 						"最后更新时间: %8$s";
 
-		double avgSpeed = stat.getDriveOdometer() / 1000.0f / stat.getDriveTimeCount() * 60 * 60;
+		double avgSpeed = stat.getDriveOdometer() / stat.getDriveTimeCount() * 60 * 60 / 1000.0f;
 		double avgDamagePer10Minutes = stat.getDamageCount() / 1000.0f / stat.getDriveTimeCount() * 60 * 10;
 		
 		long seconds = stat.getDriveTimeCount() % 60;

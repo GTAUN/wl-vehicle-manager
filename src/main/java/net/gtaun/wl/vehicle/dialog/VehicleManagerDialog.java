@@ -97,17 +97,6 @@ public class VehicleManagerDialog extends AbstractListDialog
 			}
 		});
 		
-		dialogListItems.add(new DialogListItem("显示个人统计信息")
-		{
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				new PlayerStatisticDialog(player, shoebill, eventManager, vehicleManager).show();
-				destroy();
-			}
-		});
-		
 		dialogListItems.add(new DialogListItemSwitch("无限氮气加速")
 		{
 			@Override
@@ -156,6 +145,28 @@ public class VehicleManagerDialog extends AbstractListDialog
 				player.playSound(1083, player.getLocation());
 				vehicleManager.setPlayerAutoFlip(player, !vehicleManager.isPlayerAutoFlip(player));
 				show();
+			}
+		});
+		
+		dialogListItems.add(new DialogListItem("显示个人统计信息")
+		{
+			@Override
+			public void onItemSelect()
+			{
+				player.playSound(1083, player.getLocation());
+				new PlayerStatisticDialog(player, shoebill, eventManager, vehicleManager).show();
+				destroy();
+			}
+		});
+		
+		dialogListItems.add(new DialogListItem("显示全局统计信息")
+		{
+			@Override
+			public void onItemSelect()
+			{
+				player.playSound(1083, player.getLocation());
+				new GlobalStatisticDialog(player, shoebill, eventManager, vehicleManager).show();
+				destroy();
 			}
 		});
 	}

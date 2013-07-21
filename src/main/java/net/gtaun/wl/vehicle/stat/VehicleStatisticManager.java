@@ -44,7 +44,7 @@ public class VehicleStatisticManager
 			@Override
 			public PlayerVehicleStatisticActuator create(Shoebill shoebill, EventManager eventManager, Player player)
 			{
-				return new PlayerVehicleStatisticActuator(shoebill, eventManager, player, VehicleStatisticManager.this.datastore);
+				return new PlayerVehicleStatisticActuator(shoebill, eventManager, player, VehicleStatisticManager.this, VehicleStatisticManager.this.datastore);
 			}
 		};
 		playerLifecycleHolder.registerClass(PlayerVehicleStatisticActuator.class, factory);

@@ -10,16 +10,16 @@ import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.vehicle.VehicleManagerService;
-import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
+import net.gtaun.wl.vehicle.stat.GlobalVehicleStatistic;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 
-public class PlayerStatisticDialog extends AbstractDialog
+public class GlobalStatisticDialog extends AbstractDialog
 {
 	private final VehicleManagerService vehicleManager;
 	
 	
-	public PlayerStatisticDialog(Player player, Shoebill shoebill, EventManager rootEventManager, final VehicleManagerService vehicleManager)
+	public GlobalStatisticDialog(Player player, Shoebill shoebill, EventManager rootEventManager, final VehicleManagerService vehicleManager)
 	{
 		super(DialogStyle.MSGBOX, player, shoebill, rootEventManager);
 		this.vehicleManager = vehicleManager;
@@ -32,8 +32,8 @@ public class PlayerStatisticDialog extends AbstractDialog
 		double damageCount = 0.0f, driveOdometer = 0.0f;
 		Date lastUpdate = new Date(0);
 		
-		Collection<PlayerVehicleStatistic> stats = vehicleManager.getPlayerVehicleStatistics(player);
-		for (PlayerVehicleStatistic stat : stats)
+		Collection<GlobalVehicleStatistic> stats = vehicleManager.getGlobalVehicleStatistics();
+		for (GlobalVehicleStatistic stat : stats)
 		{
 			spawnCount += stat.getSpawnCount();
 			driveCount += stat.getDriveCount();
@@ -45,7 +45,7 @@ public class PlayerStatisticDialog extends AbstractDialog
 			if (update != null && lastUpdate.before(update)) lastUpdate = update;
 		}
 		
-		String caption = String.format("%1$s: 所有车辆的个人统计信息", "车管");
+		String caption = String.format("%1$s: 所有车辆的全局统计信息", "车管");
 		setCaption(caption);
 		
 		String textFormat = caption + "\n" +

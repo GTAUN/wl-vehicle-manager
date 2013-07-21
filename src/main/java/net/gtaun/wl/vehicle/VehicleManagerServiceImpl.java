@@ -97,7 +97,9 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	{
 		Vehicle vehicle = shoebill.getSampObjectFactory().createVehicle(modelId, player.getLocation(), 0, 0, 3600);
 		ownVehicle(player, vehicle);
+		
 		statisticManager.getPlayerVehicleStatistic(player, modelId).onSpawn();
+		statisticManager.getGlobalVehicleStatistic(modelId).onSpawn();
 		return vehicle;
 	}
 
@@ -146,7 +148,7 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	@Override
 	public GlobalVehicleStatistic getGlobalVehicleStatistic(int modelId)
 	{
-		return null;
+		return statisticManager.getGlobalVehicleStatistic(modelId);
 	}
 
 	@Override

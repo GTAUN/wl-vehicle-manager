@@ -240,7 +240,18 @@ public class VehicleDialog extends AbstractListDialog
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				new VehiclePlayerStatisticDialog(player, shoebill, eventManager, vehicle, vehicleManager).show();
+				new PlayerVehicleStatisticDialog(player, shoebill, eventManager, vehicle, vehicleManager).show();
+				destroy();
+			}
+		});
+		
+		dialogListItems.add(new DialogListItem("显示此车辆的全局统计信息")
+		{
+			@Override
+			public void onItemSelect()
+			{
+				player.playSound(1083, player.getLocation());
+				new GlobalVehicleStatisticDialog(player, shoebill, eventManager, vehicle, vehicleManager).show();
 				destroy();
 			}
 		});

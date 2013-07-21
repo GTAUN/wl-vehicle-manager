@@ -87,4 +87,34 @@ public class GlobalVehicleStatisticImpl implements GlobalVehicleStatistic
 	{
 		return lastUpdate;
 	}
+	
+	public void onSpawn()
+	{
+		spawnCount++;
+		lastUpdate = new Date();
+	}
+
+	public void onDrive()
+	{
+		driveCount++;
+		lastUpdate = new Date();
+	}
+	
+	public void onDamage(float val)
+	{
+		damageCount += val;
+		lastUpdate = new Date();
+	}
+	
+	public void onDriveTick()
+	{
+		driveTimeCount++;
+		lastUpdate = new Date();
+	}
+	
+	public void onDriveMove(float distance)
+	{
+		driveOdometer += distance;
+		lastUpdate = new Date();
+	}
 }

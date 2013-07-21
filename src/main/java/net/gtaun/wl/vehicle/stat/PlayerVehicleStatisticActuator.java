@@ -27,16 +27,19 @@ import com.google.code.morphia.Datastore;
 
 public class PlayerVehicleStatisticActuator extends PlayerLifecycleObject
 {
+	private final VehicleStatisticManager statisticManager;
 	private final Datastore datastore;
-	private Map<Integer, PlayerVehicleStatisticImpl> vehicleStatistics;
 	
+	private Map<Integer, PlayerVehicleStatisticImpl> vehicleStatistics;
 	private Timer timer;
 	
 	
-	public PlayerVehicleStatisticActuator(Shoebill shoebill, EventManager eventManager, Player player, Datastore datastore)
+	public PlayerVehicleStatisticActuator(Shoebill shoebill, EventManager eventManager, Player player, VehicleStatisticManager statisticManager, Datastore datastore)
 	{
 		super(shoebill, eventManager, player);
+		this.statisticManager = statisticManager;
 		this.datastore = datastore;
+		
 		vehicleStatistics = new HashMap<>();
 		timer = shoebill.getSampObjectFactory().createTimer(1000);
 	}
@@ -107,9 +110,14 @@ public class PlayerVehicleStatisticActuator extends PlayerLifecycleObject
 			if (player.getState() == PlayerState.DRIVER)
 			{
 				Vehicle vehicle = player.getVehicle();
-				PlayerVehicleStatisticImpl statistic = getVehicleStatistic(vehicle.getModelId());
+				int modelId = vehicle.getModelId();
+				
+				PlayerVehicleStatisticImpl stat = getVehicleStatistic(modelId);
+				GlobalVehicleStatisticImpl globalStat = statisticManager.getGlobalVehicleStatistic(modelId);
+				
 				lastVehicleHealth = vehicle.getHealth();
-				statistic.onDrive();
+				stat.onDrive();
+				globalStat.onDrive();
 				
 				lastVehicleLocation = vehicle.getLocation();
 			}
@@ -127,13 +135,16 @@ public class PlayerVehicleStatisticActuator extends PlayerLifecycleObject
 			Vehicle vehicle = event.getVehicle();
 			if (vehicle != player.getVehicle()) return;
 
-			PlayerVehicleStatisticImpl statistic = getVehicleStatistic(vehicle.getModelId());
+			final int modelId = vehicle.getModelId();
+			PlayerVehicleStatisticImpl stat = getVehicleStatistic(modelId);
+			GlobalVehicleStatisticImpl globalStat = statisticManager.getGlobalVehicleStatistic(modelId);
 			
 			float health = vehicle.getHealth();
 			if (lastVehicleHealth > health)
 			{
 				float damage = lastVehicleHealth - health;
-				statistic.onDamage(damage);
+				stat.onDamage(damage);
+				globalStat.onDamage(damage);
 			}
 			lastVehicleHealth = health;
 		}
@@ -146,11 +157,17 @@ public class PlayerVehicleStatisticActuator extends PlayerLifecycleObject
 		{
 			Vehicle vehicle = player.getVehicle();
 			if (vehicle == null) return;
-			
-			PlayerVehicleStatisticImpl statistic = getVehicleStatistic(vehicle.getModelId());
+
+			final int modelId = vehicle.getModelId();
+			PlayerVehicleStatisticImpl stat = getVehicleStatistic(modelId);
+			GlobalVehicleStatisticImpl globalStat = statisticManager.getGlobalVehicleStatistic(modelId);
 			
 			float speed = vehicle.getVelocity().speed3d() * 50;
-			if (speed > 0.0f) statistic.onDriveTick();
+			if (speed > 0.0f)
+			{
+				stat.onDriveTick();
+				globalStat.onDriveTick();
+			}
 			
 			Location location = vehicle.getLocation();
 			float distance = location.distance(lastVehicleLocation);
@@ -158,11 +175,13 @@ public class PlayerVehicleStatisticActuator extends PlayerLifecycleObject
 			
 			if (distance > 0.0f && distance < 150.0f && distance > speed*2/3)
 			{
-				statistic.onDriveMove(distance);
+				stat.onDriveMove(distance);
+				globalStat.onDriveMove(distance);
 			}
 			else
 			{
-				statistic.onDriveMove(speed);
+				stat.onDriveMove(speed);
+				globalStat.onDriveMove(speed);
 			}
 			
 			lastVehicleLocation = location;
