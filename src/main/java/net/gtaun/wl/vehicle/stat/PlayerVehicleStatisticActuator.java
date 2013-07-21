@@ -133,7 +133,7 @@ public class PlayerVehicleStatisticActuator extends PlayerLifecycleObject
 		protected void onVehicleUpdate(VehicleUpdateEvent event)
 		{
 			Vehicle vehicle = event.getVehicle();
-			if (vehicle != player.getVehicle()) return;
+			if (player.getState() != PlayerState.DRIVER || vehicle != player.getVehicle()) return;
 
 			final int modelId = vehicle.getModelId();
 			PlayerVehicleStatisticImpl stat = getVehicleStatistic(modelId);
@@ -155,10 +155,11 @@ public class PlayerVehicleStatisticActuator extends PlayerLifecycleObject
 		@Override
 		protected void onTimerTick(TimerTickEvent event)
 		{
+			if (player.getState() != PlayerState.DRIVER) return;
+			
 			Vehicle vehicle = player.getVehicle();
-			if (vehicle == null) return;
-
 			final int modelId = vehicle.getModelId();
+			
 			PlayerVehicleStatisticImpl stat = getVehicleStatistic(modelId);
 			GlobalVehicleStatisticImpl globalStat = statisticManager.getGlobalVehicleStatistic(modelId);
 			

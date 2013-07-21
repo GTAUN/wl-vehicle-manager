@@ -2,11 +2,14 @@ package net.gtaun.wl.vehicle;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder.PlayerLifecycleObject;
+import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
 import net.gtaun.shoebill.data.Quaternion;
 import net.gtaun.shoebill.data.Velocity;
+import net.gtaun.shoebill.event.PlayerEventHandler;
 import net.gtaun.shoebill.event.TimerEventHandler;
 import net.gtaun.shoebill.event.VehicleEventHandler;
+import net.gtaun.shoebill.event.player.PlayerStateChangeEvent;
 import net.gtaun.shoebill.event.timer.TimerTickEvent;
 import net.gtaun.shoebill.event.vehicle.VehicleUpdateDamageEvent;
 import net.gtaun.shoebill.event.vehicle.VehicleUpdateEvent;
@@ -36,6 +39,9 @@ class PlayerVehicleActuator extends PlayerLifecycleObject
 	protected void onInitialize()
 	{
 		eventManager.registerHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.NORMAL);
+		
+		eventManager.registerHandler(PlayerStateChangeEvent.class, player, playerEventHandler, HandlerPriority.NORMAL);
+		
 		eventManager.registerHandler(VehicleUpdateEvent.class, vehicleEventHandler, HandlerPriority.BOTTOM);
 		eventManager.registerHandler(VehicleUpdateDamageEvent.class, vehicleEventHandler, HandlerPriority.BOTTOM);
 		timer.start();
@@ -51,14 +57,34 @@ class PlayerVehicleActuator extends PlayerLifecycleObject
 	{
 		protected void onTimerTick(TimerTickEvent event)
 		{
-			if (player.isInAnyVehicle())
+			if (player.getState() == PlayerState.DRIVER)
 			{
 				Vehicle vehicle = player.getVehicle();
-				int vehicleModel = vehicle.getModelId();
-				if (isLockNOS && VehicleComponentModel.isVehicleSupported(vehicleModel, VehicleComponentModel.NITRO_10_TIMES))
+				int modelId = vehicle.getModelId();
+				if (isLockNOS && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
 				{
 					vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
 				}
+			}
+		}
+	};
+	
+	private PlayerEventHandler playerEventHandler = new PlayerEventHandler()
+	{
+		protected void onPlayerStateChange(PlayerStateChangeEvent event)
+		{
+			Player player = event.getPlayer();
+			if (player.getState() == PlayerState.DRIVER)
+			{
+				Vehicle vehicle = player.getVehicle();
+				int modelId = vehicle.getModelId();
+				
+				if (isLockNOS && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
+				{
+					vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
+				}
+				
+				if (isAutoRepair && vehicle.getHealth() < 1000.0f) vehicle.repair();
 			}
 		}
 	};
@@ -68,6 +94,7 @@ class PlayerVehicleActuator extends PlayerLifecycleObject
 		protected void onVehicleUpdate(VehicleUpdateEvent event)
 		{
 			Vehicle vehicle = event.getVehicle();
+			if (player.getState() != PlayerState.DRIVER || vehicle != player.getVehicle()) return;
 
 			if (isAutoFlip)
 			{
@@ -96,6 +123,8 @@ class PlayerVehicleActuator extends PlayerLifecycleObject
 		protected void onVehicleUpdateDamage(VehicleUpdateDamageEvent event)
 		{
 			Vehicle vehicle = event.getVehicle();
+			if (player.getState() != PlayerState.DRIVER || vehicle != player.getVehicle()) return;
+			
 			if (isAutoRepair && vehicle == player.getVehicle()) vehicle.repair();
 		}
 	};
