@@ -12,6 +12,7 @@ import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.vehicle.VehicleManagerService;
+import net.gtaun.wl.vehicle.stat.GlobalVehicleStatistic;
 import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
 
 public class VehicleCreateSetListDialog extends AbstractPageListDialog
@@ -34,7 +35,7 @@ public class VehicleCreateSetListDialog extends AbstractPageListDialog
 			final int seats = VehicleModel.getSeats(modelId);
 
 			PlayerVehicleStatistic stat = vehicleManager.getPlayerVehicleStatistic(player, modelId);
-			PlayerVehicleStatistic globalStat = vehicleManager.getPlayerVehicleStatistic(player, modelId);
+			GlobalVehicleStatistic globalStat = vehicleManager.getGlobalVehicleStatistic(modelId);
 			
 			driveCount = stat.getDriveCount();
 			globalDriveCount = globalStat.getDriveCount();
