@@ -79,7 +79,7 @@ public class VehicleCreateSetListDialog extends AbstractPageListDialog
 	@Override
 	public void show()
 	{
-		setCaption(String.format("%1$s: 刷车 - 车辆类型选择 - 集合：%2$s (%3$d/%4$d)", "车管", setName, getCurrentPage() + 1, getMaxPage() + 1));
+		setCaption(String.format("%1$s: 刷车 - 车辆选择 - %2$s (%3$d/%4$d)", "车管", setName, getCurrentPage() + 1, getMaxPage() + 1));
 		super.show();
 	}
 	

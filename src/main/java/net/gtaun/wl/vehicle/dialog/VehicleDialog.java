@@ -75,6 +75,7 @@ public class VehicleDialog extends AbstractListDialog
 			public boolean isEnabled()
 			{
 				if (vehicleManager.isOwned(vehicle)) return false;
+				if (VehicleUtils.getVehicleDriver(vehicle) != player) return false;
 				return true;
 			}
 			

@@ -91,13 +91,14 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 			final String setname = entry.getKey();
 			final int[] set = entry.getValue();
 			
-			dialogListItems.add(new DialogListItem("常用列表: " + setname)
+			final String itemName = "常用列表: " + setname;
+			dialogListItems.add(new DialogListItem(itemName)
 			{
 				@Override
 				public void onItemSelect()
 				{
 					player.playSound(1083, player.getLocation());
-					new VehicleCreateSetListDialog(player, shoebill, eventManager, vehicleManager, setname, set).show();
+					new VehicleCreateSetListDialog(player, shoebill, eventManager, vehicleManager, itemName, set).show();
 					destroy();
 				}
 			});
@@ -107,14 +108,16 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 		{
 			final VehicleType type = entry.getKey();
 			final String typename = entry.getValue();
-			
-			dialogListItems.add(new DialogListItem("类型: " + typename)
+
+			final String itemName = "类型: " + typename;
+			dialogListItems.add(new DialogListItem(itemName)
 			{
 				@Override
 				public void onItemSelect()
 				{
 					player.playSound(1083, player.getLocation());
-					new VehicleCreateTypeListDialog(player, shoebill, eventManager, vehicleManager, typename, type).show();
+					int[] vehicleModelIds = ArrayUtils.toPrimitive(VehicleModel.getIds(type).toArray(new Integer[0]));
+					new VehicleCreateSetListDialog(player, shoebill, eventManager, vehicleManager, itemName, vehicleModelIds).show();
 					destroy();
 				}
 			});

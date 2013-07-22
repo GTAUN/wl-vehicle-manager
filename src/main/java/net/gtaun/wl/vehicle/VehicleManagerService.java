@@ -38,13 +38,13 @@ public interface VehicleManagerService extends Service
 	boolean isOwned(Vehicle vehicle);
 
 	boolean isPlayerUnlimitedNOS(Player player);
-	void setPlayerUnlimitedNOS(Player player, boolean lock);
+	void setPlayerUnlimitedNOS(Player player, boolean enabled);
 	
 	boolean isPlayerAutoRepair(Player player);
-	void setPlayerAutoRepair(Player player, boolean lock);
+	void setPlayerAutoRepair(Player player, boolean enabled);
 	
 	boolean isPlayerAutoFlip(Player player);
-	void setPlayerAutoFlip(Player player, boolean lock);
+	void setPlayerAutoFlip(Player player, boolean enabled);
 
 	GlobalVehicleStatistic getGlobalVehicleStatistic(int modelId);
 	Collection<GlobalVehicleStatistic> getGlobalVehicleStatistics();
