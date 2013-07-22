@@ -1,5 +1,7 @@
 package net.gtaun.wl.vehicle.dialog;
 
+import java.util.Date;
+
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.constant.DialogStyle;
@@ -54,11 +56,14 @@ public class PlayerVehicleStatisticDialog extends AbstractDialog
 		long hours = stat.getDriveTimeCount() / 60 / 60;
 		String formatedTime = String.format("%1$d小时 %2$d分 %3$d秒", hours, minutes, seconds);
 		
+		String lastUpdateString = "从未";
+		Date lastUpdate = stat.getLastUpdate();
+		if (lastUpdate != null) lastUpdateString = DateFormatUtils.ISO_DATETIME_FORMAT.format(lastUpdate);
+		
 		String text = String.format
 		(
 			textFormat, stat.getSpawnCount(), stat.getDamageCount()/1000.0f, stat.getDriveCount(), formatedTime,
-			stat.getDriveOdometer()/1000.0f, avgSpeed, avgDamagePer10Minutes,
-			DateFormatUtils.ISO_DATETIME_FORMAT.format(stat.getLastUpdate())
+			stat.getDriveOdometer()/1000.0f, avgSpeed, avgDamagePer10Minutes, lastUpdateString
 		);
 		
 		show(text);

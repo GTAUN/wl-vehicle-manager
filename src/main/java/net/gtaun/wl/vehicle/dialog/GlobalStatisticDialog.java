@@ -65,12 +65,14 @@ public class GlobalStatisticDialog extends AbstractDialog
 		long minutes = (driveSecondCount / 60) % 60;
 		long hours = driveSecondCount / 60 / 60;
 		String formatedTime = String.format("%1$d小时 %2$d分 %3$d秒", hours, minutes, seconds);
+
+		String lastUpdateString = "从未";
+		if (lastUpdate != null) lastUpdateString = DateFormatUtils.ISO_DATETIME_FORMAT.format(lastUpdate);
 		
 		String text = String.format
 		(
 			textFormat, spawnCount, damageCount/1000.0f, driveCount, formatedTime,
-			driveOdometer/1000.0f, avgSpeed, avgDamagePer10Minutes,
-			DateFormatUtils.ISO_DATETIME_FORMAT.format(lastUpdate)
+			driveOdometer/1000.0f, avgSpeed, avgDamagePer10Minutes, lastUpdateString
 		);
 		
 		show(text);
