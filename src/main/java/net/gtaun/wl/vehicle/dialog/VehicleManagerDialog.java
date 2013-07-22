@@ -102,14 +102,14 @@ public class VehicleManagerDialog extends AbstractListDialog
 			@Override
 			public boolean isSwitched()
 			{
-				return vehicleManager.isPlayerLockNos(player);
+				return vehicleManager.isPlayerUnlimitedNOS(player);
 			}
 			
 			@Override
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				vehicleManager.setPlayerLockNos(player, !vehicleManager.isPlayerLockNos(player));
+				vehicleManager.setPlayerUnlimitedNOS(player, !vehicleManager.isPlayerUnlimitedNOS(player));
 				show();
 			}
 		});

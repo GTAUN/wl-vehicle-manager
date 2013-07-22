@@ -37,8 +37,8 @@ public interface VehicleManagerService extends Service
 	Vehicle getOwnedVehicle(Player player);
 	boolean isOwned(Vehicle vehicle);
 
-	boolean isPlayerLockNos(Player player);
-	void setPlayerLockNos(Player player, boolean lock);
+	boolean isPlayerUnlimitedNOS(Player player);
+	void setPlayerUnlimitedNOS(Player player, boolean lock);
 	
 	boolean isPlayerAutoRepair(Player player);
 	void setPlayerAutoRepair(Player player, boolean lock);

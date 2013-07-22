@@ -182,44 +182,44 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	}
 	
 	@Override
-	public boolean isPlayerLockNos(Player player)
+	public boolean isPlayerUnlimitedNOS(Player player)
 	{
 		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		return actuator.isLockNOS;
+		return actuator.isUnlimitedNOS();
 	}
 	
 	@Override
-	public void setPlayerLockNos(Player player, boolean lock)
+	public void setPlayerUnlimitedNOS(Player player, boolean enabled)
 	{
 		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		actuator.isLockNOS = lock;
+		actuator.setUnlimitedNOS(enabled);
 	}
 	
 	@Override
 	public boolean isPlayerAutoRepair(Player player)
 	{
 		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		return actuator.isAutoRepair;
+		return actuator.isAutoRepair();
 	}
 
 	@Override
-	public void setPlayerAutoRepair(Player player, boolean lock)
+	public void setPlayerAutoRepair(Player player, boolean enabled)
 	{
 		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		actuator.isAutoRepair = lock;
+		actuator.setAutoRepair(enabled);
 	}
 	
 	@Override
 	public boolean isPlayerAutoFlip(Player player)
 	{
 		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		return actuator.isAutoFlip;
+		return actuator.isAutoFlip();
 	}
 	
-	public void setPlayerAutoFlip(Player player, boolean lock)
+	public void setPlayerAutoFlip(Player player, boolean enabled)
 	{
 		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		actuator.isAutoFlip = lock;
+		actuator.setAutoFlip(enabled);
 	}
 	
 	private PlayerEventHandler playerEventHandler = new PlayerEventHandler()

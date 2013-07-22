@@ -53,9 +53,9 @@ class PlayerVehicleActuator extends PlayerLifecycleObject
 	private final VehicleManagerService vehicleManager;
 	private final Timer timer;
 	
-	boolean isLockNOS;
-	boolean isAutoRepair;
-	boolean isAutoFlip;
+	private boolean isLockNOS;
+	private boolean isAutoRepair;
+	private boolean isAutoFlip;
 	
 	
 	public PlayerVehicleActuator(Shoebill shoebill, EventManager eventManager, Player player, VehicleManagerService vehicleManager)
@@ -85,6 +85,49 @@ class PlayerVehicleActuator extends PlayerLifecycleObject
 	protected void onUninitialize()
 	{
 		
+	}
+	
+	public boolean isUnlimitedNOS()
+	{
+		return isLockNOS;
+	}
+	
+	public boolean isAutoRepair()
+	{
+		return isAutoRepair;
+	}
+	
+	public boolean isAutoFlip()
+	{
+		return isAutoFlip;
+	}
+	
+	public void setUnlimitedNOS(boolean enabled)
+	{
+		this.isLockNOS = enabled;
+		
+		Vehicle vehicle = player.getVehicle();
+		if (vehicle == null) return;
+		
+		if (isLockNOS && VehicleComponentModel.isVehicleSupported(vehicle.getModelId(), VehicleComponentModel.NITRO_10_TIMES))
+		{
+			vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
+		}
+	}
+	
+	public void setAutoRepair(boolean enabled)
+	{
+		this.isAutoRepair = enabled;
+
+		Vehicle vehicle = player.getVehicle();
+		if (vehicle == null) return;
+		
+		if (isAutoRepair && vehicle.getHealth() < 1000.0f) vehicle.repair();
+	}
+	
+	public void setAutoFlip(boolean enabled)
+	{
+		this.isAutoFlip = enabled;
 	}
 	
 	private TimerEventHandler timerEventHandler = new TimerEventHandler()
