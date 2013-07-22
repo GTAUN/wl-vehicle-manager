@@ -81,7 +81,7 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 			{
 				player.playSound(1083, player.getLocation());
 				int[] vehicleModelIds = ArrayUtils.toPrimitive(VehicleModel.getIds().toArray(new Integer[0]));
-				new VehicleCreateSetListDialog(player, shoebill, eventManager, vehicleManager, "所有车辆", vehicleModelIds).show();
+				new VehicleCreateListDialog(player, shoebill, eventManager, vehicleManager, "所有车辆", vehicleModelIds).show();
 				destroy();
 			}
 		});
@@ -98,7 +98,7 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 				public void onItemSelect()
 				{
 					player.playSound(1083, player.getLocation());
-					new VehicleCreateSetListDialog(player, shoebill, eventManager, vehicleManager, itemName, set).show();
+					new VehicleCreateListDialog(player, shoebill, eventManager, vehicleManager, itemName, set).show();
 					destroy();
 				}
 			});
@@ -117,7 +117,7 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 				{
 					player.playSound(1083, player.getLocation());
 					int[] vehicleModelIds = ArrayUtils.toPrimitive(VehicleModel.getIds(type).toArray(new Integer[0]));
-					new VehicleCreateSetListDialog(player, shoebill, eventManager, vehicleManager, itemName, vehicleModelIds).show();
+					new VehicleCreateListDialog(player, shoebill, eventManager, vehicleManager, itemName, vehicleModelIds).show();
 					destroy();
 				}
 			});

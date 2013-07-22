@@ -15,7 +15,7 @@ import net.gtaun.wl.vehicle.VehicleManagerService;
 import net.gtaun.wl.vehicle.stat.GlobalVehicleStatistic;
 import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
 
-public class VehicleCreateSetListDialog extends AbstractPageListDialog
+public class VehicleCreateListDialog extends AbstractPageListDialog
 {
 	private final VehicleManagerService vehicleManager;
 	private final String setName;
@@ -56,7 +56,7 @@ public class VehicleCreateSetListDialog extends AbstractPageListDialog
 	}
 	
 	
-	public VehicleCreateSetListDialog
+	public VehicleCreateListDialog
 	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager, final String setname, int[] modelIds)
 	{
 		super(player, shoebill, eventManager);
