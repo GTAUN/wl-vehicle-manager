@@ -66,7 +66,7 @@ public class VehicleCreateListTextDraw implements Destroyable
 			items.add(textdraw);
 		}
 		
-		eventManager.registerHandler(PlayerClickPlayerTextDrawEvent.class, player, playerEventHandler, HandlerPriority.NORMAL);
+		this.eventManager.registerHandler(PlayerClickPlayerTextDrawEvent.class, player, playerEventHandler, HandlerPriority.NORMAL);
 	}
 	
 	@Override
