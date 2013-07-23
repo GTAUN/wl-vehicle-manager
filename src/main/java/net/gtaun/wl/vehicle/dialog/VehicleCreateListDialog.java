@@ -3,6 +3,8 @@ package net.gtaun.wl.vehicle.dialog;
 import java.util.Collections;
 import java.util.Comparator;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractPageListDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
@@ -14,11 +16,16 @@ import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.vehicle.VehicleManagerService;
 import net.gtaun.wl.vehicle.stat.GlobalVehicleStatistic;
 import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
+import net.gtaun.wl.vehicle.textdraw.VehicleCreateListTextDraw;
+import net.gtaun.wl.vehicle.textdraw.VehicleCreateListTextDraw.ClickCallback;
 
 public class VehicleCreateListDialog extends AbstractPageListDialog
 {
 	private final VehicleManagerService vehicleManager;
 	private final String setName;
+	private final int[] modelIds;
+	
+	private VehicleCreateListTextDraw previewTextDraw;
 	
 	
 	public class DialogListItemVehicle extends DialogListItem
@@ -62,6 +69,7 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 		super(player, shoebill, eventManager);
 		this.vehicleManager = vehicleManager;
 		this.setName = setname;
+		this.modelIds = modelIds;
 		
 		for (int modelId : modelIds) dialogListItems.add(new DialogListItemVehicle(modelId));
 		Collections.sort(dialogListItems, new Comparator<DialogListItem>()
@@ -79,6 +87,28 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 	@Override
 	public void show()
 	{
+		ClickCallback callback = new ClickCallback()
+		{
+			@Override
+			public void onClick(int modelId)
+			{
+				player.cancelDialog();
+				player.playSound(1057, player.getLocation());
+				
+				Vehicle vehicle = vehicleManager.createOwnVehicle(player, modelId);
+				vehicle.putPlayer(player, 0);
+				player.sendMessage(Color.LIGHTBLUE, "%1$s: 您的专属座驾 %2$s 已创建！", "车管", VehicleModel.getName(vehicle.getModelId()));
+				destroy();
+			}
+		};
+		
+		if (previewTextDraw != null) previewTextDraw.destroy();
+		
+		int index = getCurrentPage() * getItemsPerPage();
+		int[] nowIds = ArrayUtils.subarray(modelIds, index, index+getItemsPerPage());
+		previewTextDraw = new VehicleCreateListTextDraw(player, shoebill, rootEventManager, vehicleManager, nowIds, callback);
+		previewTextDraw.show();
+		
 		setCaption(String.format("%1$s: 刷车 - 车辆选择 - %2$s (%3$d/%4$d)", "车管", setName, getCurrentPage() + 1, getMaxPage() + 1));
 		super.show();
 	}
@@ -93,5 +123,12 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 		}
 		
 		super.onDialogResponse(event);
+	}
+	
+	@Override
+	protected void destroy()
+	{
+		if (previewTextDraw != null) previewTextDraw.destroy();
+		super.destroy();
 	}
 }
