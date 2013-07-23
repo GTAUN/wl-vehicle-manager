@@ -1,9 +1,7 @@
 package net.gtaun.wl.vehicle.dialog;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Comparator;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractPageListDialog;
@@ -18,6 +16,8 @@ import net.gtaun.wl.vehicle.stat.GlobalVehicleStatistic;
 import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
 import net.gtaun.wl.vehicle.textdraw.VehicleCreateListTextDraw;
 import net.gtaun.wl.vehicle.textdraw.VehicleCreateListTextDraw.ClickCallback;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 public class VehicleCreateListDialog extends AbstractPageListDialog
 {
@@ -69,19 +69,21 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 		super(player, shoebill, eventManager);
 		this.vehicleManager = vehicleManager;
 		this.setName = setname;
-		this.modelIds = modelIds;
 		
-		for (int modelId : modelIds) dialogListItems.add(new DialogListItemVehicle(modelId));
-		Collections.sort(dialogListItems, new Comparator<DialogListItem>()
+		Integer[] sortedModelIds = ArrayUtils.toObject(modelIds);
+		Arrays.sort(sortedModelIds, new Comparator<Integer>()
 		{
 			@Override
-			public int compare(DialogListItem o1, DialogListItem o2)
+			public int compare(Integer o1, Integer o2)
 			{
-				DialogListItemVehicle obj1 = (DialogListItemVehicle) o1;
-				DialogListItemVehicle obj2 = (DialogListItemVehicle) o2;
-				return (int) (obj2.globalDriveCount - obj1.globalDriveCount);
+				GlobalVehicleStatistic s1 = vehicleManager.getGlobalVehicleStatistic(o1);
+				GlobalVehicleStatistic s2 = vehicleManager.getGlobalVehicleStatistic(o2);
+				return (int) (s2.getDriveCount() - s1.getDriveCount());
 			}
 		});
+		
+		for (int modelId : sortedModelIds) dialogListItems.add(new DialogListItemVehicle(modelId));
+		this.modelIds = ArrayUtils.toPrimitive(sortedModelIds);
 	}
 	
 	@Override
@@ -102,15 +104,15 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 			}
 		};
 		
+		setCaption(String.format("%1$s: 刷车 - 车辆选择 - %2$s (%3$d/%4$d)", "车管", setName, getCurrentPage() + 1, getMaxPage() + 1));
+		super.show();
+		
 		if (previewTextDraw != null) previewTextDraw.destroy();
 		
 		int index = getCurrentPage() * getItemsPerPage();
 		int[] nowIds = ArrayUtils.subarray(modelIds, index, index+getItemsPerPage());
 		previewTextDraw = new VehicleCreateListTextDraw(player, shoebill, rootEventManager, vehicleManager, nowIds, callback);
 		previewTextDraw.show();
-		
-		setCaption(String.format("%1$s: 刷车 - 车辆选择 - %2$s (%3$d/%4$d)", "车管", setName, getCurrentPage() + 1, getMaxPage() + 1));
-		super.show();
 	}
 	
 	@Override

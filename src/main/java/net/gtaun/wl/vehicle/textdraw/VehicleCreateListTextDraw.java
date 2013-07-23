@@ -55,6 +55,7 @@ public class VehicleCreateListTextDraw implements Destroyable
 			PlayerTextdraw textdraw = createPlayerText(factory, player, 2+64*i, 400, "_");
 			textdraw.setFont(TextDrawFont.MODEL_PREVIEW);
 			textdraw.setPreviewModel(modelIds[i]);
+			textdraw.setPreviewModelRotation(-10.0f, 0.0f, -20.0f, 1.0f);
 			textdraw.setSelectable(true);
 			textdraw.setUseBox(true);
 			textdraw.setBoxColor(new Color(100, 120, 140, 192));
@@ -88,7 +89,6 @@ public class VehicleCreateListTextDraw implements Destroyable
 		player.cancelSelectTextDraw();
 		
 		for (PlayerTextdraw textdraw : items) textdraw.destroy();
-		
 		items = null;
 	}
 	
@@ -107,13 +107,14 @@ public class VehicleCreateListTextDraw implements Destroyable
 			if (textdraw != null)
 			{
 				int index = items.indexOf(textdraw);
-				if (index == -1) return;
+				if (index != -1)
+				{
+					event.setProcessed();
+					clickCallback.onClick(modelIds[index]);
+				}
 				
-				event.setProcessed();
-				clickCallback.onClick(modelIds[index]);
+				destroy();
 			}
-			
-			destroy();
 		}
 	};
 	
