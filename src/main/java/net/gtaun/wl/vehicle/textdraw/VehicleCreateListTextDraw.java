@@ -49,10 +49,12 @@ public class VehicleCreateListTextDraw implements Destroyable
 		
 		SampObjectFactory factory = shoebill.getSampObjectFactory();
 		
+		int baseX = 2 + (10 - modelIds.length) * 64 / 2;
+		
 		items = new ArrayList<>(modelIds.length);
 		for (int i=0; i<modelIds.length; i++)
 		{
-			PlayerTextdraw textdraw = createPlayerText(factory, player, 2+64*i, 400, "_");
+			PlayerTextdraw textdraw = createPlayerText(factory, player, baseX+64*i, 400, "_");
 			textdraw.setFont(TextDrawFont.MODEL_PREVIEW);
 			textdraw.setPreviewModel(modelIds[i]);
 			textdraw.setPreviewModelRotation(-10.0f, 0.0f, -20.0f, 1.0f);
