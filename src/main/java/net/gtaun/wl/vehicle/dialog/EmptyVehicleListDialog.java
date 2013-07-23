@@ -46,6 +46,12 @@ public class EmptyVehicleListDialog extends AbstractPageListDialog
 		this.comparator = comparator;
 		this.filter = filter;
 	}
+
+	@Override
+	public void onPageUpdate()
+	{
+		player.playSound(1083, player.getLocation());
+	}
 	
 	@Override
 	public void show()

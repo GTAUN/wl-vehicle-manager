@@ -87,6 +87,12 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 	}
 	
 	@Override
+	public void onPageUpdate()
+	{
+		player.playSound(1083, player.getLocation());
+	}
+	
+	@Override
 	public void show()
 	{
 		ClickCallback callback = new ClickCallback()

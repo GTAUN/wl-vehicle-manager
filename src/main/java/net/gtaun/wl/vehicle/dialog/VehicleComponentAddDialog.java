@@ -3,7 +3,7 @@ package net.gtaun.wl.vehicle.dialog;
 import java.util.Set;
 
 import net.gtaun.shoebill.Shoebill;
-import net.gtaun.shoebill.common.dialog.AbstractPageListDialog;
+import net.gtaun.shoebill.common.dialog.AbstractListDialog;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
 import net.gtaun.shoebill.constant.VehicleComponentSlot;
 import net.gtaun.shoebill.constant.VehicleModel;
@@ -15,7 +15,7 @@ import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.vehicle.VehicleManagerService;
 
-public class VehicleComponentAddDialog extends AbstractPageListDialog
+public class VehicleComponentAddDialog extends AbstractListDialog
 {
 	private final Vehicle vehicle;
 	private final VehicleManagerService vehicleManager;
