@@ -12,6 +12,7 @@ import net.gtaun.shoebill.constant.PlayerKey;
 import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
 import net.gtaun.shoebill.constant.VehicleModel;
+import net.gtaun.shoebill.constant.VehicleModel.VehicleType;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Quaternion;
 import net.gtaun.shoebill.data.Velocity;
@@ -255,8 +256,9 @@ class PlayerVehicleActuator extends PlayerLifecycleObject
 			Vehicle vehicle = event.getVehicle();
 			if (player.getState() != PlayerState.DRIVER || vehicle != player.getVehicle()) return;
 
-			if (isAutoFlip)
-			{
+			int modelId = vehicle.getModelId();
+			if (isAutoFlip && VehicleModel.getType(modelId) != VehicleType.AIRCRAFT)
+			{	
 				Quaternion quat = vehicle.getRotationQuat();
 				final float w = quat.getW();
 				final float x = quat.getX();

@@ -57,11 +57,11 @@ public class VehicleCreateListTextDraw implements Destroyable
 			PlayerTextdraw textdraw = createPlayerText(factory, player, baseX+64*i, 400, "_");
 			textdraw.setFont(TextDrawFont.MODEL_PREVIEW);
 			textdraw.setPreviewModel(modelIds[i]);
-			textdraw.setPreviewModelRotation(-10.0f, 0.0f, -20.0f, 1.0f);
+			textdraw.setPreviewModelRotation(-10.0f, 0.0f, -20.0f, 0.8f);
 			textdraw.setSelectable(true);
 			textdraw.setUseBox(true);
-			textdraw.setBoxColor(new Color(100, 120, 140, 192));
-			textdraw.setBackgroundColor(new Color(100, 120, 140, 192));
+			textdraw.setBoxColor(new Color(100, 120, 140, 0));
+			textdraw.setBackgroundColor(new Color(100, 120, 140, 0));
 			textdraw.setTextSize(60, 60);
 			items.add(textdraw);
 		}
