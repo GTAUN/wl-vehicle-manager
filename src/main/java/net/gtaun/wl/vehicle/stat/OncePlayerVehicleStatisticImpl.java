@@ -53,7 +53,7 @@ public class OncePlayerVehicleStatisticImpl extends AbstractPlayerVehicleProbe i
 	@Override
 	protected void onVehicleDamage(Vehicle vehicle, float damage)
 	{
-		damageCount += damageCount;
+		damageCount += damage;
 		lastUpdate = new Date();
 	}
 	
