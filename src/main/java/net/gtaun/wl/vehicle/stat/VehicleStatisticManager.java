@@ -108,6 +108,18 @@ public class VehicleStatisticManager
 		PlayerVehicleStatisticActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticActuator.class);
 		return Collections.unmodifiableCollection((Collection<? extends PlayerVehicleStatistic>) actuator.getVehicleStatistics());
 	}
+
+	public OncePlayerVehicleStatistic getPlayerNowOnceStatistic(Player player)
+	{
+		PlayerVehicleStatisticActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticActuator.class);
+		return actuator.getNowOnceStatistic();
+	}
+	
+	public List<OncePlayerVehicleStatistic> getPlayerRecordedOnceStatistics(Player player)
+	{
+		PlayerVehicleStatisticActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticActuator.class);
+		return actuator.getRecordedOnceStatistics();
+	}
 	
 	private TimerEventHandler saveTimerEventHandler = new TimerEventHandler()
 	{

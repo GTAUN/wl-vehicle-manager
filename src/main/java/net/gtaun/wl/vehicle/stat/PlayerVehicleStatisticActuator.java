@@ -1,70 +1,60 @@
 package net.gtaun.wl.vehicle.stat;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import net.gtaun.shoebill.Shoebill;
-import net.gtaun.shoebill.common.player.PlayerLifecycleHolder.PlayerLifecycleObject;
-import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.constant.VehicleModel;
-import net.gtaun.shoebill.data.Location;
-import net.gtaun.shoebill.event.PlayerEventHandler;
-import net.gtaun.shoebill.event.TimerEventHandler;
-import net.gtaun.shoebill.event.VehicleEventHandler;
-import net.gtaun.shoebill.event.player.PlayerStateChangeEvent;
-import net.gtaun.shoebill.event.timer.TimerTickEvent;
-import net.gtaun.shoebill.event.vehicle.VehicleUpdateDamageEvent;
-import net.gtaun.shoebill.event.vehicle.VehicleUpdateEvent;
 import net.gtaun.shoebill.object.Player;
-import net.gtaun.shoebill.object.Timer;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.util.event.EventManager.HandlerPriority;
 
 import com.google.code.morphia.Datastore;
 
-public class PlayerVehicleStatisticActuator extends PlayerLifecycleObject
+public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
 {
 	private final VehicleStatisticManager statisticManager;
 	private final Datastore datastore;
 	
 	private Map<Integer, PlayerVehicleStatisticImpl> vehicleStatistics;
-	private Timer timer;
+	
+	private LinkedList<OncePlayerVehicleStatisticImpl> recordedOnceStatistics;
+	private OncePlayerVehicleStatisticImpl nowOnceStatistic;
 	
 	
-	public PlayerVehicleStatisticActuator(Shoebill shoebill, EventManager eventManager, Player player, VehicleStatisticManager statisticManager, Datastore datastore)
+	public PlayerVehicleStatisticActuator(Shoebill shoebill, EventManager rootEventManager, Player player, VehicleStatisticManager statisticManager, Datastore datastore)
 	{
-		super(shoebill, eventManager, player);
+		super(shoebill, rootEventManager, player);
 		this.statisticManager = statisticManager;
 		this.datastore = datastore;
 		
 		vehicleStatistics = new HashMap<>();
-		timer = shoebill.getSampObjectFactory().createTimer(1000);
+		recordedOnceStatistics = new LinkedList<>();
 	}
 	
 	@Override
-	protected void onInitialize()
+	protected void onInit()
 	{
 		load();
+		super.onInit();
 		
-		eventManager.registerHandler(PlayerStateChangeEvent.class, player, playerEventHandler, HandlerPriority.MONITOR);
-
-		eventManager.registerHandler(VehicleUpdateEvent.class, vehicleEventHandler, HandlerPriority.MONITOR);
-		eventManager.registerHandler(VehicleUpdateDamageEvent.class, vehicleEventHandler, HandlerPriority.MONITOR);
-		
-		eventManager.registerHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.MONITOR);
-		
-		timer.start();
+		Vehicle vehicle = player.getVehicle();
+		if (vehicle != null)
+		{
+			nowOnceStatistic = new OncePlayerVehicleStatisticImpl(shoebill, rootEventManager, player);
+			nowOnceStatistic.start();
+		}
 	}
 	
 	@Override
-	protected void onUninitialize()
+	protected void onDestroy()
 	{
+		super.onDestroy();
 		save();
-		
-		timer.destroy();
 	}
 	
 	public void load()
@@ -100,92 +90,74 @@ public class PlayerVehicleStatisticActuator extends PlayerLifecycleObject
 		return vehicleStatistics.values();
 	}
 	
-	private Location lastVehicleLocation;
-	private float lastVehicleHealth;
-	
-	private PlayerEventHandler playerEventHandler = new PlayerEventHandler()
+	public OncePlayerVehicleStatistic getNowOnceStatistic()
 	{
-		protected void onPlayerStateChange(PlayerStateChangeEvent event)
-		{
-			if (player.getState() == PlayerState.DRIVER)
-			{
-				Vehicle vehicle = player.getVehicle();
-				int modelId = vehicle.getModelId();
-				
-				PlayerVehicleStatisticImpl stat = getVehicleStatistic(modelId);
-				GlobalVehicleStatisticImpl globalStat = statisticManager.getGlobalVehicleStatistic(modelId);
-				
-				lastVehicleHealth = vehicle.getHealth();
-				stat.onDrive();
-				globalStat.onDrive();
-				
-				lastVehicleLocation = vehicle.getLocation();
-			}
-			else
-			{
-				lastVehicleHealth = 0.0f;
-			}
-		}
-	};
+		return nowOnceStatistic;
+	}
 	
-	private VehicleEventHandler vehicleEventHandler = new VehicleEventHandler()
+	public List<OncePlayerVehicleStatistic> getRecordedOnceStatistics()
 	{
-		protected void onVehicleUpdate(VehicleUpdateEvent event)
-		{
-			Vehicle vehicle = event.getVehicle();
-			if (player.getState() != PlayerState.DRIVER || vehicle != player.getVehicle()) return;
-
-			final int modelId = vehicle.getModelId();
-			PlayerVehicleStatisticImpl stat = getVehicleStatistic(modelId);
-			GlobalVehicleStatisticImpl globalStat = statisticManager.getGlobalVehicleStatistic(modelId);
-			
-			float health = vehicle.getHealth();
-			if (lastVehicleHealth > health)
-			{
-				float damage = lastVehicleHealth - health;
-				stat.onDamage(damage);
-				globalStat.onDamage(damage);
-			}
-			lastVehicleHealth = health;
-		}
-	};
+		return Collections.unmodifiableList((List<? extends OncePlayerVehicleStatistic>) recordedOnceStatistics);
+	}
 	
-	private TimerEventHandler timerEventHandler = new TimerEventHandler()
+	@Override
+	protected void onDriveVehicle(Vehicle vehicle)
 	{
-		@Override
-		protected void onTimerTick(TimerTickEvent event)
-		{
-			if (player.getState() != PlayerState.DRIVER) return;
-			
-			Vehicle vehicle = player.getVehicle();
-			final int modelId = vehicle.getModelId();
-			
-			PlayerVehicleStatisticImpl stat = getVehicleStatistic(modelId);
-			GlobalVehicleStatisticImpl globalStat = statisticManager.getGlobalVehicleStatistic(modelId);
-			
-			float speed = vehicle.getVelocity().speed3d() * 50;
-			if (speed > 0.0f)
-			{
-				stat.onDriveTick();
-				globalStat.onDriveTick();
-			}
-			
-			Location location = vehicle.getLocation();
-			float distance = location.distance(lastVehicleLocation);
-			if (distance == Float.POSITIVE_INFINITY) distance = 0.0f;
-			
-			if (distance > 0.0f && distance < 150.0f && distance > speed*2/3)
-			{
-				stat.onDriveMove(distance);
-				globalStat.onDriveMove(distance);
-			}
-			else
-			{
-				stat.onDriveMove(speed);
-				globalStat.onDriveMove(speed);
-			}
-			
-			lastVehicleLocation = location;
-		}
-	};
+		int modelId = vehicle.getModelId();
+		
+		PlayerVehicleStatisticImpl stat = getVehicleStatistic(modelId);
+		stat.onDrive();
+		
+		GlobalVehicleStatisticImpl globalStat = statisticManager.getGlobalVehicleStatistic(modelId);
+		globalStat.onDrive();
+		
+		nowOnceStatistic = new OncePlayerVehicleStatisticImpl(shoebill, rootEventManager, player);
+		nowOnceStatistic.start();
+	}
+	
+	@Override
+	protected void onLeaveVehicle(Vehicle vehicle)
+	{
+		nowOnceStatistic.end();
+		recordedOnceStatistics.offerFirst(nowOnceStatistic);
+		nowOnceStatistic = null;
+		
+		super.onLeaveVehicle(vehicle);
+	}
+	
+	@Override
+	protected void onVehicleDamage(Vehicle vehicle, float damage)
+	{
+		final int modelId = vehicle.getModelId();
+		
+		PlayerVehicleStatisticImpl stat = getVehicleStatistic(modelId);
+		stat.onDamage(damage);
+		
+		GlobalVehicleStatisticImpl globalStat = statisticManager.getGlobalVehicleStatistic(modelId);
+		globalStat.onDamage(damage);
+	}
+	
+	@Override
+	protected void onVehicleTick(Vehicle vehicle)
+	{
+		final int modelId = vehicle.getModelId();
+		
+		PlayerVehicleStatisticImpl stat = getVehicleStatistic(modelId);
+		stat.onDriveTick();
+		
+		GlobalVehicleStatisticImpl globalStat = statisticManager.getGlobalVehicleStatistic(modelId);
+		globalStat.onDriveTick();
+	}
+	
+	@Override
+	protected void onVehicleMove(Vehicle vehicle, float distance)
+	{
+		final int modelId = vehicle.getModelId();
+		
+		PlayerVehicleStatisticImpl stat = getVehicleStatistic(modelId);
+		stat.onDriveMove(distance);
+		
+		GlobalVehicleStatisticImpl globalStat = statisticManager.getGlobalVehicleStatistic(modelId);
+		globalStat.onDriveMove(distance);
+	}
 }

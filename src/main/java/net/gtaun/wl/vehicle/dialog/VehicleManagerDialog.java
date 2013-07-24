@@ -30,7 +30,6 @@ public class VehicleManagerDialog extends AbstractListDialog
 	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager)
 	{
 		super(player, shoebill, eventManager);
-		
 		setCaption("车辆管理系统");
 
 		dialogListItems.add(new DialogListItem("当前车辆 ...")
@@ -93,6 +92,17 @@ public class VehicleManagerDialog extends AbstractListDialog
 					player, shoebill, eventManager, vehicleManager,
 					new NearbyVehicleComparator(loc), new DistanceVehicleFilter(loc, 500.0f)
 				).show();
+				destroy();
+			}
+		});
+		
+		dialogListItems.add(new DialogListItem("驾驶记录 ...")
+		{
+			@Override
+			public void onItemSelect()
+			{
+				player.playSound(1083, player.getLocation());
+				new RecordedOnceStatisticDialog(player, shoebill, eventManager, vehicleManager).show();
 				destroy();
 			}
 		});

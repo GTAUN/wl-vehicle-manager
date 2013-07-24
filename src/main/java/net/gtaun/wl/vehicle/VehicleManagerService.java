@@ -14,11 +14,13 @@
 package net.gtaun.wl.vehicle;
 
 import java.util.Collection;
+import java.util.List;
 
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.shoebill.service.Service;
 import net.gtaun.wl.vehicle.stat.GlobalVehicleStatistic;
+import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic;
 import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
 
 public interface VehicleManagerService extends Service
@@ -51,4 +53,7 @@ public interface VehicleManagerService extends Service
 
 	PlayerVehicleStatistic getPlayerVehicleStatistic(Player player, int modelId);
 	Collection<PlayerVehicleStatistic> getPlayerVehicleStatistics(Player player);
+
+	OncePlayerVehicleStatistic getPlayerNowOnceStatistic(Player player);
+	List<OncePlayerVehicleStatistic> getPlayerRecordedOnceStatistics(Player player);
 }

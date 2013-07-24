@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
@@ -38,6 +39,7 @@ import net.gtaun.util.event.EventManager.HandlerPriority;
 import net.gtaun.util.event.ManagedEventManager;
 import net.gtaun.wl.vehicle.dialog.VehicleManagerDialog;
 import net.gtaun.wl.vehicle.stat.GlobalVehicleStatistic;
+import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic;
 import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
 import net.gtaun.wl.vehicle.stat.VehicleStatisticManager;
 
@@ -179,6 +181,18 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	public Collection<PlayerVehicleStatistic> getPlayerVehicleStatistics(Player player)
 	{
 		return statisticManager.getPlayerVehicleStatistics(player);
+	}
+	
+	@Override
+	public OncePlayerVehicleStatistic getPlayerNowOnceStatistic(Player player)
+	{
+		return statisticManager.getPlayerNowOnceStatistic(player);
+	}
+	
+	@Override
+	public List<OncePlayerVehicleStatistic> getPlayerRecordedOnceStatistics(Player player)
+	{
+		return statisticManager.getPlayerRecordedOnceStatistics(player);
 	}
 	
 	@Override

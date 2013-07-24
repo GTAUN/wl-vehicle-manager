@@ -4,10 +4,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-
 import net.gtaun.shoebill.Shoebill;
-import net.gtaun.shoebill.common.player.PlayerLifecycleHolder.PlayerLifecycleObject;
+import net.gtaun.shoebill.common.player.AbstractPlayerContext;
 import net.gtaun.shoebill.constant.PlayerKey;
 import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
@@ -32,7 +30,9 @@ import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
 
-class PlayerVehicleActuator extends PlayerLifecycleObject
+import org.apache.commons.lang3.StringUtils;
+
+class PlayerVehicleActuator extends AbstractPlayerContext
 {
 	private static final Map<String, Integer> VEHICLE_SHORT_NAMES = createVehicleShortNames();
 	private static Map<String, Integer> createVehicleShortNames()
@@ -69,7 +69,7 @@ class PlayerVehicleActuator extends PlayerLifecycleObject
 	}
 
 	@Override
-	protected void onInitialize()
+	protected void onInit()
 	{
 		eventManager.registerHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.NORMAL);
 		
@@ -83,7 +83,7 @@ class PlayerVehicleActuator extends PlayerLifecycleObject
 	}
 
 	@Override
-	protected void onUninitialize()
+	protected void onDestroy()
 	{
 		
 	}
