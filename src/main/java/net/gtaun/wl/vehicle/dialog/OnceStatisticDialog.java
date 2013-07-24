@@ -33,18 +33,18 @@ public class OnceStatisticDialog extends AbstractDialog
 		int modelId = stat.getModelId();
 		String name = VehicleModel.getName(modelId);
 
-		String startTimeString = "未知";
+		String startTimeStr = "未知";
 		Date startTime = stat.getStartTime();
-		if (startTime != null) startTimeString = DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(startTime);
+		if (startTime != null) startTimeStr = DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(startTime);
 		
-		String endTimeString = "未知";
+		String endTimeStr = "未知";
 		Date endTime = stat.getEndTime();
-		if (endTime != null) endTimeString = DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(endTime);
+		if (endTime != null) endTimeStr = DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(endTime);
 		
-		String caption = String.format("%1$s: %2$s (%3$d) 的驾驶记录信息 (%4$s~%5$s)", "车管", name, modelId, startTime, endTime);
+		String caption = String.format("%1$s: %2$s (%3$d) 的驾驶记录信息 (%4$s~%5$s)", "车管", name, modelId, startTimeStr, endTimeStr);
 		setCaption(caption);
 		
-		String textFormat = caption + "\n" +
+		String textFormat = 
 						"累计损伤花费: %1$1.1f辆\n" +
 						"累计驾驶时间: %2$s\n" +
 						"累计驾驶里程: %3$1.3f公里\n" +
@@ -66,7 +66,7 @@ public class OnceStatisticDialog extends AbstractDialog
 		String text = String.format
 		(
 			textFormat, stat.getDamageCount()/1000.0f, formatedTime, stat.getDriveOdometer()/1000.0f,
-			avgSpeed, maxSpeed, avgDamagePer10Minutes, startTimeString, endTimeString
+			avgSpeed, maxSpeed, avgDamagePer10Minutes, startTimeStr, endTimeStr
 		);
 		
 		show(text);

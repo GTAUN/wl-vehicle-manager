@@ -113,16 +113,14 @@ public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
 		
 		nowOnceStatistic = new OncePlayerVehicleStatisticImpl(shoebill, rootEventManager, player);
 		nowOnceStatistic.start();
+		recordedOnceStatistics.offerFirst(nowOnceStatistic);
 	}
 	
 	@Override
 	protected void onLeaveVehicle(Vehicle vehicle)
 	{
 		nowOnceStatistic.end();
-		recordedOnceStatistics.offerFirst(nowOnceStatistic);
 		nowOnceStatistic = null;
-		
-		super.onLeaveVehicle(vehicle);
 	}
 	
 	@Override
