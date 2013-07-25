@@ -163,13 +163,14 @@ public class VehicleManagerDialog extends AbstractListDialog
 			@Override
 			public boolean isSwitched()
 			{
-				return false;
+				return vehicleManager.isAutoCarryPassengers(player);
 			}
 			
 			@Override
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
+				vehicleManager.setAutoCarryPassengers(player, !vehicleManager.isAutoCarryPassengers(player));
 				show();
 			}
 		});

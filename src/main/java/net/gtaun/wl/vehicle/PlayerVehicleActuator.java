@@ -2,10 +2,12 @@ package net.gtaun.wl.vehicle;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.player.AbstractPlayerContext;
+import net.gtaun.shoebill.common.vehicle.VehicleUtils;
 import net.gtaun.shoebill.constant.PlayerKey;
 import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
@@ -58,8 +60,10 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	private boolean isUnlimitedNOS;
 	private boolean isAutoRepair;
 	private boolean isAutoFlip;
+	private boolean isAutoCarryPassengers;
 	
 	private VehicleSpeedometerWidget speedometerWidget;
+	private Vehicle lastVehicle;
 	
 	
 	public PlayerVehicleActuator(Shoebill shoebill, EventManager eventManager, Player player, VehicleManagerService vehicleManager)
@@ -106,6 +110,11 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 		return isAutoFlip;
 	}
 	
+	public boolean isAutoCarryPassengers()
+	{
+		return isAutoCarryPassengers;
+	}
+	
 	public void setUnlimitedNOS(boolean enabled)
 	{
 		this.isUnlimitedNOS = enabled;
@@ -132,6 +141,11 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	public void setAutoFlip(boolean enabled)
 	{
 		this.isAutoFlip = enabled;
+	}
+	
+	public void setAutoCarryPassengers(boolean enabled)
+	{
+		this.isAutoCarryPassengers = enabled;
 	}
 	
 	private TimerEventHandler timerEventHandler = new TimerEventHandler()
@@ -204,6 +218,8 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 			Player player = event.getPlayer();
 			PlayerState state = player.getState();
 			
+			if (state != PlayerState.DRIVER) lastVehicle = null;
+			
 			if (speedometerWidget != null)
 			{
 				speedometerWidget.destroy();
@@ -214,6 +230,14 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 			{
 				Vehicle vehicle = player.getVehicle();
 				int modelId = vehicle.getModelId();
+				
+				if (isAutoCarryPassengers && lastVehicle != null)
+				{
+					List<Player> passengers = VehicleUtils.getVehiclePassengers(lastVehicle);
+					int limits = Math.max(passengers.size(), VehicleModel.getSeats(lastVehicle.getModelId()));
+					for (int i=0; i<limits-1; i++) vehicle.putPlayer(passengers.get(i), i+1);
+				}
+				lastVehicle = vehicle;
 				
 				speedometerWidget = new VehicleSpeedometerWidget(shoebill, rootEventManager, player, vehicleManager);
 				speedometerWidget.init();

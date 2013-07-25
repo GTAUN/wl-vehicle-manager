@@ -28,6 +28,7 @@ import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder.PlayerLifecycleObjectFactory;
 import net.gtaun.shoebill.data.Color;
+import net.gtaun.shoebill.data.Velocity;
 import net.gtaun.shoebill.event.PlayerEventHandler;
 import net.gtaun.shoebill.event.player.PlayerCommandEvent;
 import net.gtaun.shoebill.event.player.PlayerConnectEvent;
@@ -109,8 +110,15 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	{
 		Random random = new Random();
 		
+		Vehicle prevVehicle = player.getVehicle();
+		
+		Velocity velocity = null;
+		if (prevVehicle != null) velocity = prevVehicle.getVelocity();
+		
 		Vehicle vehicle = shoebill.getSampObjectFactory().createVehicle(modelId, player.getLocation(), random.nextInt(256), random.nextInt(256), 3600);
 		ownVehicle(player, vehicle);
+		
+		if (velocity != null) vehicle.setVelocity(velocity);
 		
 		statisticManager.getPlayerVehicleStatistic(player, modelId).onSpawn();
 		statisticManager.getGlobalVehicleStatistic(modelId).onSpawn();
@@ -229,11 +237,26 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
 		return actuator.isAutoFlip();
 	}
-	
+
+	@Override
 	public void setPlayerAutoFlip(Player player, boolean enabled)
 	{
 		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
 		actuator.setAutoFlip(enabled);
+	}
+	
+	@Override
+	public boolean isAutoCarryPassengers(Player player)
+	{
+		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
+		return actuator.isAutoCarryPassengers();
+	}
+
+	@Override
+	public void setAutoCarryPassengers(Player player, boolean enabled)
+	{
+		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
+		actuator.setAutoCarryPassengers(enabled);
 	}
 	
 	private PlayerEventHandler playerEventHandler = new PlayerEventHandler()

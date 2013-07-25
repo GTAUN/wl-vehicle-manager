@@ -47,6 +47,9 @@ public interface VehicleManagerService extends Service
 	
 	boolean isPlayerAutoFlip(Player player);
 	void setPlayerAutoFlip(Player player, boolean enabled);
+	
+	boolean isAutoCarryPassengers(Player player);
+	void setAutoCarryPassengers(Player player, boolean enabled);
 
 	GlobalVehicleStatistic getGlobalVehicleStatistic(int modelId);
 	Collection<GlobalVehicleStatistic> getGlobalVehicleStatistics();
