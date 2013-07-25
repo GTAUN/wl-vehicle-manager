@@ -66,21 +66,28 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 	public VehicleCreateListDialog
 	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager, final String setname, int[] modelIds)
 	{
+		this(player, shoebill, eventManager, vehicleManager, setname, modelIds,
+			new Comparator<Integer>()
+			{
+				@Override
+				public int compare(Integer o1, Integer o2)
+				{
+					GlobalVehicleStatistic s1 = vehicleManager.getGlobalVehicleStatistic(o1);
+					GlobalVehicleStatistic s2 = vehicleManager.getGlobalVehicleStatistic(o2);
+					return (int) (s2.getDriveCount() - s1.getDriveCount());
+				}
+			});
+	}
+	
+	public VehicleCreateListDialog
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager, final String setname, int[] modelIds, Comparator<Integer> sortComparator)
+	{
 		super(player, shoebill, eventManager);
 		this.vehicleManager = vehicleManager;
 		this.setName = setname;
 		
 		Integer[] sortedModelIds = ArrayUtils.toObject(modelIds);
-		Arrays.sort(sortedModelIds, new Comparator<Integer>()
-		{
-			@Override
-			public int compare(Integer o1, Integer o2)
-			{
-				GlobalVehicleStatistic s1 = vehicleManager.getGlobalVehicleStatistic(o1);
-				GlobalVehicleStatistic s2 = vehicleManager.getGlobalVehicleStatistic(o2);
-				return (int) (s2.getDriveCount() - s1.getDriveCount());
-			}
-		});
+		Arrays.sort(sortedModelIds, sortComparator);
 		
 		for (int modelId : sortedModelIds) dialogListItems.add(new DialogListItemVehicle(modelId));
 		this.modelIds = ArrayUtils.toPrimitive(sortedModelIds);

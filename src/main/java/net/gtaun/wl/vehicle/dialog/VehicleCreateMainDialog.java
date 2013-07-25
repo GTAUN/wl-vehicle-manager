@@ -13,6 +13,7 @@
 
 package net.gtaun.wl.vehicle.dialog;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -25,6 +26,7 @@ import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.vehicle.VehicleManagerService;
+import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -73,7 +75,7 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 		this.vehicleManager = vehicleManager;
 		
 		setCaption(String.format("%1$s: 刷车 - 车辆类型选择", "车管"));
-		
+
 		dialogListItems.add(new DialogListItem("列出所有车辆 - 按人气排序")
 		{
 			@Override
@@ -82,6 +84,29 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 				player.playSound(1083, player.getLocation());
 				int[] vehicleModelIds = ArrayUtils.toPrimitive(VehicleModel.getIds().toArray(new Integer[0]));
 				new VehicleCreateListDialog(player, shoebill, eventManager, vehicleManager, "所有车辆", vehicleModelIds).show();
+				destroy();
+			}
+		});
+		
+		dialogListItems.add(new DialogListItem("列出所有车辆 - 按驾驶次数排序")
+		{
+			@Override
+			public void onItemSelect()
+			{
+				player.playSound(1083, player.getLocation());
+				int[] vehicleModelIds = ArrayUtils.toPrimitive(VehicleModel.getIds().toArray(new Integer[0]));
+				
+				Comparator<Integer> sortComp = new Comparator<Integer>()
+				{
+					@Override
+					public int compare(Integer o1, Integer o2)
+					{
+						PlayerVehicleStatistic s1 = vehicleManager.getPlayerVehicleStatistic(player, o1);
+						PlayerVehicleStatistic s2 = vehicleManager.getPlayerVehicleStatistic(player, o2);
+						return (int) (s2.getDriveCount() - s1.getDriveCount());
+					}
+				};
+				new VehicleCreateListDialog(player, shoebill, eventManager, vehicleManager, "所有车辆", vehicleModelIds, sortComp).show();
 				destroy();
 			}
 		});
