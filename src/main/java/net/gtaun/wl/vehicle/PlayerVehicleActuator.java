@@ -202,6 +202,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 		protected void onPlayerStateChange(PlayerStateChangeEvent event)
 		{
 			Player player = event.getPlayer();
+			PlayerState state = player.getState();
 			
 			if (speedometerWidget != null)
 			{
@@ -209,7 +210,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 				speedometerWidget = null;
 			}
 			
-			if (player.getState() == PlayerState.DRIVER)
+			if (state == PlayerState.DRIVER)
 			{
 				Vehicle vehicle = player.getVehicle();
 				int modelId = vehicle.getModelId();
@@ -223,6 +224,11 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 				}
 				
 				if (isAutoRepair && vehicle.getHealth() < 1000.0f) vehicle.repair();
+			}
+			else if (state == PlayerState.PASSENGER)
+			{
+				speedometerWidget = new VehicleSpeedometerWidget(shoebill, rootEventManager, player, vehicleManager);
+				speedometerWidget.init();
 			}
 		}
 		

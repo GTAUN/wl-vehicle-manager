@@ -16,7 +16,6 @@ package net.gtaun.wl.vehicle;
 import java.io.File;
 
 import net.gtaun.shoebill.common.ConfigurablePlugin;
-import net.gtaun.wl.vehicle.config.VehicleManagerConfig;
 import net.gtaun.wl.vehicle.stat.GlobalVehicleStatisticImpl;
 import net.gtaun.wl.vehicle.stat.PlayerVehicleStatisticImpl;
 

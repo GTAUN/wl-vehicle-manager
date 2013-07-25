@@ -3,12 +3,15 @@ package net.gtaun.wl.vehicle.stat;
 import java.util.Date;
 
 import net.gtaun.shoebill.Shoebill;
+import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 
 public class OncePlayerVehicleStatisticImpl extends AbstractPlayerVehicleProbe implements OncePlayerVehicleStatistic
 {
+	private PlayerState type;
+	
 	private int modelId;
 	private double damageCount;
 	private long driveSecondCount;
@@ -27,6 +30,9 @@ public class OncePlayerVehicleStatisticImpl extends AbstractPlayerVehicleProbe i
 		damageCount = 0.0;
 		driveOdometer = 0.0;
 		maxSpeed = 0.0f;
+		
+		allowState(PlayerState.PASSENGER);
+		type = player.getState();
 	}
 	
 	@Override
@@ -72,6 +78,12 @@ public class OncePlayerVehicleStatisticImpl extends AbstractPlayerVehicleProbe i
 
 		endTime = new Date();
 		super.destroy();
+	}
+	
+	@Override
+	public PlayerState getType()
+	{
+		return type;
 	}
 	
 	@Override

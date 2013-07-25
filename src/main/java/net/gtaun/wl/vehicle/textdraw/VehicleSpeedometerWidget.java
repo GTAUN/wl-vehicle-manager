@@ -79,6 +79,7 @@ public class VehicleSpeedometerWidget extends AbstractPlayerContext
 	private void update()
 	{
 		OncePlayerVehicleStatistic stat = vehicleManager.getPlayerCurrentOnceStatistic(player);
+		if (stat == null) return;
 		
 		final float spd = stat.getCurrentSpeed() * 60 * 60 / 1000.0f;
 		final float avgSpd = (float) (stat.getDriveOdometer() / stat.getDriveSecondCount()) * 60 * 60 / 1000.0f;

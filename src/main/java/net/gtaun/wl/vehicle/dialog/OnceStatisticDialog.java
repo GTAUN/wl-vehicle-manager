@@ -5,6 +5,7 @@ import java.util.Date;
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.constant.DialogStyle;
+import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
@@ -33,18 +34,21 @@ public class OnceStatisticDialog extends AbstractDialog
 		int modelId = stat.getModelId();
 		String name = VehicleModel.getName(modelId);
 
-		String startTimeStr = "未知";
+		String startTimeStr = "N/A";
 		Date startTime = stat.getStartTime();
 		if (startTime != null) startTimeStr = DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(startTime);
 		
-		String endTimeStr = "未知";
+		String endTimeStr = "N/A";
 		Date endTime = stat.getEndTime();
 		if (endTime != null) endTimeStr = DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(endTime);
 		
-		String caption = String.format("%1$s: %2$s (%3$d) 的驾驶记录信息 (%4$s~%5$s)", "车管", name, modelId, startTimeStr, endTimeStr);
+		String type = "驾驶记录";
+		if (stat.getType() == PlayerState.PASSENGER) type = "乘坐记录";
+		
+		String caption = String.format("%1$s: %2$s (%3$d) 的%4$s信息 (%5$s~%6$s)", "车管", name, modelId, type, startTimeStr, endTimeStr);
 		setCaption(caption);
 		
-		String textFormat = 
+		String textFormat = caption + "\n" +
 						"累计损伤花费: %1$1.1f辆\n" +
 						"累计驾驶时间: %2$s\n" +
 						"累计驾驶里程: %3$1.3f公里\n" +

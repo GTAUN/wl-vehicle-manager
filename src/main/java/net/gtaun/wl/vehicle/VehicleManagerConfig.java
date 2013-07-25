@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package net.gtaun.wl.vehicle.config;
+package net.gtaun.wl.vehicle;
 
 import java.io.File;
 import java.io.FileInputStream;

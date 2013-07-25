@@ -1,5 +1,8 @@
 package net.gtaun.wl.vehicle.stat;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.player.AbstractPlayerContext;
 import net.gtaun.shoebill.constant.PlayerState;
@@ -20,6 +23,7 @@ import net.gtaun.util.event.EventManager.HandlerPriority;
 public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
 {
 	private final Timer timer;
+	private final Set<PlayerState> allowableStates;
 
 	private Vehicle nowVehicle;
 	
@@ -31,6 +35,14 @@ public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
 	{
 		super(shoebill, rootEventManager, player);
 		timer = shoebill.getSampObjectFactory().createTimer(1000);
+		
+		allowableStates = new HashSet<>();
+		allowableStates.add(PlayerState.DRIVER);
+	}
+	
+	protected void allowState(PlayerState state)
+	{
+		allowableStates.add(state);
 	}
 	
 	private void setNowVehicle(Vehicle vehicle)
@@ -41,7 +53,16 @@ public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
 			lastVehicleLocation = vehicle.getLocation();
 			lastVehicleHealth = vehicle.getHealth();
 			
-			onDriveVehicle(vehicle);
+			PlayerState state = player.getState();
+			
+			if (state == PlayerState.DRIVER)
+			{
+				onDriveVehicle(vehicle);
+			}
+			else if (state == PlayerState.PASSENGER)
+			{
+				onBecomePassenger(vehicle);
+			}
 		}
 		else
 		{
@@ -76,7 +97,7 @@ public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
 	{
 		protected void onPlayerStateChange(PlayerStateChangeEvent event)
 		{
-			if (player.getState() == PlayerState.DRIVER)
+			if (allowableStates.contains(player.getState()))
 			{
 				Vehicle vehicle = player.getVehicle();
 				if (vehicle != nowVehicle) setNowVehicle(vehicle);
@@ -93,7 +114,7 @@ public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
 		protected void onVehicleUpdate(VehicleUpdateEvent event)
 		{
 			Vehicle vehicle = event.getVehicle();
-			if (player.getState() != PlayerState.DRIVER || vehicle != player.getVehicle()) return;
+			if (allowableStates.contains(player.getState()) == false || vehicle != player.getVehicle()) return;
 			
 			AbstractPlayerVehicleProbe.this.onVehicleUpdate(vehicle);
 			
@@ -112,12 +133,12 @@ public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
 		@Override
 		protected void onTimerTick(TimerTickEvent event)
 		{
-			if (player.getState() != PlayerState.DRIVER) return;
+			if (allowableStates.contains(player.getState()) == false) return;
 			
 			Vehicle vehicle = player.getVehicle();
 			
 			float speed = vehicle.getVelocity().speed3d() * 50;
-			if (speed > 0.0f)
+			if (speed > 0.02f)
 			{
 				onVehicleTick(vehicle);
 			}
@@ -145,6 +166,11 @@ public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
 	}
 
 	protected void onDriveVehicle(Vehicle vehicle)
+	{
+		
+	}
+
+	protected void onBecomePassenger(Vehicle vehicle)
 	{
 		
 	}

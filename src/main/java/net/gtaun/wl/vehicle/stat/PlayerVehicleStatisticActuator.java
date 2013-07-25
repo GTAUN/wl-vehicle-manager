@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.gtaun.shoebill.Shoebill;
+import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
@@ -34,6 +35,8 @@ public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
 		
 		vehicleStatistics = new HashMap<>();
 		recordedOnceStatistics = new LinkedList<>();
+		
+		allowState(PlayerState.PASSENGER);
 	}
 	
 	@Override
@@ -111,6 +114,14 @@ public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
 		GlobalVehicleStatisticImpl globalStat = statisticManager.getGlobalVehicleStatistic(modelId);
 		globalStat.onDrive();
 		
+		nowOnceStatistic = new OncePlayerVehicleStatisticImpl(shoebill, rootEventManager, player);
+		nowOnceStatistic.start();
+		recordedOnceStatistics.offerFirst(nowOnceStatistic);
+	}
+	
+	@Override
+	protected void onBecomePassenger(Vehicle vehicle)
+	{
 		nowOnceStatistic = new OncePlayerVehicleStatisticImpl(shoebill, rootEventManager, player);
 		nowOnceStatistic.start();
 		recordedOnceStatistics.offerFirst(nowOnceStatistic);

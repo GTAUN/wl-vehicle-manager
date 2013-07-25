@@ -96,7 +96,7 @@ public class VehicleManagerDialog extends AbstractListDialog
 			}
 		});
 		
-		dialogListItems.add(new DialogListItem("驾驶记录 ...")
+		dialogListItems.add(new DialogListItem("驾驶和乘坐记录 ...")
 		{
 			@Override
 			public void onItemSelect()
@@ -154,6 +154,22 @@ public class VehicleManagerDialog extends AbstractListDialog
 			{
 				player.playSound(1083, player.getLocation());
 				vehicleManager.setPlayerAutoFlip(player, !vehicleManager.isPlayerAutoFlip(player));
+				show();
+			}
+		});
+		
+		dialogListItems.add(new DialogListItemSwitch("自动携带乘客")
+		{
+			@Override
+			public boolean isSwitched()
+			{
+				return false;
+			}
+			
+			@Override
+			public void onItemSelect()
+			{
+				player.playSound(1083, player.getLocation());
 				show();
 			}
 		});
