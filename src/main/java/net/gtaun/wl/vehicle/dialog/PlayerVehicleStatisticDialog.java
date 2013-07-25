@@ -45,11 +45,11 @@ public class PlayerVehicleStatisticDialog extends AbstractDialog
 						"累计驾驶时间: %4$s\n" +
 						"累计驾驶里程: %5$1.3f公里\n" +
 						"平均驾驶速度: %6$1.2fKM/H\n" +
-						"平均爆车率: %7$1.1f辆 / 10分钟\n" +
+						"平均爆车速率: %7$1.1f辆 / 10分钟\n" +
 						"最后更新时间: %8$s";
 
 		double avgSpeed = stat.getDriveOdometer() / stat.getDriveTimeCount() * 60 * 60 / 1000.0f;
-		double avgDamagePer10Minutes = stat.getDamageCount() / 1000.0f / stat.getDriveTimeCount() * 60 * 10;
+		double avgExpratePer10Minutes = stat.getDamageCount() / 750.0f / stat.getDriveTimeCount() * 60 * 10;
 		
 		long seconds = stat.getDriveTimeCount() % 60;
 		long minutes = (stat.getDriveTimeCount() / 60) % 60;
@@ -63,7 +63,7 @@ public class PlayerVehicleStatisticDialog extends AbstractDialog
 		String text = String.format
 		(
 			textFormat, stat.getSpawnCount(), stat.getDamageCount()/1000.0f, stat.getDriveCount(), formatedTime,
-			stat.getDriveOdometer()/1000.0f, avgSpeed, avgDamagePer10Minutes, lastUpdateString
+			stat.getDriveOdometer()/1000.0f, avgSpeed, avgExpratePer10Minutes, lastUpdateString
 		);
 		
 		show(text);

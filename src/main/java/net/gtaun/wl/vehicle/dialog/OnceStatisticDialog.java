@@ -42,25 +42,25 @@ public class OnceStatisticDialog extends AbstractDialog
 		Date endTime = stat.getEndTime();
 		if (endTime != null) endTimeStr = DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(endTime);
 		
-		String type = "驾驶记录";
-		if (stat.getType() == PlayerState.PASSENGER) type = "乘坐记录";
+		String type = "驾驶";
+		if (stat.getType() == PlayerState.PASSENGER) type = "乘坐";
 		
-		String caption = String.format("%1$s: %2$s (%3$d) 的%4$s信息 (%5$s~%6$s)", "车管", name, modelId, type, startTimeStr, endTimeStr);
+		String caption = String.format("%1$s: %2$s (%3$d) 的%4$s记录信息 (%5$s~%6$s)", "车管", name, modelId, type, startTimeStr, endTimeStr);
 		setCaption(caption);
 		
 		String textFormat = caption + "\n" +
-						"累计损伤花费: %1$1.1f辆\n" +
-						"累计驾驶时间: %2$s\n" +
-						"累计驾驶里程: %3$1.3f公里\n" +
-						"平均驾驶速度: %4$1.2fKM/H\n" +
-						"最高驾驶速度: %5$1.2fKM/H\n" +
-						"平均爆车率: %6$1.1f辆 / 10分钟\n" +
-						"开始驾驶时间: %7$s\n" + 
-						"停止驾驶时间: %8$s";
+						"累计损伤花费: %2$1.1f辆\n" +
+						"累计%1$s时间: %3$s\n" +
+						"累计%1$s里程: %4$1.3f公里\n" +
+						"平均%1$s速度: %5$1.2fKM/H\n" +
+						"最高%1$s速度: %6$1.2fKM/H\n" +
+						"平均爆车速率: %7$1.1f辆 / 10分钟\n" +
+						"开始%1$s时间: %8$s\n" + 
+						"停止%1$s时间: %9$s";
 
 		double avgSpeed = stat.getDriveOdometer() / stat.getDriveSecondCount() * 60 * 60 / 1000.0f;
 		double maxSpeed = stat.getMaxSpeed() * 60 * 60 / 1000.0f;
-		double avgDamagePer10Minutes = stat.getDamageCount() / 1000.0f / stat.getDriveSecondCount() * 60 * 10;
+		double avgExpratePer10Minutes = stat.getDamageCount() / 750.0f / stat.getDriveSecondCount() * 60 * 10;
 		
 		long seconds = stat.getDriveSecondCount() % 60;
 		long minutes = (stat.getDriveSecondCount() / 60) % 60;
@@ -69,8 +69,8 @@ public class OnceStatisticDialog extends AbstractDialog
 		
 		String text = String.format
 		(
-			textFormat, stat.getDamageCount()/1000.0f, formatedTime, stat.getDriveOdometer()/1000.0f,
-			avgSpeed, maxSpeed, avgDamagePer10Minutes, startTimeStr, endTimeStr
+			textFormat, type, stat.getDamageCount()/1000.0f, formatedTime, stat.getDriveOdometer()/1000.0f,
+			avgSpeed, maxSpeed, avgExpratePer10Minutes, startTimeStr, endTimeStr
 		);
 		
 		show(text);

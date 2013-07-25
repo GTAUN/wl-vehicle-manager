@@ -55,11 +55,11 @@ public class GlobalStatisticDialog extends AbstractDialog
 						"累计驾驶时间: %4$s\n" +
 						"累计驾驶里程: %5$1.3f公里\n" +
 						"平均驾驶速度: %6$1.2fKM/H\n" +
-						"平均爆车率: %7$1.1f辆 / 10分钟\n" +
+						"平均爆车速率: %7$1.1f辆 / 10分钟\n" +
 						"最后更新时间: %8$s";
 
 		double avgSpeed = driveOdometer / driveSecondCount * 60 * 60 / 1000.0f;
-		double avgDamagePer10Minutes = damageCount / 1000.0f / driveSecondCount * 60 * 10;
+		double avgExpratePer10Minutes = damageCount / 750.0f / driveSecondCount * 60 * 10;
 		
 		long seconds = driveSecondCount % 60;
 		long minutes = (driveSecondCount / 60) % 60;
@@ -72,7 +72,7 @@ public class GlobalStatisticDialog extends AbstractDialog
 		String text = String.format
 		(
 			textFormat, spawnCount, damageCount/1000.0f, driveCount, formatedTime,
-			driveOdometer/1000.0f, avgSpeed, avgDamagePer10Minutes, lastUpdateString
+			driveOdometer/1000.0f, avgSpeed, avgExpratePer10Minutes, lastUpdateString
 		);
 		
 		show(text);
