@@ -29,6 +29,7 @@ import net.gtaun.shoebill.object.Timer;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
+import net.gtaun.wl.vehicle.textdraw.VehicleSpeedometerWidget;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -54,9 +55,11 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	private final VehicleManagerService vehicleManager;
 	private final Timer timer;
 	
-	private boolean isLockNOS;
+	private boolean isUnlimitedNOS;
 	private boolean isAutoRepair;
 	private boolean isAutoFlip;
+	
+	private VehicleSpeedometerWidget speedometerWidget;
 	
 	
 	public PlayerVehicleActuator(Shoebill shoebill, EventManager eventManager, Player player, VehicleManagerService vehicleManager)
@@ -85,12 +88,12 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	@Override
 	protected void onDestroy()
 	{
-		
+		if (speedometerWidget != null) speedometerWidget.destroy();
 	}
 	
 	public boolean isUnlimitedNOS()
 	{
-		return isLockNOS;
+		return isUnlimitedNOS;
 	}
 	
 	public boolean isAutoRepair()
@@ -105,12 +108,12 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	
 	public void setUnlimitedNOS(boolean enabled)
 	{
-		this.isLockNOS = enabled;
+		this.isUnlimitedNOS = enabled;
 		
 		Vehicle vehicle = player.getVehicle();
 		if (vehicle == null) return;
 		
-		if (isLockNOS && VehicleComponentModel.isVehicleSupported(vehicle.getModelId(), VehicleComponentModel.NITRO_10_TIMES))
+		if (isUnlimitedNOS && VehicleComponentModel.isVehicleSupported(vehicle.getModelId(), VehicleComponentModel.NITRO_10_TIMES))
 		{
 			vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
 		}
@@ -139,7 +142,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 			{
 				Vehicle vehicle = player.getVehicle();
 				int modelId = vehicle.getModelId();
-				if (isLockNOS && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
+				if (isUnlimitedNOS && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
 				{
 					vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
 				}
@@ -199,12 +202,22 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 		protected void onPlayerStateChange(PlayerStateChangeEvent event)
 		{
 			Player player = event.getPlayer();
+			
+			if (speedometerWidget != null)
+			{
+				speedometerWidget.destroy();
+				speedometerWidget = null;
+			}
+			
 			if (player.getState() == PlayerState.DRIVER)
 			{
 				Vehicle vehicle = player.getVehicle();
 				int modelId = vehicle.getModelId();
 				
-				if (isLockNOS && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
+				speedometerWidget = new VehicleSpeedometerWidget(shoebill, rootEventManager, player, vehicleManager);
+				speedometerWidget.init();
+				
+				if (isUnlimitedNOS && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
 				{
 					vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
 				}
