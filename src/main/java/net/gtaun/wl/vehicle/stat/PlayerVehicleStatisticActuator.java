@@ -90,7 +90,7 @@ public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
 		return vehicleStatistics.values();
 	}
 	
-	public OncePlayerVehicleStatistic getNowOnceStatistic()
+	public OncePlayerVehicleStatistic getCurrentOnceStatistic()
 	{
 		return nowOnceStatistic;
 	}

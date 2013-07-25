@@ -13,9 +13,9 @@ public interface OncePlayerVehicleStatistic
 	double getDamageCount();
 	long getDriveSecondCount();
 	double getDriveOdometer();
+	float getCurrentSpeed();
 	float getMaxSpeed();
 	
 	Date getStartTime();
 	Date getEndTime();
-	Date getLastUpdate();
 }

@@ -13,11 +13,11 @@ public class OncePlayerVehicleStatisticImpl extends AbstractPlayerVehicleProbe i
 	private double damageCount;
 	private long driveSecondCount;
 	private double driveOdometer;
+	private float currentSpeed;
 	private float maxSpeed;
 	
 	private Date startTime;
 	private Date endTime;
-	private Date lastUpdate;
 	
 	
 	public OncePlayerVehicleStatisticImpl(Shoebill shoebill, EventManager rootEventManager, Player player)
@@ -32,29 +32,26 @@ public class OncePlayerVehicleStatisticImpl extends AbstractPlayerVehicleProbe i
 	@Override
 	protected void onVehicleUpdate(Vehicle vehicle)
 	{
-		float spd = vehicle.getVelocity().speed3d() * 50;
-		if (spd > maxSpeed) maxSpeed = spd;
+		currentSpeed = vehicle.getVelocity().speed3d() * 50;
+		if (currentSpeed > maxSpeed) maxSpeed = currentSpeed;
 	}
 
 	@Override
 	protected void onVehicleMove(Vehicle vehicle, float distance)
 	{
 		driveOdometer += distance;
-		lastUpdate = new Date();
 	}
 
 	@Override
 	protected void onVehicleTick(Vehicle vehicle)
 	{
 		driveSecondCount++;
-		lastUpdate = new Date();
 	}
 
 	@Override
 	protected void onVehicleDamage(Vehicle vehicle, float damage)
 	{
 		damageCount += damage;
-		lastUpdate = new Date();
 	}
 	
 	@Override
@@ -100,6 +97,12 @@ public class OncePlayerVehicleStatisticImpl extends AbstractPlayerVehicleProbe i
 	{
 		return driveOdometer;
 	}
+	
+	@Override
+	public float getCurrentSpeed()
+	{
+		return currentSpeed;
+	}
 
 	@Override
 	public float getMaxSpeed()
@@ -117,11 +120,5 @@ public class OncePlayerVehicleStatisticImpl extends AbstractPlayerVehicleProbe i
 	public Date getEndTime()
 	{
 		return endTime;
-	}
-	
-	@Override
-	public Date getLastUpdate()
-	{
-		return lastUpdate;
 	}
 }

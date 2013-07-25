@@ -54,6 +54,6 @@ public interface VehicleManagerService extends Service
 	PlayerVehicleStatistic getPlayerVehicleStatistic(Player player, int modelId);
 	Collection<PlayerVehicleStatistic> getPlayerVehicleStatistics(Player player);
 
-	OncePlayerVehicleStatistic getPlayerNowOnceStatistic(Player player);
+	OncePlayerVehicleStatistic getPlayerCurrentOnceStatistic(Player player);
 	List<OncePlayerVehicleStatistic> getPlayerRecordedOnceStatistics(Player player);
 }

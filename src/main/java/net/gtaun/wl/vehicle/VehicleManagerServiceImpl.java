@@ -184,9 +184,9 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	}
 	
 	@Override
-	public OncePlayerVehicleStatistic getPlayerNowOnceStatistic(Player player)
+	public OncePlayerVehicleStatistic getPlayerCurrentOnceStatistic(Player player)
 	{
-		return statisticManager.getPlayerNowOnceStatistic(player);
+		return statisticManager.getPlayerCurrentOnceStatistic(player);
 	}
 	
 	@Override

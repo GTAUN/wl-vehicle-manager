@@ -109,10 +109,10 @@ public class VehicleStatisticManager
 		return Collections.unmodifiableCollection((Collection<? extends PlayerVehicleStatistic>) actuator.getVehicleStatistics());
 	}
 
-	public OncePlayerVehicleStatistic getPlayerNowOnceStatistic(Player player)
+	public OncePlayerVehicleStatistic getPlayerCurrentOnceStatistic(Player player)
 	{
 		PlayerVehicleStatisticActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticActuator.class);
-		return actuator.getNowOnceStatistic();
+		return actuator.getCurrentOnceStatistic();
 	}
 	
 	public List<OncePlayerVehicleStatistic> getPlayerRecordedOnceStatistics(Player player)
