@@ -54,7 +54,7 @@ public class VehicleCreateListTextDraw implements Destroyable
 		items = new ArrayList<>(modelIds.length);
 		for (int i=0; i<modelIds.length; i++)
 		{
-			PlayerTextdraw textdraw = createPlayerText(factory, player, baseX+64*i, 400, "_");
+			PlayerTextdraw textdraw = TextDrawUtils.createPlayerText(factory, player, baseX+64*i, 400, "_");
 			textdraw.setFont(TextDrawFont.MODEL_PREVIEW);
 			textdraw.setPreviewModel(modelIds[i]);
 			textdraw.setPreviewModelRotation(-10.0f, 0.0f, -20.0f, 0.8f);
@@ -119,20 +119,4 @@ public class VehicleCreateListTextDraw implements Destroyable
 			}
 		}
 	};
-	
-	public static PlayerTextdraw createPlayerText(SampObjectFactory f, Player player, float x, float y, String text)
-	{
-		PlayerTextdraw textdraw = f.createPlayerTextdraw(player, x, (y-50)/1.075f+50, text);
-		return textdraw;
-	}
-	
-//	public static PlayerTextdraw createPlayerTextBG(SampObjectFactory f, Player player, float x, float y, float w, float h)
-//	{
-//		int lines = Math.round((h - 5) / 5.0f);
-//		PlayerTextdraw textdraw = f.createPlayerTextdraw(player, x+4, (y-50)/1.075f+50, StringUtils.repeat("~n~", lines));
-//		textdraw.setUseBox(true);
-//		textdraw.setLetterSize(1.0f, 0.5f);
-//		textdraw.setTextSize(x+w-4, h-7);
-//		return textdraw;
-//	}
 }
