@@ -3,6 +3,7 @@ package net.gtaun.wl.vehicle.dialog;
 import java.util.Set;
 
 import net.gtaun.shoebill.Shoebill;
+import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.common.dialog.AbstractListDialog;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
 import net.gtaun.shoebill.constant.VehicleComponentSlot;
@@ -17,17 +18,17 @@ import net.gtaun.wl.vehicle.VehicleManagerService;
 
 public class VehicleComponentAddDialog extends AbstractListDialog
 {
+	private final AbstractDialog parentDialog;
 	private final Vehicle vehicle;
-	private final VehicleManagerService vehicleManager;
 	private final VehicleComponentSlot componentSlot;
 	
 	
 	public VehicleComponentAddDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, final Vehicle vehicle, final VehicleManagerService vehicleManager, final VehicleComponentSlot slot)
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, final AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerService vehicleManager, final VehicleComponentSlot slot)
 	{
 		super(player, shoebill, eventManager);
+		this.parentDialog = parentDialog;
 		this.vehicle = vehicle;
-		this.vehicleManager = vehicleManager;
 		this.componentSlot = slot;
 
 		final int modelId = vehicle.getModelId();
@@ -50,8 +51,7 @@ public class VehicleComponentAddDialog extends AbstractListDialog
 					player.sendMessage(Color.LIGHTBLUE, "%1$s: 您的车子 %2$s 已安装%3$s新组件: %4$s 。", "车管", name, slotName, componentName);
 					
 					vehicle.getComponent().add(cid);
-					new VehicleComponentDialog(player, shoebill, rootEventManager, vehicle, vehicleManager).show();
-					destroy();
+					parentDialog.show();
 				}
 			});
 		}
@@ -81,7 +81,7 @@ public class VehicleComponentAddDialog extends AbstractListDialog
 		if (event.getDialogResponse() == 0)
 		{
 			player.playSound(1084, player.getLocation());
-			new VehicleComponentDialog(player, shoebill, rootEventManager, vehicle, vehicleManager).show();
+			parentDialog.show();
 		}
 		
 		super.onDialogResponse(event);

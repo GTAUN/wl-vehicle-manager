@@ -25,7 +25,7 @@ public class RecordedOnceStatisticDialog extends AbstractPageListDialog
 		super(player, shoebill, eventManager);
 		this.vehicleManager = vehicleManager;
 		
-		setCaption("车辆管理系统 - 驾驶和乘坐记录");
+		setCaption(String.format("%1$s: 驾驶和乘坐记录", "车管"));
 		
 		List<OncePlayerVehicleStatistic> stats = vehicleManager.getPlayerRecordedOnceStatistics(player);
 		

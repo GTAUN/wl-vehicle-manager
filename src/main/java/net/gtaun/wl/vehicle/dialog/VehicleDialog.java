@@ -16,6 +16,7 @@ package net.gtaun.wl.vehicle.dialog;
 import java.util.List;
 
 import net.gtaun.shoebill.Shoebill;
+import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.common.dialog.AbstractListDialog;
 import net.gtaun.shoebill.common.vehicle.VehicleUtils;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
@@ -33,14 +34,16 @@ public class VehicleDialog extends AbstractListDialog
 {
 	private final Vehicle vehicle;
 	private final VehicleManagerService vehicleManager;
+	private final AbstractDialog parentDialog;
 	
 	
 	public VehicleDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, final Vehicle vehicle, final VehicleManagerService vehicleManager)
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, final Vehicle vehicle, final VehicleManagerService vehicleManager, AbstractDialog parentDialog)
 	{
 		super(player, shoebill, eventManager);
 		this.vehicle = vehicle;
 		this.vehicleManager = vehicleManager;
+		this.parentDialog = parentDialog;
 		
 		if (vehicle == null)
 		{
@@ -166,8 +169,7 @@ public class VehicleDialog extends AbstractListDialog
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				new VehicleResprayGroupDialog(player, shoebill, eventManager, vehicle, vehicleManager).show();
-				destroy();
+				new VehicleResprayGroupDialog(player, shoebill, eventManager, VehicleDialog.this, vehicle, vehicleManager).show();
 			}
 		});
 		
@@ -209,8 +211,7 @@ public class VehicleDialog extends AbstractListDialog
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				new VehicleComponentDialog(player, shoebill, eventManager, vehicle, vehicleManager).show();
-				destroy();
+				new VehicleComponentDialog(player, shoebill, eventManager, VehicleDialog.this, vehicle, vehicleManager).show();
 			}
 		});
 		
@@ -243,8 +244,7 @@ public class VehicleDialog extends AbstractListDialog
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				new PlayerVehicleStatisticDialog(player, shoebill, eventManager, vehicle, vehicleManager).show();
-				destroy();
+				new PlayerVehicleStatisticDialog(player, shoebill, eventManager, VehicleDialog.this, vehicle, vehicleManager).show();
 			}
 		});
 		
@@ -254,8 +254,7 @@ public class VehicleDialog extends AbstractListDialog
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				new GlobalVehicleStatisticDialog(player, shoebill, eventManager, vehicle, vehicleManager).show();
-				destroy();
+				new GlobalVehicleStatisticDialog(player, shoebill, eventManager, VehicleDialog.this, vehicle, vehicleManager).show();
 			}
 		});
 	}
@@ -287,7 +286,7 @@ public class VehicleDialog extends AbstractListDialog
 		if (event.getDialogResponse() == 0)
 		{
 			player.playSound(1084, player.getLocation());
-			new VehicleManagerDialog(player, shoebill, rootEventManager, vehicleManager).show();
+			if (parentDialog != null) parentDialog.show();
 		}
 		
 		super.onDialogResponse(event);

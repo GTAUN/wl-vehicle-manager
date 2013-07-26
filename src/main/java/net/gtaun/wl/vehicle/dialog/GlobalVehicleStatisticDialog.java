@@ -17,15 +17,17 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 
 public class GlobalVehicleStatisticDialog extends AbstractDialog
 {
+	private final AbstractDialog parentDialog;
 	private final Vehicle vehicle;
 	private final VehicleManagerService vehicleManager;
 	
 	
-	public GlobalVehicleStatisticDialog(Player player, Shoebill shoebill, EventManager rootEventManager, final Vehicle vehicle, final VehicleManagerService vehicleManager)
+	public GlobalVehicleStatisticDialog(Player player, Shoebill shoebill, EventManager rootEventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerService vehicleManager)
 	{
 		super(DialogStyle.MSGBOX, player, shoebill, rootEventManager);
 		this.vehicle = vehicle;
 		this.vehicleManager = vehicleManager;
+		this.parentDialog = parentDialog;
 	}
 	
 	@Override
@@ -75,7 +77,7 @@ public class GlobalVehicleStatisticDialog extends AbstractDialog
 		if (event.getDialogResponse() == 0)
 		{
 			player.playSound(1084, player.getLocation());
-			new VehicleDialog(player, shoebill, rootEventManager, vehicle, vehicleManager).show();
+			parentDialog.show();
 		}
 		
 		super.onDialogResponse(event);

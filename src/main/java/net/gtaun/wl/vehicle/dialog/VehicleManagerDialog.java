@@ -20,7 +20,6 @@ import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.wl.vehicle.PlayerPreferences;
 import net.gtaun.wl.vehicle.VehicleManagerService;
 import net.gtaun.wl.vehicle.util.DistanceVehicleFilter;
 import net.gtaun.wl.vehicle.util.NearbyVehicleComparator;
@@ -32,8 +31,6 @@ public class VehicleManagerDialog extends AbstractListDialog
 	{
 		super(player, shoebill, eventManager);
 		setCaption("车辆管理系统");
-		
-		final PlayerPreferences pref = vehicleManager.getPlayerPreferences(player);
 
 		dialogListItems.add(new DialogListItem("当前车辆 ...")
 		{
@@ -48,8 +45,7 @@ public class VehicleManagerDialog extends AbstractListDialog
 			{
 				player.playSound(1083, player.getLocation());
 				Vehicle vehicle = player.getVehicle();
-				if (vehicle != null) new VehicleDialog(player, shoebill, eventManager, vehicle, vehicleManager).show();
-				destroy();
+				if (vehicle != null) new VehicleDialog(player, shoebill, eventManager, vehicle, vehicleManager, VehicleManagerDialog.this).show();
 			}
 		});
 		
@@ -66,8 +62,7 @@ public class VehicleManagerDialog extends AbstractListDialog
 			{
 				player.playSound(1083, player.getLocation());
 				Vehicle vehicle = vehicleManager.getOwnedVehicle(player);
-				if (vehicle != null) new VehicleDialog(player, shoebill, eventManager, vehicle, vehicleManager).show();
-				destroy();
+				if (vehicle != null) new VehicleDialog(player, shoebill, eventManager, vehicle, vehicleManager, VehicleManagerDialog.this).show();
 			}
 		});
 		
@@ -116,7 +111,7 @@ public class VehicleManagerDialog extends AbstractListDialog
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				new PlayerPreferencesDialog(player, shoebill, eventManager, vehicleManager);
+				new PlayerPreferencesDialog(player, shoebill, eventManager, vehicleManager).show();
 				destroy();
 			}
 		});

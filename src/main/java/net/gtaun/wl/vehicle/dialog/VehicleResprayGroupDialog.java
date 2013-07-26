@@ -1,6 +1,7 @@
 package net.gtaun.wl.vehicle.dialog;
 
 import net.gtaun.shoebill.Shoebill;
+import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.common.dialog.AbstractListDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.Color;
@@ -44,25 +45,21 @@ public class VehicleResprayGroupDialog extends AbstractListDialog
 		0x561A28FF, 0x4E0E27FF, 0x706C67FF, 0x3B3E42FF, 0x2E2D33FF, 0x7B7E7DFF, 0x4A4442FF, 0x28344EFF
 	};
 	
-	
-	private final Vehicle vehicle;
-	private final VehicleManagerService vehicleManager;
-	private final int color1;
+
+	private final AbstractDialog parentDialog;
 	
 	
 	public VehicleResprayGroupDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, final Vehicle vehicle, final VehicleManagerService vehicleManager)
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerService vehicleManager)
 	{
-		this(player, shoebill, eventManager, vehicle, vehicleManager, -1);
+		this(player, shoebill, eventManager, parentDialog, vehicle, vehicleManager, -1);
 	}
 	
 	public VehicleResprayGroupDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, final Vehicle vehicle, final VehicleManagerService vehicleManager, final int color1)
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerService vehicleManager, final int color1)
 	{
 		super(player, shoebill, eventManager);
-		this.vehicle = vehicle;
-		this.vehicleManager = vehicleManager;
-		this.color1 = color1;
+		this.parentDialog = parentDialog;
 		
 		if (vehicle == null)
 		{
@@ -96,7 +93,7 @@ public class VehicleResprayGroupDialog extends AbstractListDialog
 				public void onItemSelect()
 				{
 					player.playSound(1083, player.getLocation());
-					new VehicleResprayDialog(player, shoebill, eventManager, vehicle, vehicleManager, index, max, color1).show();
+					new VehicleResprayDialog(player, shoebill, eventManager, VehicleResprayGroupDialog.this, vehicle, vehicleManager, index, max, color1).show();
 					destroy();
 				}
 			});
@@ -115,8 +112,7 @@ public class VehicleResprayGroupDialog extends AbstractListDialog
 		if (event.getDialogResponse() == 0)
 		{
 			player.playSound(1084, player.getLocation());
-			if (color1 == -1) new VehicleDialog(player, shoebill, rootEventManager, vehicle, vehicleManager).show();
-			else new VehicleResprayGroupDialog(player, shoebill, rootEventManager, vehicle, vehicleManager).show();
+			parentDialog.show();
 		}
 		
 		super.onDialogResponse(event);

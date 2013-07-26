@@ -96,8 +96,7 @@ public class EmptyVehicleListDialog extends AbstractPageListDialog
 				public void onItemSelect()
 				{
 					player.playSound(1083, player.getLocation());
-					new VehicleDialog(player, shoebill, rootEventManager, vehicle, vehicleManager).show();
-					destroy();
+					new VehicleDialog(player, shoebill, rootEventManager, vehicle, vehicleManager, EmptyVehicleListDialog.this).show();
 				}
 			});
 		}

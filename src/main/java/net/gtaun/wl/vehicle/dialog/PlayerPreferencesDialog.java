@@ -34,7 +34,7 @@ public class PlayerPreferencesDialog extends AbstractListDialog
 		this.eventManager = eventManager;
 		this.vehicleManager = vehicleManager;
 		
-		setCaption("车辆管理系统 - 个人偏好设置");
+		setCaption(String.format("%1$s: 个人偏好设置", "车管"));
 		
 		final PlayerPreferences pref = vehicleManager.getPlayerPreferences(player);
 
