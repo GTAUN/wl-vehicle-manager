@@ -38,6 +38,7 @@ import net.gtaun.shoebill.event.player.PlayerConnectEvent;
 import net.gtaun.shoebill.event.player.PlayerDisconnectEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
+import net.gtaun.shoebill.resource.Plugin;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
 import net.gtaun.util.event.ManagedEventManager;
@@ -66,6 +67,7 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	
 	private final Shoebill shoebill;
 	private final EventManager rootEventManager;
+	private final VehicleManagerPlugin plugin;
 	private final Datastore datastore;
 	
 	private final ManagedEventManager eventManager;
@@ -82,10 +84,11 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	private Map<Player, OwnedVehicleLastPassengers> playerOwnedVehicleLastPassengers;
 	
 	
-	public VehicleManagerServiceImpl(Shoebill shoebill, EventManager rootEventManager, Datastore datastore)
+	public VehicleManagerServiceImpl(Shoebill shoebill, EventManager rootEventManager, VehicleManagerPlugin plugin, Datastore datastore)
 	{
 		this.shoebill = shoebill;
 		this.rootEventManager = rootEventManager;
+		this.plugin = plugin;
 		this.datastore = datastore;
 		
 		eventManager = new ManagedEventManager(rootEventManager);
@@ -128,6 +131,12 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	public OwnedVehicleLastPassengers getOwnedVehicleLastPassengers(Player player)
 	{
 		return playerOwnedVehicleLastPassengers.get(player);
+	}
+	
+	@Override
+	public Plugin getPlugin()
+	{
+		return plugin;
 	}
 	
 	@Override

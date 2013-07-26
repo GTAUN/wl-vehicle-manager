@@ -18,6 +18,7 @@ import java.util.List;
 
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
+import net.gtaun.shoebill.resource.Plugin;
 import net.gtaun.shoebill.service.Service;
 import net.gtaun.wl.vehicle.stat.GlobalVehicleStatistic;
 import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic;
@@ -25,6 +26,8 @@ import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
 
 public interface VehicleManagerService extends Service
 {
+	Plugin getPlugin();
+	
 	Vehicle createOwnVehicle(Player player, int modelId);
 	
 	/**

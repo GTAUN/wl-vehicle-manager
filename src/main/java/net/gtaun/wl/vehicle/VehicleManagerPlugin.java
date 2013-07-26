@@ -75,7 +75,7 @@ public class VehicleManagerPlugin extends ConfigurablePlugin
 			datastore = morphia.createDatastore(mongoClient, config.getDbName(), config.getDbUser(), config.getDbPass().toCharArray());
 		}
 		
-		vehicleManagerSerivce = new VehicleManagerServiceImpl(getShoebill(), getEventManager(), datastore);
+		vehicleManagerSerivce = new VehicleManagerServiceImpl(getShoebill(), getEventManager(), this, datastore);
 		registerService(VehicleManagerService.class, vehicleManagerSerivce);
 		
 		LOGGER.info(getDescription().getName() + " " + getDescription().getVersion() + " Enabled.");

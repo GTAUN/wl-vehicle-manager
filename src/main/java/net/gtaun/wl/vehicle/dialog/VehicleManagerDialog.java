@@ -20,6 +20,8 @@ import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
+import net.gtaun.shoebill.resource.Plugin;
+import net.gtaun.shoebill.resource.ResourceDescription;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.vehicle.VehicleManagerService;
 import net.gtaun.wl.vehicle.util.DistanceVehicleFilter;
@@ -137,6 +139,56 @@ public class VehicleManagerDialog extends AbstractListDialog
 			{
 				player.playSound(1083, player.getLocation());
 				new GlobalStatisticDialog(player, shoebill, eventManager, VehicleManagerDialog.this, vehicleManager).show();
+			}
+		});
+		
+		dialogListItems.add(new DialogListItem("命令帮助信息")
+		{
+			@Override
+			public void onItemSelect()
+			{
+				player.playSound(1083, player.getLocation());
+				String caption = String.format("%1$s: %2$s", "车管", "命令帮助信息");
+				new MsgboxDialog(player, shoebill, eventManager, VehicleManagerDialog.this, caption, "偷懒中，暂无帮助信息……").show();
+			}
+		});
+		
+		dialogListItems.add(new DialogListItem("快捷键帮助信息")
+		{
+			@Override
+			public void onItemSelect()
+			{
+				player.playSound(1083, player.getLocation());
+				String caption = String.format("%1$s: %2$s", "车管", "快捷键帮助信息");
+				new MsgboxDialog(player, shoebill, eventManager, VehicleManagerDialog.this, caption, "偷懒中，暂无帮助信息……").show();
+			}
+		});
+		
+		dialogListItems.add(new DialogListItem("关于车管系统")
+		{
+			@Override
+			public void onItemSelect()
+			{
+				player.playSound(1083, player.getLocation());
+				
+				Plugin plugin = vehicleManager.getPlugin();
+				ResourceDescription desc = plugin.getDescription();
+				
+				String caption = String.format("%1$s: %2$s", "车管", "关于车管系统");
+				String format =
+					"--- 新未来世界 车辆管理系统组件 ---\n" +
+					"版本: %1$s (Build %2$d), 编译时间: %3$s\n\n" +
+					"开发: mk124\n" +
+					"功能设计: mk124\n" + 		
+					"设计顾问: 52_PLA(aka. YinJin), [ITC]1314, [ITC]KTS\n" +
+					"数据采集: mk124, 52_PLA\n" +
+					"测试: 52_PLA, [ITC]1314, [ITC]KTS, SMALL_KR\n\n" +
+					"本组件是新未来世界项目的一部分。" +
+					"本组件使用 GPL v2 许可证开源。" +
+					"本组件禁止在任何商业或盈利性服务器上使用。";
+				String message = String.format(format, desc.getVersion(), desc.getBuildNumber(), desc.getBuildDate());
+				
+				new MsgboxDialog(player, shoebill, eventManager, VehicleManagerDialog.this, caption, message).show();
 			}
 		});
 	}
