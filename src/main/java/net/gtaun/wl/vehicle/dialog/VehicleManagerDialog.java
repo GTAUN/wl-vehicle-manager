@@ -110,88 +110,14 @@ public class VehicleManagerDialog extends AbstractListDialog
 			}
 		});
 		
-		dialogListItems.add(new DialogListItemSwitch("无限氮气加速")
+		dialogListItems.add(new DialogListItem("个人偏好设置 ...")
 		{
-			@Override
-			public boolean isSwitched()
-			{
-				return pref.isUnlimitedNOS();
-			}
-			
 			@Override
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				pref.setUnlimitedNOS(!pref.isUnlimitedNOS());
-				show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItemSwitch("自动修复车辆")
-		{
-			@Override
-			public boolean isSwitched()
-			{
-				return pref.isAutoRepair();
-			}
-			
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				pref.setAutoRepair(!pref.isAutoRepair());
-				show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItemSwitch("自动翻转车辆")
-		{
-			@Override
-			public boolean isSwitched()
-			{
-				return pref.isAutoFlip();
-			}
-			
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				pref.setAutoFlip(!pref.isAutoFlip());
-				show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItemSwitch("自动携带乘客")
-		{
-			@Override
-			public boolean isSwitched()
-			{
-				return pref.isAutoCarryPassengers();
-			}
-			
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				pref.setAutoCarryPassengers(!pref.isAutoCarryPassengers());
-				show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItemSwitch("显示速度计挂件")
-		{
-			@Override
-			public boolean isSwitched()
-			{
-				return pref.isSpeedometerWidgetEnabled();
-			}
-			
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				pref.setSpeedometerWidgetEnabled(!pref.isSpeedometerWidgetEnabled());
-				show();
+				new PlayerPreferencesDialog(player, shoebill, eventManager, vehicleManager);
+				destroy();
 			}
 		});
 		
