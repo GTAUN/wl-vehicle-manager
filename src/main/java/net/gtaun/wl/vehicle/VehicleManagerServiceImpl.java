@@ -23,10 +23,13 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder.PlayerLifecycleObjectFactory;
+import net.gtaun.shoebill.common.vehicle.VehicleUtils;
+import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Velocity;
 import net.gtaun.shoebill.event.PlayerEventHandler;
@@ -48,6 +51,19 @@ import com.google.code.morphia.Datastore;
 
 public class VehicleManagerServiceImpl implements VehicleManagerService
 {
+	class OwnedVehicleLastPassengers
+	{
+		final long lastUpdate;
+		final List<Player> passengers;
+		
+		private OwnedVehicleLastPassengers(long lastUpdate, List<Player> passengers)
+		{
+			this.lastUpdate = lastUpdate;
+			this.passengers = passengers;
+		}
+	}
+	
+	
 	private final Shoebill shoebill;
 	private final EventManager rootEventManager;
 	private final Datastore datastore;
@@ -63,6 +79,8 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	private Map<Player, Vehicle> playerOwnedVehicles;
 	private Set<Vehicle> ownedVehicles;
 	
+	private Map<Player, OwnedVehicleLastPassengers> playerOwnedVehicleLastPassengers;
+	
 	
 	public VehicleManagerServiceImpl(Shoebill shoebill, EventManager rootEventManager, Datastore datastore)
 	{
@@ -77,6 +95,8 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 		
 		playerOwnedVehicles = new HashMap<>();
 		ownedVehicles = new HashSet<>();
+		
+		playerOwnedVehicleLastPassengers = new WeakHashMap<>();
 		
 		initialize();
 	}
@@ -105,18 +125,42 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 		eventManager.cancelAll();
 	}
 	
+	public OwnedVehicleLastPassengers getOwnedVehicleLastPassengers(Player player)
+	{
+		return playerOwnedVehicleLastPassengers.get(player);
+	}
+	
 	@Override
 	public Vehicle createOwnVehicle(Player player, int modelId)
 	{
 		Random random = new Random();
 		
 		Vehicle prevVehicle = player.getVehicle();
-		
+
+		List<Player> passengers = null;
 		Velocity velocity = null;
-		if (prevVehicle != null) velocity = prevVehicle.getVelocity();
+		if (prevVehicle != null && prevVehicle.isDestroyed() == false)
+		{
+			passengers = VehicleUtils.getVehiclePassengers(prevVehicle);
+			velocity = prevVehicle.getVelocity();
+		}
 		
 		Vehicle vehicle = shoebill.getSampObjectFactory().createVehicle(modelId, player.getLocation(), random.nextInt(256), random.nextInt(256), 3600);
 		ownVehicle(player, vehicle);
+		
+		if (passengers == null)
+		{
+			OwnedVehicleLastPassengers lastPassengers = playerOwnedVehicleLastPassengers.get(player);
+			if (lastPassengers != null && lastPassengers.lastUpdate+2000L > System.currentTimeMillis())
+			{
+				passengers = lastPassengers.passengers;
+			}
+		}
+		if (passengers != null)
+		{
+			int limits = Math.min(passengers.size(), VehicleModel.getSeats(vehicle.getModelId())-1);
+			for (int i=0; i<limits; i++) vehicle.putPlayer(passengers.get(i), i+1);
+		}
 		
 		if (velocity != null) vehicle.setVelocity(velocity);
 		
@@ -143,7 +187,11 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 		playerOwnedVehicles.remove(player);
 		ownedVehicles.remove(vehicle);
 		
-		if (vehicle.isStatic() == false) vehicle.destroy();
+		if (vehicle.isStatic() == false)
+		{
+			playerOwnedVehicleLastPassengers.put(player, new OwnedVehicleLastPassengers(System.currentTimeMillis(), VehicleUtils.getVehiclePassengers(vehicle)));
+			vehicle.destroy();
+		}
 	}
 	
 	@Override

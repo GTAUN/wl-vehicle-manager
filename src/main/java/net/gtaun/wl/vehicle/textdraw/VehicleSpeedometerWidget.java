@@ -10,6 +10,7 @@ import net.gtaun.shoebill.event.timer.TimerTickEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.PlayerTextdraw;
 import net.gtaun.shoebill.object.Timer;
+import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
 import net.gtaun.wl.vehicle.VehicleManagerService;
@@ -81,6 +82,9 @@ public class VehicleSpeedometerWidget extends AbstractPlayerContext
 		OncePlayerVehicleStatistic stat = vehicleManager.getPlayerCurrentOnceStatistic(player);
 		if (stat == null) return;
 		
+		Vehicle vehicle = player.getVehicle();
+		if (vehicle == null) return;
+		
 		final float spd = stat.getCurrentSpeed() * 60 * 60 / 1000.0f;
 		final float avgSpd = (float) (stat.getDriveOdometer() / stat.getDriveSecondCount()) * 60 * 60 / 1000.0f;
 		final float maxSpd = stat.getMaxSpeed() * 60 * 60 / 1000.0f;
@@ -95,7 +99,7 @@ public class VehicleSpeedometerWidget extends AbstractPlayerContext
 		String autoRepair = vehicleManager.isPlayerAutoRepair(player) ? "~g~R" : "~w~-";
 		String unlimitedNOS = vehicleManager.isPlayerUnlimitedNOS(player) ? "~r~N" : "~w~-";
 		String autoFlip = vehicleManager.isPlayerAutoFlip(player) ? "~b~F" : "~w~-";
-		String lockDoor = player.getVehicle().getState().getDoors()!=0 ? "~y~D" : "~w~-";
+		String lockDoor = vehicle.getState().getDoors()!=0 ? "~y~D" : "~w~-";
 
 		speedDisplay.setText(String.format("%1$1.0f", spd));
 		

@@ -31,6 +31,7 @@ import net.gtaun.shoebill.object.Timer;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
+import net.gtaun.wl.vehicle.VehicleManagerServiceImpl.OwnedVehicleLastPassengers;
 import net.gtaun.wl.vehicle.textdraw.VehicleSpeedometerWidget;
 
 import org.apache.commons.lang3.StringUtils;
@@ -54,7 +55,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	}
 	
 	
-	private final VehicleManagerService vehicleManager;
+	private final VehicleManagerServiceImpl vehicleManager;
 	private final Timer timer;
 	
 	private boolean isUnlimitedNOS;
@@ -63,10 +64,10 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	private boolean isAutoCarryPassengers;
 	
 	private VehicleSpeedometerWidget speedometerWidget;
-	private Vehicle lastVehicle;
+	private Vehicle lastDriveVehicle;
 	
 	
-	public PlayerVehicleActuator(Shoebill shoebill, EventManager eventManager, Player player, VehicleManagerService vehicleManager)
+	public PlayerVehicleActuator(Shoebill shoebill, EventManager eventManager, Player player, VehicleManagerServiceImpl vehicleManager)
 	{
 		super(shoebill, eventManager, player);
 		this.vehicleManager = vehicleManager;
@@ -218,7 +219,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 			Player player = event.getPlayer();
 			PlayerState state = player.getState();
 			
-			if (state != PlayerState.DRIVER) lastVehicle = null;
+			if (state != PlayerState.DRIVER) lastDriveVehicle = null;
 			
 			if (speedometerWidget != null)
 			{
@@ -230,14 +231,30 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 			{
 				Vehicle vehicle = player.getVehicle();
 				int modelId = vehicle.getModelId();
-				
-				if (isAutoCarryPassengers && lastVehicle != null)
+
+				if (isAutoCarryPassengers && lastDriveVehicle != null)
 				{
-					List<Player> passengers = VehicleUtils.getVehiclePassengers(lastVehicle);
-					int limits = Math.max(passengers.size(), VehicleModel.getSeats(lastVehicle.getModelId()));
-					for (int i=0; i<limits-1; i++) vehicle.putPlayer(passengers.get(i), i+1);
+					List<Player> passengers = null;
+					if (lastDriveVehicle.isDestroyed())
+					{
+						OwnedVehicleLastPassengers lastPassengers = vehicleManager.getOwnedVehicleLastPassengers(player);
+						if (lastPassengers != null && lastPassengers.lastUpdate+2000L > System.currentTimeMillis())
+						{
+							passengers = lastPassengers.passengers;
+						}
+					}
+					else
+					{
+						passengers = VehicleUtils.getVehiclePassengers(lastDriveVehicle);
+					}
+					
+					if (passengers != null)
+					{
+						int limits = Math.min(passengers.size(), VehicleModel.getSeats(vehicle.getModelId())-1);
+						for (int i=0; i<limits; i++) vehicle.putPlayer(passengers.get(i), i+1);
+					}
 				}
-				lastVehicle = vehicle;
+				lastDriveVehicle = vehicle;
 				
 				speedometerWidget = new VehicleSpeedometerWidget(shoebill, rootEventManager, player, vehicleManager);
 				speedometerWidget.init();
@@ -301,7 +318,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 
 			int modelId = vehicle.getModelId();
 			if (isAutoFlip && VehicleModel.getType(modelId) != VehicleType.AIRCRAFT)
-			{	
+			{
 				Quaternion quat = vehicle.getRotationQuat();
 				final float w = quat.getW();
 				final float x = quat.getX();

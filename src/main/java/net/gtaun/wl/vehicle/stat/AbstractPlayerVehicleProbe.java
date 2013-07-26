@@ -136,6 +136,7 @@ public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
 			if (allowableStates.contains(player.getState()) == false) return;
 			
 			Vehicle vehicle = player.getVehicle();
+			if (vehicle == null) return;
 			
 			float speed = vehicle.getVelocity().speed3d() * 50;
 			if (speed > 0.02f)
