@@ -86,7 +86,7 @@ public class VehicleManagerPlugin extends ConfigurablePlugin
 	{
 		unregisterService(VehicleManagerService.class);
 		
-		vehicleManagerSerivce.uninitialize();
+		vehicleManagerSerivce.destroy();
 		vehicleManagerSerivce = null;
 		
 		datastore = null;

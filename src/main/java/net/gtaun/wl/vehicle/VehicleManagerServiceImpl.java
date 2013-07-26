@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 import net.gtaun.shoebill.Shoebill;
+import net.gtaun.shoebill.common.AbstractShoebillContext;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder.PlayerLifecycleObjectFactory;
 import net.gtaun.shoebill.common.vehicle.VehicleUtils;
@@ -50,7 +51,7 @@ import net.gtaun.wl.vehicle.stat.VehicleStatisticManager;
 
 import com.google.code.morphia.Datastore;
 
-public class VehicleManagerServiceImpl implements VehicleManagerService
+public class VehicleManagerServiceImpl extends AbstractShoebillContext implements VehicleManagerService
 {
 	class OwnedVehicleLastPassengers
 	{
@@ -65,8 +66,6 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	}
 	
 	
-	private final Shoebill shoebill;
-	private final EventManager rootEventManager;
 	private final VehicleManagerPlugin plugin;
 	private final Datastore datastore;
 	
@@ -86,8 +85,7 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	
 	public VehicleManagerServiceImpl(Shoebill shoebill, EventManager rootEventManager, VehicleManagerPlugin plugin, Datastore datastore)
 	{
-		this.shoebill = shoebill;
-		this.rootEventManager = rootEventManager;
+		super(shoebill, rootEventManager);
 		this.plugin = plugin;
 		this.datastore = datastore;
 		
@@ -101,10 +99,10 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 		
 		playerOwnedVehicleLastPassengers = new WeakHashMap<>();
 		
-		initialize();
+		init();
 	}
 	
-	private void initialize()
+	protected void onInit()
 	{
 		PlayerLifecycleObjectFactory<PlayerVehicleActuator> factory = new PlayerLifecycleObjectFactory<PlayerVehicleActuator>()
 		{
@@ -119,13 +117,14 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 		eventManager.registerHandler(PlayerConnectEvent.class, playerEventHandler, HandlerPriority.NORMAL);
 		eventManager.registerHandler(PlayerDisconnectEvent.class, playerEventHandler, HandlerPriority.NORMAL);
 		eventManager.registerHandler(PlayerCommandEvent.class, playerEventHandler, HandlerPriority.NORMAL);
+
+		addDestroyable(playerLifecycleHolder);
+		addDestroyable(statisticManager);
 	}
 
-	public void uninitialize()
+	protected void onDestroy()
 	{
-		playerLifecycleHolder.destroy();
-		statisticManager.destroy();
-		eventManager.cancelAll();
+		
 	}
 	
 	public OwnedVehicleLastPassengers getOwnedVehicleLastPassengers(Player player)

@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.gtaun.shoebill.Shoebill;
+import net.gtaun.shoebill.common.AbstractShoebillContext;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder.PlayerLifecycleObjectFactory;
 import net.gtaun.shoebill.constant.VehicleModel;
@@ -29,13 +30,11 @@ import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Timer;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
-import net.gtaun.util.event.ManagedEventManager;
 
 import com.google.code.morphia.Datastore;
 
-public class VehicleStatisticManager
+public class VehicleStatisticManager extends AbstractShoebillContext
 {
-	private final ManagedEventManager eventManager;
 	private final PlayerLifecycleHolder playerLifecycleHolder;
 	private final Datastore datastore;
 
@@ -45,11 +44,17 @@ public class VehicleStatisticManager
 	
 	public VehicleStatisticManager(Shoebill shoebill, EventManager rootEventManager, PlayerLifecycleHolder holder, Datastore datastore)
 	{
-		this.eventManager = new ManagedEventManager(rootEventManager);
+		super(shoebill, rootEventManager);
 		this.playerLifecycleHolder = holder;
 		this.datastore = datastore;
 		this.globalVehicleStatistics = new HashMap<>();
 		
+		onInit();
+	}
+	
+	@Override
+	protected void onInit()
+	{
 		load();
 
 		PlayerLifecycleObjectFactory<PlayerVehicleStatisticActuator> factory = new PlayerLifecycleObjectFactory<PlayerVehicleStatisticActuator>()
@@ -63,15 +68,15 @@ public class VehicleStatisticManager
 		playerLifecycleHolder.registerClass(PlayerVehicleStatisticActuator.class, factory);
 		
 		saveTimer = shoebill.getSampObjectFactory().createTimer(1000*60*5);
+		eventManager.registerHandler(TimerTickEvent.class, saveTimer, saveTimerEventHandler, HandlerPriority.NORMAL);
 		saveTimer.start();
 		
-		eventManager.registerHandler(TimerTickEvent.class, saveTimer, saveTimerEventHandler, HandlerPriority.NORMAL);
+		addDestroyable(saveTimer);		
 	}
 	
-	public void destroy()
+	protected void onDestroy()
 	{
-		eventManager.cancelAll();
-		saveTimer.destroy();
+		save();
 	}
 	
 	public void load()
