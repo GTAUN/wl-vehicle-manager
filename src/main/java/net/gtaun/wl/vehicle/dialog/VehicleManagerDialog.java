@@ -177,15 +177,17 @@ public class VehicleManagerDialog extends AbstractListDialog
 				String caption = String.format("%1$s: %2$s", "车管", "关于车管系统");
 				String format =
 					"--- 新未来世界 车辆管理系统组件 ---\n" +
-					"版本: %1$s (Build %2$d), 编译时间: %3$s\n\n" +
+					"版本: %1$s (Build %2$d)\n" +
+					"编译时间: %3$s\n\n" +
 					"开发: mk124\n" +
-					"功能设计: mk124\n" + 		
-					"设计顾问: 52_PLA(aka. YinJin), [ITC]1314, [ITC]KTS\n" +
+					"功能设计: mk124\n" +
+					"设计顾问: 52_PLA(aka. Yin.J), [ITC]1314, [ITC]KTS\n" +
 					"数据采集: mk124, 52_PLA\n" +
-					"测试: 52_PLA, [ITC]1314, [ITC]KTS, SMALL_KR\n\n" +
-					"本组件是新未来世界项目的一部分。" +
-					"本组件使用 GPL v2 许可证开源。" +
-					"本组件禁止在任何商业或盈利性服务器上使用。";
+					"测试: 52_PLA, [ITC]1314, [ITC]KTS, SMALL_KR\n" +
+					"感谢: vvg, yezhizhu, Luck, Waunny\n\n" +
+					"本组件是新未来世界项目的一部分。\n" +
+					"本组件使用 GPL v2 许可证开放源代码。\n" +
+					"本组件禁止在任何商业或盈利性服务器上使用。\n";
 				String message = String.format(format, desc.getVersion(), desc.getBuildNumber(), desc.getBuildDate());
 				
 				new MsgboxDialog(player, shoebill, eventManager, VehicleManagerDialog.this, caption, message).show();

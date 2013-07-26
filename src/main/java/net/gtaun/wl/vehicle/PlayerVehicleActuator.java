@@ -59,6 +59,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	
 	
 	private final VehicleManagerServiceImpl vehicleManager;
+	private final Datastore datastore;
 	private final Timer timer;
 	
 	private final PlayerPreferencesImpl playerPreferences;
@@ -71,6 +72,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	{
 		super(shoebill, eventManager, player);
 		this.vehicleManager = vehicleManager;
+		this.datastore = datastore;
 		
 		timer = shoebill.getSampObjectFactory().createTimer(10000);
 		addDestroyable(timer);
@@ -103,6 +105,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	protected void onDestroy()
 	{
 		if (speedometerWidget != null) speedometerWidget.destroy();
+		datastore.save(playerPreferences);
 	}
 	
 	public PlayerPreferencesImpl getPlayerPreferences()
@@ -112,17 +115,18 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	
 	private void createOrDestroySpeedometerWidget()
 	{
+		if (speedometerWidget != null)
+		{
+			speedometerWidget.destroy();
+			speedometerWidget = null;
+		}
+		
 		PlayerState state = player.getState();
 		if (playerPreferences.isSpeedometerWidgetEnabled() &&
 			(state == PlayerState.DRIVER || state == PlayerState.PASSENGER))
 		{
 			speedometerWidget = new VehicleSpeedometerWidget(shoebill, rootEventManager, player, vehicleManager);
 			speedometerWidget.init();
-		}
-		else if (speedometerWidget != null)
-		{
-			speedometerWidget.destroy();
-			speedometerWidget = null;
 		}
 	}
 	
