@@ -148,18 +148,22 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 		Vehicle vehicle = shoebill.getSampObjectFactory().createVehicle(modelId, player.getLocation(), random.nextInt(256), random.nextInt(256), 3600);
 		ownVehicle(player, vehicle);
 		
-		if (passengers == null)
+		PlayerPreferences pref = getPlayerPreferences(player);
+		if (pref.isAutoCarryPassengers())
 		{
-			OwnedVehicleLastPassengers lastPassengers = playerOwnedVehicleLastPassengers.get(player);
-			if (lastPassengers != null && lastPassengers.lastUpdate+2000L > System.currentTimeMillis())
+			if (passengers == null)
 			{
-				passengers = lastPassengers.passengers;
+				OwnedVehicleLastPassengers lastPassengers = playerOwnedVehicleLastPassengers.get(player);
+				if (lastPassengers != null && lastPassengers.lastUpdate+2000L > System.currentTimeMillis())
+				{
+					passengers = lastPassengers.passengers;
+				}
 			}
-		}
-		if (passengers != null)
-		{
-			int limits = Math.min(passengers.size(), VehicleModel.getSeats(vehicle.getModelId())-1);
-			for (int i=0; i<limits; i++) vehicle.putPlayer(passengers.get(i), i+1);
+			if (passengers != null)
+			{
+				int limits = Math.min(passengers.size(), VehicleModel.getSeats(vehicle.getModelId())-1);
+				for (int i=0; i<limits; i++) vehicle.putPlayer(passengers.get(i), i+1);
+			}
 		}
 		
 		if (velocity != null) vehicle.setVelocity(velocity);
