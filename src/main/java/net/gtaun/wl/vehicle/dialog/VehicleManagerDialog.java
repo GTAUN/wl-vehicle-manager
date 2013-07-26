@@ -20,6 +20,7 @@ import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
+import net.gtaun.wl.vehicle.PlayerPreferences;
 import net.gtaun.wl.vehicle.VehicleManagerService;
 import net.gtaun.wl.vehicle.util.DistanceVehicleFilter;
 import net.gtaun.wl.vehicle.util.NearbyVehicleComparator;
@@ -31,6 +32,8 @@ public class VehicleManagerDialog extends AbstractListDialog
 	{
 		super(player, shoebill, eventManager);
 		setCaption("车辆管理系统");
+		
+		final PlayerPreferences pref = vehicleManager.getPlayerPreferences(player);
 
 		dialogListItems.add(new DialogListItem("当前车辆 ...")
 		{
@@ -112,14 +115,14 @@ public class VehicleManagerDialog extends AbstractListDialog
 			@Override
 			public boolean isSwitched()
 			{
-				return vehicleManager.isPlayerUnlimitedNOS(player);
+				return pref.isUnlimitedNOS();
 			}
 			
 			@Override
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				vehicleManager.setPlayerUnlimitedNOS(player, !vehicleManager.isPlayerUnlimitedNOS(player));
+				pref.setUnlimitedNOS(!pref.isUnlimitedNOS());
 				show();
 			}
 		});
@@ -129,14 +132,14 @@ public class VehicleManagerDialog extends AbstractListDialog
 			@Override
 			public boolean isSwitched()
 			{
-				return vehicleManager.isPlayerAutoRepair(player);
+				return pref.isAutoRepair();
 			}
 			
 			@Override
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				vehicleManager.setPlayerAutoRepair(player, !vehicleManager.isPlayerAutoRepair(player));
+				pref.setAutoRepair(!pref.isAutoRepair());
 				show();
 			}
 		});
@@ -146,14 +149,14 @@ public class VehicleManagerDialog extends AbstractListDialog
 			@Override
 			public boolean isSwitched()
 			{
-				return vehicleManager.isPlayerAutoFlip(player);
+				return pref.isAutoFlip();
 			}
 			
 			@Override
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				vehicleManager.setPlayerAutoFlip(player, !vehicleManager.isPlayerAutoFlip(player));
+				pref.setAutoFlip(!pref.isAutoFlip());
 				show();
 			}
 		});
@@ -163,14 +166,14 @@ public class VehicleManagerDialog extends AbstractListDialog
 			@Override
 			public boolean isSwitched()
 			{
-				return vehicleManager.isAutoCarryPassengers(player);
+				return pref.isAutoCarryPassengers();
 			}
 			
 			@Override
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				vehicleManager.setAutoCarryPassengers(player, !vehicleManager.isAutoCarryPassengers(player));
+				pref.setAutoCarryPassengers(!pref.isAutoCarryPassengers());
 				show();
 			}
 		});

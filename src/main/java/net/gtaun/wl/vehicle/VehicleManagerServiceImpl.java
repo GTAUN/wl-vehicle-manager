@@ -108,7 +108,7 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 			@Override
 			public PlayerVehicleActuator create(Shoebill shoebill, EventManager eventManager, Player player)
 			{
-				return new PlayerVehicleActuator(shoebill, eventManager, player, VehicleManagerServiceImpl.this);
+				return new PlayerVehicleActuator(shoebill, eventManager, player, VehicleManagerServiceImpl.this, datastore);
 			}
 		};
 		playerLifecycleHolder.registerClass(PlayerVehicleActuator.class, factory);
@@ -252,59 +252,10 @@ public class VehicleManagerServiceImpl implements VehicleManagerService
 	}
 	
 	@Override
-	public boolean isPlayerUnlimitedNOS(Player player)
+	public PlayerPreferences getPlayerPreferences(Player player)
 	{
 		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		return actuator.isUnlimitedNOS();
-	}
-	
-	@Override
-	public void setPlayerUnlimitedNOS(Player player, boolean enabled)
-	{
-		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		actuator.setUnlimitedNOS(enabled);
-	}
-	
-	@Override
-	public boolean isPlayerAutoRepair(Player player)
-	{
-		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		return actuator.isAutoRepair();
-	}
-
-	@Override
-	public void setPlayerAutoRepair(Player player, boolean enabled)
-	{
-		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		actuator.setAutoRepair(enabled);
-	}
-	
-	@Override
-	public boolean isPlayerAutoFlip(Player player)
-	{
-		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		return actuator.isAutoFlip();
-	}
-
-	@Override
-	public void setPlayerAutoFlip(Player player, boolean enabled)
-	{
-		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		actuator.setAutoFlip(enabled);
-	}
-	
-	@Override
-	public boolean isAutoCarryPassengers(Player player)
-	{
-		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		return actuator.isAutoCarryPassengers();
-	}
-
-	@Override
-	public void setAutoCarryPassengers(Player player, boolean enabled)
-	{
-		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		actuator.setAutoCarryPassengers(enabled);
+		return actuator.getPlayerPreferences();
 	}
 	
 	private PlayerEventHandler playerEventHandler = new PlayerEventHandler()

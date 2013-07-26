@@ -36,6 +36,8 @@ import net.gtaun.wl.vehicle.textdraw.VehicleSpeedometerWidget;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.code.morphia.Datastore;
+
 class PlayerVehicleActuator extends AbstractPlayerContext
 {
 	private static final Map<String, Integer> VEHICLE_SHORT_NAMES = createVehicleShortNames();
@@ -58,22 +60,26 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	private final VehicleManagerServiceImpl vehicleManager;
 	private final Timer timer;
 	
-	private boolean isUnlimitedNOS;
-	private boolean isAutoRepair;
-	private boolean isAutoFlip;
-	private boolean isAutoCarryPassengers;
+	private final PlayerPreferencesImpl playerPreferences;
 	
 	private VehicleSpeedometerWidget speedometerWidget;
 	private Vehicle lastDriveVehicle;
 	
 	
-	public PlayerVehicleActuator(Shoebill shoebill, EventManager eventManager, Player player, VehicleManagerServiceImpl vehicleManager)
+	public PlayerVehicleActuator(Shoebill shoebill, EventManager eventManager, Player player, VehicleManagerServiceImpl vehicleManager, Datastore datastore)
 	{
 		super(shoebill, eventManager, player);
 		this.vehicleManager = vehicleManager;
 		
 		timer = shoebill.getSampObjectFactory().createTimer(10000);
 		addDestroyable(timer);
+		
+		String uniqueId = player.getName();
+		
+		PlayerPreferencesImpl pref = datastore.createQuery(PlayerPreferencesImpl.class).filter("playerUniqueId", uniqueId).get();
+		if (pref != null) pref.setPlayer(player);
+		else pref = new PlayerPreferencesImpl(player, uniqueId);
+		playerPreferences = pref;
 	}
 
 	@Override
@@ -96,57 +102,9 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 		if (speedometerWidget != null) speedometerWidget.destroy();
 	}
 	
-	public boolean isUnlimitedNOS()
+	public PlayerPreferencesImpl getPlayerPreferences()
 	{
-		return isUnlimitedNOS;
-	}
-	
-	public boolean isAutoRepair()
-	{
-		return isAutoRepair;
-	}
-	
-	public boolean isAutoFlip()
-	{
-		return isAutoFlip;
-	}
-	
-	public boolean isAutoCarryPassengers()
-	{
-		return isAutoCarryPassengers;
-	}
-	
-	public void setUnlimitedNOS(boolean enabled)
-	{
-		this.isUnlimitedNOS = enabled;
-		
-		Vehicle vehicle = player.getVehicle();
-		if (vehicle == null) return;
-		
-		if (isUnlimitedNOS && VehicleComponentModel.isVehicleSupported(vehicle.getModelId(), VehicleComponentModel.NITRO_10_TIMES))
-		{
-			vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
-		}
-	}
-	
-	public void setAutoRepair(boolean enabled)
-	{
-		this.isAutoRepair = enabled;
-
-		Vehicle vehicle = player.getVehicle();
-		if (vehicle == null) return;
-		
-		if (isAutoRepair && vehicle.getHealth() < 1000.0f) vehicle.repair();
-	}
-	
-	public void setAutoFlip(boolean enabled)
-	{
-		this.isAutoFlip = enabled;
-	}
-	
-	public void setAutoCarryPassengers(boolean enabled)
-	{
-		this.isAutoCarryPassengers = enabled;
+		return playerPreferences;
 	}
 	
 	private TimerEventHandler timerEventHandler = new TimerEventHandler()
@@ -157,7 +115,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 			{
 				Vehicle vehicle = player.getVehicle();
 				int modelId = vehicle.getModelId();
-				if (isUnlimitedNOS && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
+				if (playerPreferences.isUnlimitedNOS() && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
 				{
 					vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
 				}
@@ -232,7 +190,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 				Vehicle vehicle = player.getVehicle();
 				int modelId = vehicle.getModelId();
 
-				if (isAutoCarryPassengers && lastDriveVehicle != null)
+				if (playerPreferences.isAutoCarryPassengers() && lastDriveVehicle != null)
 				{
 					List<Player> passengers = null;
 					if (lastDriveVehicle.isDestroyed())
@@ -259,12 +217,12 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 				speedometerWidget = new VehicleSpeedometerWidget(shoebill, rootEventManager, player, vehicleManager);
 				speedometerWidget.init();
 				
-				if (isUnlimitedNOS && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
+				if (playerPreferences.isUnlimitedNOS() && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
 				{
 					vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
 				}
 				
-				if (isAutoRepair && vehicle.getHealth() < 1000.0f) vehicle.repair();
+				if (playerPreferences.isAutoRepair() && vehicle.getHealth() < 1000.0f) vehicle.repair();
 			}
 			else if (state == PlayerState.PASSENGER)
 			{
@@ -317,7 +275,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 			if (player.getState() != PlayerState.DRIVER || vehicle != player.getVehicle()) return;
 
 			int modelId = vehicle.getModelId();
-			if (isAutoFlip && VehicleModel.getType(modelId) != VehicleType.AIRCRAFT)
+			if (playerPreferences.isAutoFlip() && VehicleModel.getType(modelId) != VehicleType.AIRCRAFT)
 			{
 				Quaternion quat = vehicle.getRotationQuat();
 				final float w = quat.getW();
@@ -338,7 +296,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 				}
 			}
 			
-			if (isAutoRepair && vehicle.getHealth() < 1000.0f) vehicle.repair();
+			if (playerPreferences.isAutoRepair() && vehicle.getHealth() < 1000.0f) vehicle.repair();
 		}
 		
 		protected void onVehicleUpdateDamage(VehicleUpdateDamageEvent event)
@@ -346,7 +304,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 			Vehicle vehicle = event.getVehicle();
 			if (player.getState() != PlayerState.DRIVER || vehicle != player.getVehicle()) return;
 			
-			if (isAutoRepair && vehicle == player.getVehicle()) vehicle.repair();
+			if (playerPreferences.isAutoRepair() && vehicle == player.getVehicle()) vehicle.repair();
 		}
 	};
 }

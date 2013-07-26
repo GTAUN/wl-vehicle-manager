@@ -96,9 +96,9 @@ public class VehicleSpeedometerWidget extends AbstractPlayerContext
 		long hours = stat.getDriveSecondCount() / 60 / 60;
 		String formatedTime = String.format("%1$02d:%2$02d:%3$02d", hours, minutes, seconds);
 
-		String autoRepair = vehicleManager.isPlayerAutoRepair(player) ? "~g~R" : "~w~-";
-		String unlimitedNOS = vehicleManager.isPlayerUnlimitedNOS(player) ? "~r~N" : "~w~-";
-		String autoFlip = vehicleManager.isPlayerAutoFlip(player) ? "~b~F" : "~w~-";
+		String autoRepair = vehicleManager.getPlayerPreferences(player).isAutoRepair() ? "~g~R" : "~w~-";
+		String unlimitedNOS = vehicleManager.getPlayerPreferences(player).isUnlimitedNOS() ? "~r~N" : "~w~-";
+		String autoFlip = vehicleManager.getPlayerPreferences(player).isAutoFlip() ? "~b~F" : "~w~-";
 		String lockDoor = vehicle.getState().getDoors()!=0 ? "~y~D" : "~w~-";
 
 		speedDisplay.setText(String.format("%1$1.0f", spd));

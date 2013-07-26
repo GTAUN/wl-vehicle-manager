@@ -47,6 +47,11 @@ public class PlayerVehicleStatisticImpl implements PlayerVehicleStatistic
 	{
 		return playerUniqueId;
 	}
+	
+	public void setPlayer(Player player)
+	{
+		this.player = player;
+	}
 
 	@Override
 	public Player getPlayer()

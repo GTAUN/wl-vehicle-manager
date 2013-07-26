@@ -65,6 +65,7 @@ public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
 		List<PlayerVehicleStatisticImpl> statistics = datastore.createQuery(PlayerVehicleStatisticImpl.class).asList();
 		for (PlayerVehicleStatisticImpl statistic : statistics)
 		{
+			statistic.setPlayer(player);
 			vehicleStatistics.put(statistic.getModelId(), statistic);
 		}
 		
