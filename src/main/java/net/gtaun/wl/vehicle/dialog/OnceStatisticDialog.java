@@ -17,14 +17,12 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 
 public class OnceStatisticDialog extends AbstractDialog
 {
-	private final VehicleManagerService vehicleManager;
 	private final OncePlayerVehicleStatistic stat;
 	
 	
-	public OnceStatisticDialog(Player player, Shoebill shoebill, EventManager rootEventManager, VehicleManagerService vehicleManager, OncePlayerVehicleStatistic stat)
+	public OnceStatisticDialog(Player player, Shoebill shoebill, EventManager rootEventManager, AbstractDialog parentDialog, VehicleManagerService vehicleManager, OncePlayerVehicleStatistic stat)
 	{
-		super(DialogStyle.MSGBOX, player, shoebill, rootEventManager);
-		this.vehicleManager = vehicleManager;
+		super(DialogStyle.MSGBOX, player, shoebill, rootEventManager, parentDialog);
 		this.stat = stat;
 	}
 	
@@ -82,7 +80,7 @@ public class OnceStatisticDialog extends AbstractDialog
 		if (event.getDialogResponse() == 0)
 		{
 			player.playSound(1084, player.getLocation());
-			new RecordedOnceStatisticDialog(player, shoebill, rootEventManager, vehicleManager).show();
+			showParentDialog();
 		}
 		
 		super.onDialogResponse(event);

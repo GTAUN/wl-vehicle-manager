@@ -14,15 +14,13 @@ import net.gtaun.wl.vehicle.VehicleManagerService;
 
 public class VehicleComponentPaintjobDialog extends AbstractListDialog
 {
-	private final AbstractDialog parentDialog;
 	private final Vehicle vehicle;
 	
 	
 	public VehicleComponentPaintjobDialog
 	(final Player player, final Shoebill shoebill, final EventManager rootEventManager, final AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerService vehicleManager)
 	{
-		super(player, shoebill, rootEventManager);
-		this.parentDialog = parentDialog;
+		super(player, shoebill, rootEventManager, parentDialog);
 		this.vehicle = vehicle;
 
 		final int modelId = vehicle.getModelId();
@@ -42,8 +40,7 @@ public class VehicleComponentPaintjobDialog extends AbstractListDialog
 					player.sendMessage(Color.LIGHTBLUE, "%1$s: 您的车子 %2$s 已喷漆: %3$s %4$d 。", "车管", name, "喷漆", paintjobId);
 					
 					vehicle.setPaintjob(paintjobId);
-					parentDialog.show();
-					destroy();
+					showParentDialog();
 				}
 			});
 		}
@@ -73,7 +70,7 @@ public class VehicleComponentPaintjobDialog extends AbstractListDialog
 		if (event.getDialogResponse() == 0)
 		{
 			player.playSound(1084, player.getLocation());
-			parentDialog.show();
+			showParentDialog();
 		}
 		
 		super.onDialogResponse(event);

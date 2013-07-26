@@ -23,6 +23,7 @@ import java.util.TreeSet;
 import net.gtaun.shoebill.SampObjectStore;
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.Filter;
+import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.common.dialog.AbstractPageListDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.Location;
@@ -39,9 +40,9 @@ public class EmptyVehicleListDialog extends AbstractPageListDialog
 	private final Filter<Vehicle> filter;
 	
 	
-	public EmptyVehicleListDialog(Player player, Shoebill shoebill, EventManager eventManager, VehicleManagerService vehicleManager, Comparator<Vehicle> comparator, Filter<Vehicle> filter)
+	public EmptyVehicleListDialog(Player player, Shoebill shoebill, EventManager eventManager, AbstractDialog parentDialog, VehicleManagerService vehicleManager, Comparator<Vehicle> comparator, Filter<Vehicle> filter)
 	{
-		super(player, shoebill, eventManager);
+		super(player, shoebill, eventManager, parentDialog);
 		this.vehicleManager = vehicleManager;
 		this.comparator = comparator;
 		this.filter = filter;
@@ -96,7 +97,7 @@ public class EmptyVehicleListDialog extends AbstractPageListDialog
 				public void onItemSelect()
 				{
 					player.playSound(1083, player.getLocation());
-					new VehicleDialog(player, shoebill, rootEventManager, vehicle, vehicleManager, EmptyVehicleListDialog.this).show();
+					new VehicleDialog(player, shoebill, rootEventManager, EmptyVehicleListDialog.this, vehicle, vehicleManager).show();
 				}
 			});
 		}
@@ -111,7 +112,7 @@ public class EmptyVehicleListDialog extends AbstractPageListDialog
 		if (event.getDialogResponse() == 0)
 		{
 			player.playSound(1084, player.getLocation());
-			new VehicleManagerDialog(player, shoebill, rootEventManager, vehicleManager).show();
+			showParentDialog();
 		}
 		
 		super.onDialogResponse(event);

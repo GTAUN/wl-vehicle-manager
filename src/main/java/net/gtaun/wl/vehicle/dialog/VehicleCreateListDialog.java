@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import net.gtaun.shoebill.Shoebill;
+import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.common.dialog.AbstractPageListDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.Color;
@@ -66,7 +67,7 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 	public VehicleCreateListDialog
 	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager, final String setname, int[] modelIds)
 	{
-		this(player, shoebill, eventManager, vehicleManager, setname, modelIds,
+		this(player, shoebill, eventManager, null, vehicleManager, setname, modelIds,
 			new Comparator<Integer>()
 			{
 				@Override
@@ -80,9 +81,9 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 	}
 	
 	public VehicleCreateListDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager, final String setname, int[] modelIds, Comparator<Integer> sortComparator)
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerService vehicleManager, final String setname, int[] modelIds, Comparator<Integer> sortComparator)
 	{
-		super(player, shoebill, eventManager);
+		super(player, shoebill, eventManager, parentDialog);
 		this.vehicleManager = vehicleManager;
 		this.setName = setname;
 		
@@ -134,7 +135,7 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 		if (event.getDialogResponse() == 0)
 		{
 			player.playSound(1084, player.getLocation());
-			new VehicleCreateMainDialog(player, shoebill, rootEventManager, vehicleManager).show();
+			showParentDialog();
 		}
 		
 		super.onDialogResponse(event);

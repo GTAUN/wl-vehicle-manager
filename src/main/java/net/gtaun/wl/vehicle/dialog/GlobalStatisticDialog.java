@@ -19,9 +19,9 @@ public class GlobalStatisticDialog extends AbstractDialog
 	private final VehicleManagerService vehicleManager;
 	
 	
-	public GlobalStatisticDialog(Player player, Shoebill shoebill, EventManager rootEventManager, final VehicleManagerService vehicleManager)
+	public GlobalStatisticDialog(Player player, Shoebill shoebill, EventManager rootEventManager, AbstractDialog parentDialog, final VehicleManagerService vehicleManager)
 	{
-		super(DialogStyle.MSGBOX, player, shoebill, rootEventManager);
+		super(DialogStyle.MSGBOX, player, shoebill, rootEventManager, parentDialog);
 		this.vehicleManager = vehicleManager;
 	}
 	
@@ -84,7 +84,7 @@ public class GlobalStatisticDialog extends AbstractDialog
 		if (event.getDialogResponse() == 0)
 		{
 			player.playSound(1084, player.getLocation());
-			new VehicleManagerDialog(player, shoebill, rootEventManager, vehicleManager).show();
+			showParentDialog();
 		}
 		
 		super.onDialogResponse(event);

@@ -18,7 +18,6 @@ import net.gtaun.wl.vehicle.VehicleManagerService;
 
 public class VehicleComponentAddDialog extends AbstractListDialog
 {
-	private final AbstractDialog parentDialog;
 	private final Vehicle vehicle;
 	private final VehicleComponentSlot componentSlot;
 	
@@ -26,8 +25,7 @@ public class VehicleComponentAddDialog extends AbstractListDialog
 	public VehicleComponentAddDialog
 	(final Player player, final Shoebill shoebill, final EventManager eventManager, final AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerService vehicleManager, final VehicleComponentSlot slot)
 	{
-		super(player, shoebill, eventManager);
-		this.parentDialog = parentDialog;
+		super(player, shoebill, eventManager, parentDialog);
 		this.vehicle = vehicle;
 		this.componentSlot = slot;
 
@@ -51,7 +49,7 @@ public class VehicleComponentAddDialog extends AbstractListDialog
 					player.sendMessage(Color.LIGHTBLUE, "%1$s: 您的车子 %2$s 已安装%3$s新组件: %4$s 。", "车管", name, slotName, componentName);
 					
 					vehicle.getComponent().add(cid);
-					parentDialog.show();
+					showParentDialog();
 				}
 			});
 		}
@@ -81,7 +79,7 @@ public class VehicleComponentAddDialog extends AbstractListDialog
 		if (event.getDialogResponse() == 0)
 		{
 			player.playSound(1084, player.getLocation());
-			parentDialog.show();
+			showParentDialog();
 		}
 		
 		super.onDialogResponse(event);

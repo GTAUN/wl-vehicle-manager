@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import net.gtaun.shoebill.Shoebill;
+import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.common.dialog.AbstractListDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.constant.VehicleModel.VehicleType;
@@ -66,13 +67,9 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 	}
 	
 	
-	private final VehicleManagerService vehicleManager;
-	
-	
-	public VehicleCreateMainDialog(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager)
+	public VehicleCreateMainDialog(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerService vehicleManager)
 	{
-		super(player, shoebill, eventManager);
-		this.vehicleManager = vehicleManager;
+		super(player, shoebill, eventManager, parentDialog);
 		
 		setCaption(String.format("%1$s: 刷车 - 车辆类型选择", "车管"));
 
@@ -84,7 +81,6 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 				player.playSound(1083, player.getLocation());
 				int[] vehicleModelIds = ArrayUtils.toPrimitive(VehicleModel.getIds().toArray(new Integer[0]));
 				new VehicleCreateListDialog(player, shoebill, eventManager, vehicleManager, "所有车辆", vehicleModelIds).show();
-				destroy();
 			}
 		});
 		
@@ -106,8 +102,7 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 						return (int) (s2.getDriveCount() - s1.getDriveCount());
 					}
 				};
-				new VehicleCreateListDialog(player, shoebill, eventManager, vehicleManager, "所有车辆", vehicleModelIds, sortComp).show();
-				destroy();
+				new VehicleCreateListDialog(player, shoebill, eventManager, VehicleCreateMainDialog.this, vehicleManager, "所有车辆", vehicleModelIds, sortComp).show();
 			}
 		});
 		
@@ -124,7 +119,6 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 				{
 					player.playSound(1083, player.getLocation());
 					new VehicleCreateListDialog(player, shoebill, eventManager, vehicleManager, itemName, set).show();
-					destroy();
 				}
 			});
 		}
@@ -143,7 +137,6 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 					player.playSound(1083, player.getLocation());
 					int[] vehicleModelIds = ArrayUtils.toPrimitive(VehicleModel.getIds(type).toArray(new Integer[0]));
 					new VehicleCreateListDialog(player, shoebill, eventManager, vehicleManager, itemName, vehicleModelIds).show();
-					destroy();
 				}
 			});
 		}
@@ -155,7 +148,7 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 		if (event.getDialogResponse() == 0)
 		{
 			player.playSound(1084, player.getLocation());
-			new VehicleManagerDialog(player, shoebill, rootEventManager, vehicleManager).show();
+			showParentDialog();
 		}
 		
 		super.onDialogResponse(event);

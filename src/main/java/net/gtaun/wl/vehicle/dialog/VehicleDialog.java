@@ -34,16 +34,14 @@ public class VehicleDialog extends AbstractListDialog
 {
 	private final Vehicle vehicle;
 	private final VehicleManagerService vehicleManager;
-	private final AbstractDialog parentDialog;
 	
 	
 	public VehicleDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, final Vehicle vehicle, final VehicleManagerService vehicleManager, AbstractDialog parentDialog)
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerService vehicleManager)
 	{
-		super(player, shoebill, eventManager);
+		super(player, shoebill, eventManager, parentDialog);
 		this.vehicle = vehicle;
 		this.vehicleManager = vehicleManager;
-		this.parentDialog = parentDialog;
 		
 		if (vehicle == null)
 		{
@@ -286,7 +284,7 @@ public class VehicleDialog extends AbstractListDialog
 		if (event.getDialogResponse() == 0)
 		{
 			player.playSound(1084, player.getLocation());
-			if (parentDialog != null) parentDialog.show();
+			showParentDialog();
 		}
 		
 		super.onDialogResponse(event);

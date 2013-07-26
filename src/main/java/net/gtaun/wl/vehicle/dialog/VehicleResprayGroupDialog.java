@@ -45,9 +45,6 @@ public class VehicleResprayGroupDialog extends AbstractListDialog
 		0x561A28FF, 0x4E0E27FF, 0x706C67FF, 0x3B3E42FF, 0x2E2D33FF, 0x7B7E7DFF, 0x4A4442FF, 0x28344EFF
 	};
 	
-
-	private final AbstractDialog parentDialog;
-	
 	
 	public VehicleResprayGroupDialog
 	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerService vehicleManager)
@@ -58,8 +55,7 @@ public class VehicleResprayGroupDialog extends AbstractListDialog
 	public VehicleResprayGroupDialog
 	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerService vehicleManager, final int color1)
 	{
-		super(player, shoebill, eventManager);
-		this.parentDialog = parentDialog;
+		super(player, shoebill, eventManager, parentDialog);
 		
 		if (vehicle == null)
 		{
@@ -94,7 +90,6 @@ public class VehicleResprayGroupDialog extends AbstractListDialog
 				{
 					player.playSound(1083, player.getLocation());
 					new VehicleResprayDialog(player, shoebill, eventManager, VehicleResprayGroupDialog.this, vehicle, vehicleManager, index, max, color1).show();
-					destroy();
 				}
 			});
 		}
@@ -112,7 +107,7 @@ public class VehicleResprayGroupDialog extends AbstractListDialog
 		if (event.getDialogResponse() == 0)
 		{
 			player.playSound(1084, player.getLocation());
-			parentDialog.show();
+			showParentDialog();
 		}
 		
 		super.onDialogResponse(event);

@@ -46,16 +46,14 @@ public class VehicleComponentDialog extends AbstractListDialog
 		return VEHICLE_COMPONENT_SLOT_NAMES;
 	}
 
-
-	private final AbstractDialog parentDialog;
+	
 	private final Vehicle vehicle;
 	
 	
 	public VehicleComponentDialog
 	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerService vehicleManager)
 	{
-		super(player, shoebill, eventManager);
-		this.parentDialog = parentDialog;
+		super(player, shoebill, eventManager, parentDialog);
 		this.vehicle = vehicle;
 
 		final int vehcileModelId = vehicle.getModelId();
@@ -68,7 +66,6 @@ public class VehicleComponentDialog extends AbstractListDialog
 			{
 				player.playSound(1083, player.getLocation());
 				new VehicleComponentPaintjobDialog(player, shoebill, eventManager, VehicleComponentDialog.this, vehicle, vehicleManager).show();
-				destroy();
 			}
 		});
 		
@@ -86,7 +83,6 @@ public class VehicleComponentDialog extends AbstractListDialog
 				{
 					player.playSound(1083, player.getLocation());
 					new VehicleComponentAddDialog(player, shoebill, rootEventManager, VehicleComponentDialog.this, vehicle, vehicleManager, slot).show();
-					destroy();
 				}
 			});
 		}
@@ -116,7 +112,7 @@ public class VehicleComponentDialog extends AbstractListDialog
 		if (event.getDialogResponse() == 0)
 		{
 			player.playSound(1084, player.getLocation());
-			parentDialog.show();
+			showParentDialog();
 		}
 		
 		super.onDialogResponse(event);

@@ -14,6 +14,7 @@
 package net.gtaun.wl.vehicle.dialog;
 
 import net.gtaun.shoebill.Shoebill;
+import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.common.dialog.AbstractListDialog;
 import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
@@ -23,16 +24,10 @@ import net.gtaun.wl.vehicle.VehicleManagerService;
 
 public class PlayerPreferencesDialog extends AbstractListDialog
 {
-	private final EventManager eventManager;
-	private final VehicleManagerService vehicleManager;
-	
-	
 	public PlayerPreferencesDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager)
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerService vehicleManager)
 	{
-		super(player, shoebill, eventManager);
-		this.eventManager = eventManager;
-		this.vehicleManager = vehicleManager;
+		super(player, shoebill, eventManager, parentDialog);
 		
 		setCaption(String.format("%1$s: 个人偏好设置", "车管"));
 		
@@ -130,7 +125,7 @@ public class PlayerPreferencesDialog extends AbstractListDialog
 		if (event.getDialogResponse() == 0)
 		{
 			player.playSound(1084, player.getLocation());
-			new VehicleManagerDialog(player, shoebill, eventManager, vehicleManager).show();
+			showParentDialog();
 		}
 		
 		super.onDialogResponse(event);

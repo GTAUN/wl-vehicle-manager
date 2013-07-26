@@ -14,6 +14,7 @@
 package net.gtaun.wl.vehicle.dialog;
 
 import net.gtaun.shoebill.Shoebill;
+import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.common.dialog.AbstractListDialog;
 import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
@@ -29,7 +30,14 @@ public class VehicleManagerDialog extends AbstractListDialog
 	public VehicleManagerDialog
 	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager)
 	{
-		super(player, shoebill, eventManager);
+		this(player, shoebill, eventManager, null, vehicleManager);
+	}
+	
+	public VehicleManagerDialog
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerService vehicleManager)
+	{
+		super(player, shoebill, eventManager, parentDialog);
+		
 		setCaption("车辆管理系统");
 
 		dialogListItems.add(new DialogListItem("当前车辆 ...")
@@ -45,7 +53,7 @@ public class VehicleManagerDialog extends AbstractListDialog
 			{
 				player.playSound(1083, player.getLocation());
 				Vehicle vehicle = player.getVehicle();
-				if (vehicle != null) new VehicleDialog(player, shoebill, eventManager, vehicle, vehicleManager, VehicleManagerDialog.this).show();
+				if (vehicle != null) new VehicleDialog(player, shoebill, eventManager, VehicleManagerDialog.this, vehicle, vehicleManager).show();
 			}
 		});
 		
@@ -62,7 +70,7 @@ public class VehicleManagerDialog extends AbstractListDialog
 			{
 				player.playSound(1083, player.getLocation());
 				Vehicle vehicle = vehicleManager.getOwnedVehicle(player);
-				if (vehicle != null) new VehicleDialog(player, shoebill, eventManager, vehicle, vehicleManager, VehicleManagerDialog.this).show();
+				if (vehicle != null) new VehicleDialog(player, shoebill, eventManager, VehicleManagerDialog.this, vehicle, vehicleManager).show();
 			}
 		});
 		
@@ -72,8 +80,7 @@ public class VehicleManagerDialog extends AbstractListDialog
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				new VehicleCreateMainDialog(player, shoebill, eventManager, vehicleManager).show();
-				destroy();
+				new VehicleCreateMainDialog(player, shoebill, eventManager, VehicleManagerDialog.this, vehicleManager).show();
 			}
 		});
 		
@@ -87,10 +94,9 @@ public class VehicleManagerDialog extends AbstractListDialog
 				Location loc = player.getLocation();
 				new EmptyVehicleListDialog
 				(
-					player, shoebill, eventManager, vehicleManager,
+					player, shoebill, eventManager, VehicleManagerDialog.this, vehicleManager,
 					new NearbyVehicleComparator(loc), new DistanceVehicleFilter(loc, 500.0f)
 				).show();
-				destroy();
 			}
 		});
 		
@@ -100,8 +106,7 @@ public class VehicleManagerDialog extends AbstractListDialog
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				new RecordedOnceStatisticDialog(player, shoebill, eventManager, vehicleManager).show();
-				destroy();
+				new RecordedOnceStatisticDialog(player, shoebill, eventManager, VehicleManagerDialog.this, vehicleManager).show();
 			}
 		});
 		
@@ -111,8 +116,7 @@ public class VehicleManagerDialog extends AbstractListDialog
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				new PlayerPreferencesDialog(player, shoebill, eventManager, vehicleManager).show();
-				destroy();
+				new PlayerPreferencesDialog(player, shoebill, eventManager, VehicleManagerDialog.this, vehicleManager).show();
 			}
 		});
 		
@@ -122,8 +126,7 @@ public class VehicleManagerDialog extends AbstractListDialog
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				new PlayerStatisticDialog(player, shoebill, eventManager, vehicleManager).show();
-				destroy();
+				new PlayerStatisticDialog(player, shoebill, eventManager, VehicleManagerDialog.this, vehicleManager).show();
 			}
 		});
 		
@@ -133,8 +136,7 @@ public class VehicleManagerDialog extends AbstractListDialog
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				new GlobalStatisticDialog(player, shoebill, eventManager, vehicleManager).show();
-				destroy();
+				new GlobalStatisticDialog(player, shoebill, eventManager, VehicleManagerDialog.this, vehicleManager).show();
 			}
 		});
 	}
@@ -145,6 +147,7 @@ public class VehicleManagerDialog extends AbstractListDialog
 		if (event.getDialogResponse() == 0)
 		{
 			player.playSound(1084, player.getLocation());
+			showParentDialog();
 		}
 		
 		super.onDialogResponse(event);

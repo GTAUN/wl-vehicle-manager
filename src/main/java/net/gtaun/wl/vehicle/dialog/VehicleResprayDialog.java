@@ -13,9 +13,6 @@ import net.gtaun.wl.vehicle.VehicleManagerService;
 
 public class VehicleResprayDialog extends AbstractListDialog
 {
-	private final AbstractDialog parentDialog;
-	
-
 	public VehicleResprayDialog
 	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerService vehicleManager, final int start, final int end)
 	{
@@ -25,8 +22,7 @@ public class VehicleResprayDialog extends AbstractListDialog
 	public VehicleResprayDialog
 	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerService vehicleManager, final int start, final int end, final int color1)
 	{
-		super(player, shoebill, eventManager);
-		this.parentDialog = parentDialog;
+		super(player, shoebill, eventManager, parentDialog);
 		
 		if (vehicle == null)
 		{
@@ -73,7 +69,7 @@ public class VehicleResprayDialog extends AbstractListDialog
 		if (event.getDialogResponse() == 0)
 		{
 			player.playSound(1084, player.getLocation());
-			parentDialog.show();
+			showParentDialog();
 		}
 		
 		super.onDialogResponse(event);
