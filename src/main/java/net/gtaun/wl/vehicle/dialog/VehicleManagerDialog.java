@@ -178,6 +178,23 @@ public class VehicleManagerDialog extends AbstractListDialog
 			}
 		});
 		
+		dialogListItems.add(new DialogListItemSwitch("显示速度计挂件")
+		{
+			@Override
+			public boolean isSwitched()
+			{
+				return pref.isSpeedometerWidgetEnabled();
+			}
+			
+			@Override
+			public void onItemSelect()
+			{
+				player.playSound(1083, player.getLocation());
+				pref.setSpeedometerWidgetEnabled(!pref.isSpeedometerWidgetEnabled());
+				show();
+			}
+		});
+		
 		dialogListItems.add(new DialogListItem("显示个人统计信息")
 		{
 			@Override

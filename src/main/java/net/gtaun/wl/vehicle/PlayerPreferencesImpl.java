@@ -14,7 +14,14 @@ import com.google.code.morphia.annotations.Transient;
 @Entity("VehicleManagerPlayerPreferences")
 public final class PlayerPreferencesImpl implements PlayerPreferences
 {
+	interface SpeedometerWidgetSwitchCallback
+	{
+		void onSwitch();
+	}
+	
+	
 	@Transient private Player player;
+	@Transient private SpeedometerWidgetSwitchCallback speedometerWidgetSwitchCallback;
 	
 	@Id private ObjectId objectId;
 	
@@ -45,17 +52,24 @@ public final class PlayerPreferencesImpl implements PlayerPreferences
 		this.player = player;
 	}
 	
+	public void setSpeedometerWidgetSwitchCallback(SpeedometerWidgetSwitchCallback speedometerWidgetSwitchCallback)
+	{
+		this.speedometerWidgetSwitchCallback = speedometerWidgetSwitchCallback;
+	}
+	
 	@Override
 	public Player getPlayer()
 	{
 		return player;
 	}
 
+	@Override
 	public boolean isUnlimitedNOS()
 	{
 		return unlimitedNOS;
 	}
 
+	@Override
 	public void setUnlimitedNOS(boolean enabled)
 	{
 		this.unlimitedNOS = enabled;
@@ -70,12 +84,14 @@ public final class PlayerPreferencesImpl implements PlayerPreferences
 			}
 		}
 	}
-	
+
+	@Override
 	public boolean isAutoRepair()
 	{
 		return autoRepair;
 	}
-	
+
+	@Override
 	public void setAutoRepair(boolean enabled)
 	{
 		this.autoRepair = enabled;
@@ -87,34 +103,41 @@ public final class PlayerPreferencesImpl implements PlayerPreferences
 			if (vehicle.getHealth() < 1000.0f) vehicle.repair();
 		}
 	}
-	
+
+	@Override
 	public boolean isAutoFlip()
 	{
 		return autoFlip;
 	}
-	
+
+	@Override
 	public void setAutoFlip(boolean enabled)
 	{
 		this.autoFlip = enabled;
 	}
-	
+
+	@Override
 	public boolean isAutoCarryPassengers()
 	{
 		return autoCarryPassengers;
 	}
-	
+
+	@Override
 	public void setAutoCarryPassengers(boolean enabled)
 	{
 		this.autoCarryPassengers = enabled;
 	}
-	
+
+	@Override
 	public boolean isSpeedometerWidgetEnabled()
 	{
 		return speedometerWidgetEnabled;
 	}
 	
-	public void setSpeedometerWidgetEnabled(boolean speedometerWidgetEnabled)
+	@Override
+	public void setSpeedometerWidgetEnabled(boolean enabled)
 	{
-		this.speedometerWidgetEnabled = speedometerWidgetEnabled;
+		this.speedometerWidgetEnabled = enabled;
+		speedometerWidgetSwitchCallback.onSwitch();
 	}
 }

@@ -31,6 +31,7 @@ import net.gtaun.shoebill.object.Timer;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
+import net.gtaun.wl.vehicle.PlayerPreferencesImpl.SpeedometerWidgetSwitchCallback;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl.OwnedVehicleLastPassengers;
 import net.gtaun.wl.vehicle.textdraw.VehicleSpeedometerWidget;
 
@@ -80,6 +81,8 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 		if (pref != null) pref.setPlayer(player);
 		else pref = new PlayerPreferencesImpl(player, uniqueId);
 		playerPreferences = pref;
+		
+		playerPreferences.setSpeedometerWidgetSwitchCallback(speedometerWidgetSwitchCallback);
 	}
 
 	@Override
@@ -106,6 +109,31 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	{
 		return playerPreferences;
 	}
+	
+	private void createOrDestroySpeedometerWidget()
+	{
+		PlayerState state = player.getState();
+		if (playerPreferences.isSpeedometerWidgetEnabled() &&
+			(state == PlayerState.DRIVER || state == PlayerState.PASSENGER))
+		{
+			speedometerWidget = new VehicleSpeedometerWidget(shoebill, rootEventManager, player, vehicleManager);
+			speedometerWidget.init();
+		}
+		else if (speedometerWidget != null)
+		{
+			speedometerWidget.destroy();
+			speedometerWidget = null;
+		}
+	}
+	
+	private SpeedometerWidgetSwitchCallback speedometerWidgetSwitchCallback = new SpeedometerWidgetSwitchCallback()
+	{
+		@Override
+		public void onSwitch()
+		{
+			createOrDestroySpeedometerWidget();
+		}
+	};
 	
 	private TimerEventHandler timerEventHandler = new TimerEventHandler()
 	{
@@ -178,13 +206,6 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 			PlayerState state = player.getState();
 			
 			if (state != PlayerState.DRIVER) lastDriveVehicle = null;
-			
-			if (speedometerWidget != null)
-			{
-				speedometerWidget.destroy();
-				speedometerWidget = null;
-			}
-			
 			if (state == PlayerState.DRIVER)
 			{
 				Vehicle vehicle = player.getVehicle();
@@ -214,9 +235,6 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 				}
 				lastDriveVehicle = vehicle;
 				
-				speedometerWidget = new VehicleSpeedometerWidget(shoebill, rootEventManager, player, vehicleManager);
-				speedometerWidget.init();
-				
 				if (playerPreferences.isUnlimitedNOS() && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
 				{
 					vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
@@ -224,11 +242,8 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 				
 				if (playerPreferences.isAutoRepair() && vehicle.getHealth() < 1000.0f) vehicle.repair();
 			}
-			else if (state == PlayerState.PASSENGER)
-			{
-				speedometerWidget = new VehicleSpeedometerWidget(shoebill, rootEventManager, player, vehicleManager);
-				speedometerWidget.init();
-			}
+			
+			createOrDestroySpeedometerWidget();
 		}
 		
 		protected void onPlayerKeyStateChange(PlayerKeyStateChangeEvent event)
