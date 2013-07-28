@@ -20,12 +20,11 @@ import java.util.Map.Entry;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
-import net.gtaun.shoebill.common.dialog.AbstractListDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.constant.VehicleModel.VehicleType;
-import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
+import net.gtaun.wl.common.dialog.AbstractListDialog;
 import net.gtaun.wl.vehicle.VehicleManagerService;
 import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
 
@@ -140,17 +139,5 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 				}
 			});
 		}
-	}
-
-	@Override
-	protected void onDialogResponse(DialogResponseEvent event)
-	{
-		if (event.getDialogResponse() == 0)
-		{
-			player.playSound(1084, player.getLocation());
-			showParentDialog();
-		}
-		
-		super.onDialogResponse(event);
 	}
 }

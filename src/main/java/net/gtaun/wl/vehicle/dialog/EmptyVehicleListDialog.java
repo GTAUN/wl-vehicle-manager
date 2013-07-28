@@ -24,13 +24,12 @@ import net.gtaun.shoebill.SampObjectStore;
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.Filter;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
-import net.gtaun.shoebill.common.dialog.AbstractPageListDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.Location;
-import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
+import net.gtaun.wl.common.dialog.AbstractPageListDialog;
 import net.gtaun.wl.vehicle.VehicleManagerService;
 
 public class EmptyVehicleListDialog extends AbstractPageListDialog
@@ -46,12 +45,6 @@ public class EmptyVehicleListDialog extends AbstractPageListDialog
 		this.vehicleManager = vehicleManager;
 		this.comparator = comparator;
 		this.filter = filter;
-	}
-
-	@Override
-	public void onPageUpdate()
-	{
-		player.playSound(1083, player.getLocation());
 	}
 	
 	@Override
@@ -104,17 +97,5 @@ public class EmptyVehicleListDialog extends AbstractPageListDialog
 
 		setCaption(String.format("%1$s: 附近空车列表 (%2$d/%3$d)", "车管", getCurrentPage() + 1, getMaxPage() + 1));
 		super.show();
-	}
-
-	@Override
-	protected void onDialogResponse(DialogResponseEvent event)
-	{
-		if (event.getDialogResponse() == 0)
-		{
-			player.playSound(1084, player.getLocation());
-			showParentDialog();
-		}
-		
-		super.onDialogResponse(event);
 	}
 }

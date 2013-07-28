@@ -15,13 +15,12 @@ package net.gtaun.wl.vehicle.dialog;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
-import net.gtaun.shoebill.common.dialog.AbstractListDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.Color;
-import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
+import net.gtaun.wl.common.dialog.AbstractListDialog;
 import net.gtaun.wl.vehicle.VehicleManagerService;
 
 public class VehicleResprayDialog extends AbstractListDialog
@@ -68,23 +67,5 @@ public class VehicleResprayDialog extends AbstractListDialog
 				}
 			});
 		}
-	}
-	
-	@Override
-	public void show()
-	{
-		super.show();
-	}
-	
-	@Override
-	protected void onDialogResponse(DialogResponseEvent event)
-	{
-		if (event.getDialogResponse() == 0)
-		{
-			player.playSound(1084, player.getLocation());
-			showParentDialog();
-		}
-		
-		super.onDialogResponse(event);
 	}
 }

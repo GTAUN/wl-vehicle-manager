@@ -15,10 +15,9 @@ package net.gtaun.wl.vehicle.dialog;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
-import net.gtaun.shoebill.common.dialog.AbstractListDialog;
-import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
+import net.gtaun.wl.common.dialog.AbstractListDialog;
 import net.gtaun.wl.vehicle.PlayerPreferences;
 import net.gtaun.wl.vehicle.VehicleManagerService;
 
@@ -117,17 +116,5 @@ public class PlayerPreferencesDialog extends AbstractListDialog
 				show();
 			}
 		});
-	}
-
-	@Override
-	protected void onDialogResponse(DialogResponseEvent event)
-	{
-		if (event.getDialogResponse() == 0)
-		{
-			player.playSound(1084, player.getLocation());
-			showParentDialog();
-		}
-		
-		super.onDialogResponse(event);
 	}
 }

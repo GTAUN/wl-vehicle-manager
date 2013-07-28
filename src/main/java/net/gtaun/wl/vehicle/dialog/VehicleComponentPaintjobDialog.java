@@ -18,8 +18,6 @@ import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.common.dialog.AbstractListDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.Color;
-import net.gtaun.shoebill.data.Location;
-import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
@@ -65,34 +63,7 @@ public class VehicleComponentPaintjobDialog extends AbstractListDialog
 		int modelId = vehicle.getModelId();
 		String name = VehicleModel.getName(modelId);
 		
-		if (player.getVehicle() != vehicle)
-		{
-			Location loc = vehicle.getLocation();
-			player.setCameraLookAt(loc);
-			loc.setZ(loc.getZ() + 10.0f);
-			player.setCameraPosition(loc);
-		}
-		
 		setCaption(String.format("%1$s: 改装 %2$s - 选择%3$s部件", "车管", name, "喷漆"));
 		super.show();
-	}
-	
-	@Override
-	protected void onDialogResponse(DialogResponseEvent event)
-	{
-		if (event.getDialogResponse() == 0)
-		{
-			player.playSound(1084, player.getLocation());
-			showParentDialog();
-		}
-		
-		super.onDialogResponse(event);
-	}
-	
-	@Override
-	protected void destroy()
-	{
-		if (player.getVehicle() != vehicle) player.setCameraBehind();
-		super.destroy();
 	}
 }

@@ -17,17 +17,16 @@ import java.util.List;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
-import net.gtaun.shoebill.common.dialog.AbstractListDialog;
 import net.gtaun.shoebill.common.vehicle.VehicleUtils;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Location;
-import net.gtaun.shoebill.event.dialog.DialogResponseEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.shoebill.object.VehicleDamage;
 import net.gtaun.util.event.EventManager;
+import net.gtaun.wl.common.dialog.AbstractListDialog;
 import net.gtaun.wl.vehicle.VehicleManagerService;
 
 public class VehicleDialog extends AbstractListDialog
@@ -276,18 +275,6 @@ public class VehicleDialog extends AbstractListDialog
 		
 		setCaption(String.format("%1$s: %2$s %3$s (模型: %4$d, HP: %5$1.0f％)", "车管", ownMessage, name, modelId, vehicle.getHealth()/10));
 		super.show();
-	}
-	
-	@Override
-	protected void onDialogResponse(DialogResponseEvent event)
-	{
-		if (event.getDialogResponse() == 0)
-		{
-			player.playSound(1084, player.getLocation());
-			showParentDialog();
-		}
-		
-		super.onDialogResponse(event);
 	}
 	
 	@Override
