@@ -47,8 +47,7 @@ public class PlayerVehicleStatisticDialog extends AbstractMsgboxDialog
 		String name = VehicleModel.getName(modelId);
 		PlayerVehicleStatistic stat = vehicleManager.getPlayerVehicleStatistic(player, modelId);
 		
-		String caption = String.format("%1$s: %2$s (模型: %3$d) 的个人统计信息", "车管", name, modelId);
-		setCaption(caption);
+		this.caption = String.format("%1$s: %2$s (模型: %3$d) 的个人统计信息", "车管", name, modelId);
 		
 		String textFormat = caption + "\n" +
 						"累计刷车次数: %1$d\n" +

@@ -28,7 +28,7 @@ public class PlayerPreferencesDialog extends AbstractListDialog
 	{
 		super(player, shoebill, eventManager, parentDialog);
 		
-		setCaption(String.format("%1$s: 个人偏好设置", "车管"));
+		this.caption = String.format("%1$s: 个人偏好设置", "车管");
 		
 		final PlayerPreferences pref = vehicleManager.getPlayerPreferences(player);
 

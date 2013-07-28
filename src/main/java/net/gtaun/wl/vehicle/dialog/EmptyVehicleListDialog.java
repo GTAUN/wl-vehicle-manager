@@ -95,7 +95,7 @@ public class EmptyVehicleListDialog extends AbstractPageListDialog
 			});
 		}
 
-		setCaption(String.format("%1$s: 附近空车列表 (%2$d/%3$d)", "车管", getCurrentPage() + 1, getMaxPage() + 1));
+		this.caption = String.format("%1$s: 附近空车列表 (%2$d/%3$d)", "车管", getCurrentPage() + 1, getMaxPage() + 1);
 		super.show();
 	}
 }

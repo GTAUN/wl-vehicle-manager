@@ -55,8 +55,7 @@ public class OnceStatisticDialog extends AbstractMsgboxDialog
 		String type = "驾驶";
 		if (stat.getType() == PlayerState.PASSENGER) type = "乘坐";
 		
-		String caption = String.format("%1$s: %2$s (%3$d) 的%4$s记录信息 (%5$s~%6$s)", "车管", name, modelId, type, startTimeStr, endTimeStr);
-		setCaption(caption);
+		this.caption = String.format("%1$s: %2$s (%3$d) 的%4$s记录信息 (%5$s~%6$s)", "车管", name, modelId, type, startTimeStr, endTimeStr);
 		
 		String textFormat = caption + "\n" +
 						"累计损伤花费: %2$1.1f辆\n" +

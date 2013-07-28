@@ -69,8 +69,7 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 	public VehicleCreateMainDialog(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerService vehicleManager)
 	{
 		super(player, shoebill, eventManager, parentDialog);
-		
-		setCaption(String.format("%1$s: 刷车 - 车辆类型选择", "车管"));
+		this.caption = String.format("%1$s: 刷车 - 车辆类型选择", "车管");
 
 		dialogListItems.add(new DialogListItem("列出所有车辆 - 按人气排序")
 		{

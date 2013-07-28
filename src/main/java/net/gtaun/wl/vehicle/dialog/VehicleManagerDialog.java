@@ -39,8 +39,7 @@ public class VehicleManagerDialog extends AbstractListDialog
 	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerService vehicleManager)
 	{
 		super(player, shoebill, eventManager, parentDialog);
-		
-		setCaption("车辆管理系统");
+		this.caption = "车辆管理系统";
 
 		dialogListItems.add(new DialogListItem("当前车辆 ...")
 		{

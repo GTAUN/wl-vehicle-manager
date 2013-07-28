@@ -114,7 +114,7 @@ public class VehicleComponentDialog extends AbstractListDialog
 			player.setCameraPosition(loc);
 		}
 		
-		setCaption(String.format("%1$s: 改装 %2$s (模型：%3$d, HP：%4$1.0f％)", "车管", name, modelId, vehicle.getHealth()/10));
+		this.caption = String.format("%1$s: 改装 %2$s (模型：%3$d, HP：%4$1.0f％)", "车管", name, modelId, vehicle.getHealth()/10);
 		super.show();
 	}
 }

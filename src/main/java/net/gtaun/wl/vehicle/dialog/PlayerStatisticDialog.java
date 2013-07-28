@@ -57,8 +57,7 @@ public class PlayerStatisticDialog extends AbstractMsgboxDialog
 			if (update != null && lastUpdate.before(update)) lastUpdate = update;
 		}
 		
-		String caption = String.format("%1$s: 所有车辆的个人统计信息", "车管");
-		setCaption(caption);
+		this.caption = String.format("%1$s: 所有车辆的个人统计信息", "车管");
 		
 		String textFormat = caption + "\n" +
 						"累计刷车次数: %1$d\n" +

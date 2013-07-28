@@ -63,7 +63,7 @@ public class VehicleComponentPaintjobDialog extends AbstractListDialog
 		int modelId = vehicle.getModelId();
 		String name = VehicleModel.getName(modelId);
 		
-		setCaption(String.format("%1$s: 改装 %2$s - 选择%3$s部件", "车管", name, "喷漆"));
+		this.caption = String.format("%1$s: 改装 %2$s - 选择%3$s部件", "车管", name, "喷漆");
 		super.show();
 	}
 }

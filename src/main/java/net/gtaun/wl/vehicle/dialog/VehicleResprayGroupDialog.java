@@ -81,7 +81,7 @@ public class VehicleResprayGroupDialog extends AbstractListDialog
 		int modelId = vehicle.getModelId();
 		String name = VehicleModel.getName(modelId);
 		
-		setCaption(String.format("%1$s: 选择 %2$s 的%3$s (模型: %4$d, HP: %5$1.0f％)", "车管", name, type, modelId, vehicle.getHealth()/10));
+		this.caption = String.format("%1$s: 选择 %2$s 的%3$s (模型: %4$d, HP: %5$1.0f％)", "车管", name, type, modelId, vehicle.getHealth()/10);
 		
 		for (int i=0; i<VEHICLE_COLOR_TABLE_RGBA.length; i+=10)
 		{

@@ -39,7 +39,7 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 	private final String setName;
 	private final int[] modelIds;
 	
-	private VehicleCreateListTextDraw previewTextDraw;
+	private VehicleCreateListTextDraw previewTextdraw;
 	
 	
 	public class DialogListItemVehicle extends DialogListItem
@@ -127,37 +127,44 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 				Vehicle vehicle = vehicleManager.createOwnVehicle(player, modelId);
 				vehicle.putPlayer(player, 0);
 				player.sendMessage(Color.LIGHTBLUE, "%1$s: 您的专属座驾 %2$s 已创建！", "车管", VehicleModel.getName(vehicle.getModelId()));
-				destroy();
+				destroyPreviewTextdraw();
 			}
 		};
 		
-		setCaption(String.format("%1$s: 刷车 - 车辆选择 - %2$s (%3$d/%4$d)", "车管", setName, getCurrentPage() + 1, getMaxPage() + 1));
+		this.caption = String.format("%1$s: 刷车 - 车辆选择 - %2$s (%3$d/%4$d)", "车管", setName, getCurrentPage() + 1, getMaxPage() + 1);
 		super.show();
 		
-		if (previewTextDraw != null) previewTextDraw.destroy();
+		destroyPreviewTextdraw();
 		
 		int index = getCurrentPage() * getItemsPerPage();
 		int[] nowIds = ArrayUtils.subarray(modelIds, index, index+getItemsPerPage());
-		previewTextDraw = new VehicleCreateListTextDraw(player, shoebill, rootEventManager, vehicleManager, nowIds, callback);
-		previewTextDraw.show();
+		previewTextdraw = new VehicleCreateListTextDraw(player, shoebill, rootEventManager, vehicleManager, nowIds, callback);
+		previewTextdraw.show();
+	}
+	
+	@Override
+	protected void onClickOk(DialogListItem item)
+	{
+		destroyPreviewTextdraw();
 	}
 	
 	@Override
 	protected void onClickCancel()
 	{
-		destroy();
+		destroyPreviewTextdraw();
 	}
 	
 	@Override
 	protected void onCancel(DialogCancelType type)
 	{
-		destroy();
+		destroyPreviewTextdraw();
 	}
 	
-	@Override
-	protected void destroy()
+	private void destroyPreviewTextdraw()
 	{
-		if (previewTextDraw != null) previewTextDraw.destroy();
-		super.destroy();
+		if (previewTextdraw == null) return;
+		
+		previewTextdraw.destroy();
+		previewTextdraw = null;
 	}
 }
