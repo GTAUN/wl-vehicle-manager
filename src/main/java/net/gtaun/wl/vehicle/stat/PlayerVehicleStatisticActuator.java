@@ -75,7 +75,9 @@ public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
 	
 	public void load()
 	{
-		List<PlayerVehicleStatisticImpl> statistics = datastore.createQuery(PlayerVehicleStatisticImpl.class).asList();
+		String uniqueId = player.getName();
+		
+		List<PlayerVehicleStatisticImpl> statistics = datastore.createQuery(PlayerVehicleStatisticImpl.class).filter("playerUniqueId", uniqueId).asList();
 		for (PlayerVehicleStatisticImpl statistic : statistics)
 		{
 			statistic.setPlayer(player);
@@ -86,7 +88,7 @@ public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
 		{
 			if (vehicleStatistics.containsKey(id)) continue;
 			
-			PlayerVehicleStatisticImpl statistic = new PlayerVehicleStatisticImpl(player, player.getName(), id);
+			PlayerVehicleStatisticImpl statistic = new PlayerVehicleStatisticImpl(player, uniqueId, id);
 			vehicleStatistics.put(id, statistic);
 		}
 	}
