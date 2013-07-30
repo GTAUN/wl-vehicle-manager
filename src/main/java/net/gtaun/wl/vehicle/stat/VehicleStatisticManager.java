@@ -24,12 +24,10 @@ import net.gtaun.shoebill.common.AbstractShoebillContext;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder.PlayerLifecycleObjectFactory;
 import net.gtaun.shoebill.constant.VehicleModel;
-import net.gtaun.shoebill.event.TimerEventHandler;
-import net.gtaun.shoebill.event.timer.TimerTickEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Timer;
+import net.gtaun.shoebill.object.Timer.TimerCallback;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.util.event.EventManager.HandlerPriority;
 
 import com.google.code.morphia.Datastore;
 
@@ -68,7 +66,14 @@ public class VehicleStatisticManager extends AbstractShoebillContext
 		playerLifecycleHolder.registerClass(PlayerVehicleStatisticActuator.class, factory);
 		
 		saveTimer = shoebill.getSampObjectFactory().createTimer(1000*60*5);
-		eventManager.registerHandler(TimerTickEvent.class, saveTimer, saveTimerEventHandler, HandlerPriority.NORMAL);
+		saveTimer.setCallback(new TimerCallback()
+		{
+			@Override
+			public void onTick(int factualInterval)
+			{
+				save();
+			}
+		});
 		saveTimer.start();
 		
 		addDestroyable(saveTimer);		
@@ -138,12 +143,4 @@ public class VehicleStatisticManager extends AbstractShoebillContext
 		PlayerVehicleStatisticActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticActuator.class);
 		return actuator.getRecordedOnceStatistics();
 	}
-	
-	private TimerEventHandler saveTimerEventHandler = new TimerEventHandler()
-	{
-		protected void onTimerTick(TimerTickEvent event)
-		{
-			save();
-		}
-	};
 }

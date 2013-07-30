@@ -30,17 +30,16 @@ import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Quaternion;
 import net.gtaun.shoebill.data.Velocity;
 import net.gtaun.shoebill.event.PlayerEventHandler;
-import net.gtaun.shoebill.event.TimerEventHandler;
 import net.gtaun.shoebill.event.VehicleEventHandler;
 import net.gtaun.shoebill.event.player.PlayerKeyStateChangeEvent;
 import net.gtaun.shoebill.event.player.PlayerStateChangeEvent;
 import net.gtaun.shoebill.event.player.PlayerTextEvent;
-import net.gtaun.shoebill.event.timer.TimerTickEvent;
 import net.gtaun.shoebill.event.vehicle.VehicleUpdateDamageEvent;
 import net.gtaun.shoebill.event.vehicle.VehicleUpdateEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.PlayerKeyState;
 import net.gtaun.shoebill.object.Timer;
+import net.gtaun.shoebill.object.Timer.TimerCallback;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
@@ -81,13 +80,30 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	private Vehicle lastDriveVehicle;
 	
 	
-	public PlayerVehicleActuator(Shoebill shoebill, EventManager eventManager, Player player, VehicleManagerServiceImpl vehicleManager, Datastore datastore)
+	public PlayerVehicleActuator(Shoebill shoebill, EventManager eventManager, final Player player, VehicleManagerServiceImpl vehicleManager, Datastore datastore)
 	{
 		super(shoebill, eventManager, player);
 		this.vehicleManager = vehicleManager;
 		this.datastore = datastore;
 		
 		timer = shoebill.getSampObjectFactory().createTimer(10000);
+		timer.setCallback(new TimerCallback()
+		{
+			@Override
+			public void onTick(int factualInterval)
+			{
+				if (player.getState() == PlayerState.DRIVER)
+				{
+					Vehicle vehicle = player.getVehicle();
+					int modelId = vehicle.getModelId();
+					if (playerPreferences.isUnlimitedNOS() && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
+					{
+						vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
+					}
+				}
+			}
+		});
+		
 		addDestroyable(timer);
 		
 		String uniqueId = player.getName();
@@ -103,8 +119,6 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	@Override
 	protected void onInit()
 	{
-		eventManager.registerHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.NORMAL);
-		
 		eventManager.registerHandler(PlayerTextEvent.class, player, playerEventHandler, HandlerPriority.MONITOR);
 		eventManager.registerHandler(PlayerKeyStateChangeEvent.class, player, playerEventHandler, HandlerPriority.NORMAL);
 		eventManager.registerHandler(PlayerStateChangeEvent.class, player, playerEventHandler, HandlerPriority.NORMAL);
@@ -149,22 +163,6 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 		public void onSwitch()
 		{
 			createOrDestroySpeedometerWidget();
-		}
-	};
-	
-	private TimerEventHandler timerEventHandler = new TimerEventHandler()
-	{
-		protected void onTimerTick(TimerTickEvent event)
-		{
-			if (player.getState() == PlayerState.DRIVER)
-			{
-				Vehicle vehicle = player.getVehicle();
-				int modelId = vehicle.getModelId();
-				if (playerPreferences.isUnlimitedNOS() && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
-				{
-					vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
-				}
-			}
 		}
 	};
 	

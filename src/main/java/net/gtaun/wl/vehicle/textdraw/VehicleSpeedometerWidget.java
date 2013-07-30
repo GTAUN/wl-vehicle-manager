@@ -18,14 +18,12 @@ import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.player.AbstractPlayerContext;
 import net.gtaun.shoebill.constant.TextDrawAlign;
 import net.gtaun.shoebill.constant.TextDrawFont;
-import net.gtaun.shoebill.event.TimerEventHandler;
-import net.gtaun.shoebill.event.timer.TimerTickEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.PlayerTextdraw;
 import net.gtaun.shoebill.object.Timer;
+import net.gtaun.shoebill.object.Timer.TimerCallback;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.util.event.EventManager.HandlerPriority;
 import net.gtaun.wl.vehicle.VehicleManagerService;
 import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic;
 
@@ -73,7 +71,14 @@ public class VehicleSpeedometerWidget extends AbstractPlayerContext
 		otherInfo.show();
 		
 		timer = factory.createTimer(100);
-		eventManager.registerHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.NORMAL);
+		timer.setCallback(new TimerCallback()
+		{
+			@Override
+			public void onTick(int factualInterval)
+			{
+				update();
+			}
+		});
 		timer.start();
 
 		addDestroyable(otherInfo);
@@ -123,13 +128,5 @@ public class VehicleSpeedometerWidget extends AbstractPlayerContext
 			otherInfo.setText(text);
 		}
 	}
-	
-	private TimerEventHandler timerEventHandler = new TimerEventHandler()
-	{
-		protected void onTimerTick(TimerTickEvent event)
-		{
-			update();
-		}
-	};
 }
 

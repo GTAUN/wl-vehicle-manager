@@ -21,15 +21,14 @@ import net.gtaun.shoebill.common.player.AbstractPlayerContext;
 import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.event.PlayerEventHandler;
-import net.gtaun.shoebill.event.TimerEventHandler;
 import net.gtaun.shoebill.event.VehicleEventHandler;
 import net.gtaun.shoebill.event.player.PlayerStateChangeEvent;
-import net.gtaun.shoebill.event.timer.TimerTickEvent;
 import net.gtaun.shoebill.event.vehicle.VehicleUpdateDamageEvent;
 import net.gtaun.shoebill.event.vehicle.VehicleUpdateEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Timer;
 import net.gtaun.shoebill.object.Vehicle;
+import net.gtaun.shoebill.object.Timer.TimerCallback;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
 
@@ -47,7 +46,7 @@ public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
 	public AbstractPlayerVehicleProbe(Shoebill shoebill, EventManager rootEventManager, Player player)
 	{
 		super(shoebill, rootEventManager, player);
-		timer = shoebill.getSampObjectFactory().createTimer(1000);
+		timer = shoebill.getSampObjectFactory().createTimer(1000, timerCallback);
 		
 		allowableStates = new HashSet<>();
 		allowableStates.add(PlayerState.DRIVER);
@@ -95,8 +94,6 @@ public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
 		eventManager.registerHandler(VehicleUpdateEvent.class, vehicleEventHandler, HandlerPriority.MONITOR);
 		eventManager.registerHandler(VehicleUpdateDamageEvent.class, vehicleEventHandler, HandlerPriority.MONITOR);
 		
-		eventManager.registerHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.MONITOR);
-		
 		timer.start();
 	}
 	
@@ -140,11 +137,11 @@ public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
 			lastVehicleHealth = health;
 		}
 	};
-	
-	private TimerEventHandler timerEventHandler = new TimerEventHandler()
+
+	private TimerCallback timerCallback = new TimerCallback()
 	{
 		@Override
-		protected void onTimerTick(TimerTickEvent event)
+		public void onTick(int factualInterval)
 		{
 			if (allowableStates.contains(player.getState()) == false) return;
 			
