@@ -15,9 +15,11 @@ package net.gtaun.wl.vehicle.textdraw;
 
 import net.gtaun.shoebill.SampObjectFactory;
 import net.gtaun.shoebill.Shoebill;
+import net.gtaun.shoebill.common.ColorUtils;
 import net.gtaun.shoebill.common.player.AbstractPlayerContext;
 import net.gtaun.shoebill.constant.TextDrawAlign;
 import net.gtaun.shoebill.constant.TextDrawFont;
+import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.PlayerTextdraw;
 import net.gtaun.shoebill.object.Timer;
@@ -36,6 +38,7 @@ public class VehicleSpeedometerWidget extends AbstractPlayerContext
 	private PlayerTextdraw speedDisplay;
 	private PlayerTextdraw unitDisplay;
 	private PlayerTextdraw otherInfo;
+	private PlayerTextdraw healthBar;
 	
 	
 	public VehicleSpeedometerWidget(Shoebill shoebill, EventManager rootEventManager, Player player, VehicleManagerService vehicleManager)
@@ -70,6 +73,14 @@ public class VehicleSpeedometerWidget extends AbstractPlayerContext
 		otherInfo.setShadowSize(1);
 		otherInfo.show();
 		
+		Color healthBarColor = new Color(255, 0, 0, 64);
+		
+		healthBar = TextDrawUtils.createPlayerText(factory, player, 0, 478, " ");
+		healthBar.setUseBox(true);
+		healthBar.setBoxColor(healthBarColor);
+		healthBar.setLetterSize(1.0f, 0.5f);
+		healthBar.show();
+		
 		timer = factory.createTimer(100);
 		timer.setCallback(new TimerCallback()
 		{
@@ -84,6 +95,7 @@ public class VehicleSpeedometerWidget extends AbstractPlayerContext
 		addDestroyable(otherInfo);
 		addDestroyable(unitDisplay);
 		addDestroyable(speedDisplay);
+		addDestroyable(healthBar);
 		addDestroyable(timer);
 		
 		update();
@@ -108,6 +120,7 @@ public class VehicleSpeedometerWidget extends AbstractPlayerContext
 		final float maxSpd = stat.getMaxSpeed() * 60 * 60 / 1000.0f;
 		final float dmg = (float) (stat.getDamageCount() / 10.0f);
 		final float metres = (float) (stat.getDriveOdometer() / 1000.0f);
+		final float vhp = vehicle.getHealth() / 10.0f;
 		
 		long seconds = stat.getDriveSecondCount() % 60;
 		long minutes = (stat.getDriveSecondCount() / 60) % 60;
@@ -123,10 +136,16 @@ public class VehicleSpeedometerWidget extends AbstractPlayerContext
 		
 		if (timer.getCount() % 5 == 0)
 		{
-			final String format = "%1$s [%7$s%8$s%9$s%10$s~w~]~n~Dmg: ~p~~h~%2$1.0f%%~w~ - Odo: ~g~~h~%3$1.2fKM~w~ - Avg/Max: ~y~~h~%5$1.1f~w~/~r~~h~%6$1.1f~w~ KPH";
-			String text = String.format(format, formatedTime, dmg, metres, spd, avgSpd, maxSpd, autoRepair, unlimitedNOS, autoFlip, lockDoor);
+			final String format = "%1$s [%7$s%8$s%9$s%10$s~w~]~n~Dmg: ~p~~h~%2$1.0f%%~w~ - VHP: ~b~~h~%3$1.1f%%~w~ - Odo: ~g~~h~%4$1.2fKM~w~ - Avg/Max: ~y~~h~%5$1.1f~w~/~r~~h~%6$1.1f~w~ KPH";
+			String text = String.format(format, formatedTime, dmg, vhp, metres, avgSpd, maxSpd, autoRepair, unlimitedNOS, autoFlip, lockDoor);
 			otherInfo.setText(text);
 		}
+
+		Color healthBarColorRed = new Color(255, 0, 0, 160);
+		Color healthBarColorGreen = new Color(0, 255, 0, 48);
+		healthBar.setBoxColor(ColorUtils.colorBlend(healthBarColorRed, healthBarColorGreen, (int)(255*((vhp-25.0f)/75.0f))));
+		healthBar.setTextSize(640.0f*((vhp-25.0f)/75.0f), 2.0f);
+		healthBar.show();
 	}
 }
 
