@@ -45,7 +45,7 @@ import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
 import net.gtaun.wl.vehicle.PlayerPreferencesImpl.SpeedometerWidgetSwitchCallback;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl.OwnedVehicleLastPassengers;
-import net.gtaun.wl.vehicle.textdraw.VehicleSpeedometerWidget;
+import net.gtaun.wl.vehicle.textdraw.VehicleWidget;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -76,7 +76,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	
 	private final PlayerPreferencesImpl playerPreferences;
 	
-	private VehicleSpeedometerWidget speedometerWidget;
+	private VehicleWidget vehicleWidget;
 	private Vehicle lastDriveVehicle;
 	
 	
@@ -131,7 +131,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	@Override
 	protected void onDestroy()
 	{
-		if (speedometerWidget != null) speedometerWidget.destroy();
+		if (vehicleWidget != null) vehicleWidget.destroy();
 		datastore.save(playerPreferences);
 	}
 	
@@ -142,18 +142,18 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	
 	private void createOrDestroySpeedometerWidget()
 	{
-		if (speedometerWidget != null)
+		if (vehicleWidget != null)
 		{
-			speedometerWidget.destroy();
-			speedometerWidget = null;
+			vehicleWidget.destroy();
+			vehicleWidget = null;
 		}
 		
 		PlayerState state = player.getState();
 		if (playerPreferences.isSpeedometerWidgetEnabled() &&
 			(state == PlayerState.DRIVER || state == PlayerState.PASSENGER))
 		{
-			speedometerWidget = new VehicleSpeedometerWidget(shoebill, rootEventManager, player, vehicleManager);
-			speedometerWidget.init();
+			vehicleWidget = new VehicleWidget(shoebill, rootEventManager, player, vehicleManager);
+			vehicleWidget.init();
 		}
 	}
 	

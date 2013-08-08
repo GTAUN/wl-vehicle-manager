@@ -30,7 +30,7 @@ import net.gtaun.wl.common.textdraw.TextDrawUtils;
 import net.gtaun.wl.vehicle.VehicleManagerService;
 import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic;
 
-public class VehicleSpeedometerWidget extends AbstractPlayerContext
+public class VehicleWidget extends AbstractPlayerContext
 {
 	private final VehicleManagerService vehicleManager;
 	
@@ -42,7 +42,7 @@ public class VehicleSpeedometerWidget extends AbstractPlayerContext
 	private PlayerTextdraw healthBar;
 	
 	
-	public VehicleSpeedometerWidget(Shoebill shoebill, EventManager rootEventManager, Player player, VehicleManagerService vehicleManager)
+	public VehicleWidget(Shoebill shoebill, EventManager rootEventManager, Player player, VehicleManagerService vehicleManager)
 	{
 		super(shoebill, rootEventManager, player);
 		this.vehicleManager = vehicleManager;
