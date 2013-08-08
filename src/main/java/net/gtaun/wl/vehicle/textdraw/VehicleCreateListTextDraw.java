@@ -28,6 +28,7 @@ import net.gtaun.shoebill.object.PlayerTextdraw;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
 import net.gtaun.util.event.ManagedEventManager;
+import net.gtaun.wl.common.textdraw.TextDrawUtils;
 import net.gtaun.wl.vehicle.VehicleManagerService;
 
 public class VehicleCreateListTextDraw implements Destroyable
