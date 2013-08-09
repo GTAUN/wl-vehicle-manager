@@ -100,6 +100,25 @@ public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
 	{
 		datastore.save(vehicleStatistics.values());
 	}
+
+	private void tryStartOnceStatistic()
+	{
+		Vehicle vehicle = player.getVehicle();
+		if (vehicle == null) return;
+		
+		if (nowOnceStatistic != null) endOnceStatistic();
+		
+		StatisticType type = VehicleUtils.isVehicleDriver(vehicle, player) ? StatisticType.DRIVER : StatisticType.PASSENGER;
+		nowOnceStatistic = new OncePlayerVehicleStatisticImpl(shoebill, rootEventManager, player, type);
+		nowOnceStatistic.start();
+		recordedOnceStatistics.offerFirst(nowOnceStatistic);
+	}
+	
+	private void endOnceStatistic()
+	{
+		nowOnceStatistic.end();
+		nowOnceStatistic = null;
+	}
 	
 	public PlayerVehicleStatisticImpl getVehicleStatistic(int modelId)
 	{
@@ -119,7 +138,7 @@ public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
 	
 	public OncePlayerVehicleStatisticImpl startRacingStatistic()
 	{
-		if (nowOnceStatistic != null) nowOnceStatistic.end();
+		endOnceStatistic();
 		
 		nowOnceStatistic = new OncePlayerVehicleStatisticImpl(shoebill, rootEventManager, player, StatisticType.RACING);
 		nowOnceStatistic.start();
@@ -130,12 +149,14 @@ public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
 	
 	public void endRacingStatistic()
 	{
-		
+		endOnceStatistic();
+		tryStartOnceStatistic();
 	}
 	
 	public boolean isRacingStatistic()
 	{
-		return false;
+		if (nowOnceStatistic == null) return false;
+		return nowOnceStatistic.getType() == StatisticType.RACING;
 	}
 	
 	public List<OncePlayerVehicleStatistic> getRecordedOnceStatistics()
@@ -156,9 +177,7 @@ public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
 		
 		if (nowOnceStatistic == null || nowOnceStatistic.getType() != StatisticType.RACING)
 		{
-			nowOnceStatistic = new OncePlayerVehicleStatisticImpl(shoebill, rootEventManager, player, StatisticType.DRIVER);
-			nowOnceStatistic.start();
-			recordedOnceStatistics.offerFirst(nowOnceStatistic);
+			tryStartOnceStatistic();
 		}
 	}
 	
@@ -167,9 +186,7 @@ public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
 	{
 		if (nowOnceStatistic == null || nowOnceStatistic.getType() != StatisticType.RACING)
 		{
-			nowOnceStatistic = new OncePlayerVehicleStatisticImpl(shoebill, rootEventManager, player, StatisticType.PASSENGER);
-			nowOnceStatistic.start();
-			recordedOnceStatistics.offerFirst(nowOnceStatistic);
+			tryStartOnceStatistic();
 		}
 	}
 	
@@ -178,8 +195,7 @@ public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
 	{
 		if (nowOnceStatistic != null && nowOnceStatistic.getType() != StatisticType.RACING)
 		{
-			nowOnceStatistic.end();
-			nowOnceStatistic = null;
+			endOnceStatistic();
 		}
 	}
 	
