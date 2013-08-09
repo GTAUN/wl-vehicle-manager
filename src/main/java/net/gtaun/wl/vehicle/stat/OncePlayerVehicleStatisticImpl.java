@@ -13,6 +13,7 @@
 
 package net.gtaun.wl.vehicle.stat;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -43,6 +44,8 @@ public class OncePlayerVehicleStatisticImpl extends AbstractPlayerVehicleProbe i
 	{
 		super(shoebill, rootEventManager, player);
 		this.type = type;
+		
+		modelIds = new ArrayList<>();
 		
 		Vehicle vehicle = player.getVehicle();
 		if (vehicle != null) modelIds.add(vehicle.getModelId());
