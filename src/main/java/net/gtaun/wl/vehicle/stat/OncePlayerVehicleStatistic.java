@@ -14,6 +14,7 @@
 package net.gtaun.wl.vehicle.stat;
 
 import java.util.Date;
+import java.util.List;
 
 import net.gtaun.shoebill.object.Player;
 
@@ -30,7 +31,7 @@ public interface OncePlayerVehicleStatistic
 	boolean isActive();
 	StatisticType getType();
 	
-	int getModelId();
+	List<Integer> getModelIds();
 	double getDamageCount();
 	long getDriveSecondCount();
 	double getDriveOdometer();

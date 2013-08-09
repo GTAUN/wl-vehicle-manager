@@ -13,7 +13,9 @@
 
 package net.gtaun.wl.vehicle.stat;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.constant.PlayerState;
@@ -25,7 +27,8 @@ public class OncePlayerVehicleStatisticImpl extends AbstractPlayerVehicleProbe i
 {
 	private StatisticType type;
 	
-	private int modelId;
+	private List<Integer> modelIds;
+	
 	private double damageCount;
 	private long driveSecondCount;
 	private double driveOdometer;
@@ -41,7 +44,10 @@ public class OncePlayerVehicleStatisticImpl extends AbstractPlayerVehicleProbe i
 		super(shoebill, rootEventManager, player);
 		this.type = type;
 		
-		modelId = player.getVehicle().getModelId();
+		Vehicle vehicle = player.getVehicle();
+		if (vehicle != null) modelIds.add(vehicle.getModelId());
+		else modelIds.add(0);
+		
 		damageCount = 0.0;
 		driveOdometer = 0.0;
 		maxSpeed = 0.0f;
@@ -75,6 +81,24 @@ public class OncePlayerVehicleStatisticImpl extends AbstractPlayerVehicleProbe i
 	}
 	
 	@Override
+	protected void onBecomePassenger(Vehicle vehicle)
+	{
+		modelIds.add(vehicle.getModelId());
+	}
+	
+	@Override
+	protected void onDriveVehicle(Vehicle vehicle)
+	{
+		modelIds.add(vehicle.getModelId());
+	}
+	
+	@Override
+	protected void onLeaveVehicle(Vehicle vehicle)
+	{
+		modelIds.add(0);
+	}
+	
+	@Override
 	public boolean isActive()
 	{
 		return isDestroyed() == false;
@@ -101,9 +125,9 @@ public class OncePlayerVehicleStatisticImpl extends AbstractPlayerVehicleProbe i
 	}
 	
 	@Override
-	public int getModelId()
+	public List<Integer> getModelIds()
 	{
-		return modelId;
+		return Collections.unmodifiableList(modelIds);
 	}
 	
 	@Override

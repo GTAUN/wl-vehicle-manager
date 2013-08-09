@@ -14,6 +14,7 @@
 package net.gtaun.wl.vehicle.dialog;
 
 import java.util.Date;
+import java.util.List;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
@@ -40,8 +41,9 @@ public class OnceStatisticDialog extends AbstractMsgboxDialog
 	@Override
 	public void show()
 	{
-		int modelId = stat.getModelId();
-		String name = VehicleModel.getName(modelId);
+		List<Integer> modelIds = stat.getModelIds();
+		int modelId = modelIds.get(0);
+		String name = modelIds.size() == 1 ? VehicleModel.getName(modelId) : "多种移动方式";
 
 		String startTimeStr = "N/A";
 		Date startTime = stat.getStartTime();

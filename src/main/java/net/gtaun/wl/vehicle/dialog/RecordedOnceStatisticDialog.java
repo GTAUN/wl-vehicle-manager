@@ -39,8 +39,9 @@ public class RecordedOnceStatisticDialog extends AbstractPageListDialog
 		
 		for (final OncePlayerVehicleStatistic stat : stats)
 		{
-			final int modelId = stat.getModelId();
-			final String modelName = VehicleModel.getName(modelId);
+			List<Integer> modelIds = stat.getModelIds();
+			final int modelId = modelIds.get(0);
+			final String modelName = modelIds.size() == 1 ? VehicleModel.getName(modelId) : "多种移动方式";
 			String startTimeStr = DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(stat.getStartTime());
 			String endTimeStr = "未知";
 			
