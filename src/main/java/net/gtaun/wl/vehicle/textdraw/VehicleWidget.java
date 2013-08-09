@@ -29,6 +29,7 @@ import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.textdraw.TextDrawUtils;
 import net.gtaun.wl.vehicle.VehicleManagerService;
 import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic;
+import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic.StatisticType;
 
 public class VehicleWidget extends AbstractPlayerContext
 {
@@ -128,25 +129,38 @@ public class VehicleWidget extends AbstractPlayerContext
 		long hours = stat.getDriveSecondCount() / 60 / 60;
 		String formatedTime = String.format("%1$02d:%2$02d:%3$02d", hours, minutes, seconds);
 
-		String autoRepair = vehicleManager.getPlayerPreferences(player).isAutoRepair() ? "~g~R" : "~w~-";
+		boolean isAutoRepair = vehicleManager.getPlayerPreferences(player).isAutoRepair();
+		String autoRepair = isAutoRepair ? "~g~R" : "~w~-";
 		String unlimitedNOS = vehicleManager.getPlayerPreferences(player).isUnlimitedNOS() ? "~r~N" : "~w~-";
 		String autoFlip = vehicleManager.getPlayerPreferences(player).isAutoFlip() ? "~b~F" : "~w~-";
 		String lockDoor = vehicle.getState().getDoors()!=0 ? "~y~D" : "~w~-";
 
 		speedDisplay.setText(String.format("%1$1.0f", spd));
 		
+		String extMessage = "";
+		if (stat.getType() == StatisticType.RACING) extMessage += "[RACING] ";
+		
 		if (timer.getCount() % 5 == 0)
 		{
-			final String format = "%1$s [%7$s%8$s%9$s%10$s~w~]~n~Dmg: ~p~~h~%2$1.0f%%~w~ - VHP: ~b~~h~%3$1.1f%%~w~ - Odo: ~g~~h~%4$1.2fKM~w~ - Avg/Max: ~y~~h~%5$1.1f~w~/~r~~h~%6$1.1f~w~ KPH";
-			String text = String.format(format, formatedTime, dmg, vhp, metres, avgSpd, maxSpd, autoRepair, unlimitedNOS, autoFlip, lockDoor);
+			String format = "%11$s%1$s [%7$s%8$s%9$s%10$s~w~]~n~Dmg: ~p~~h~%2$1.0f%%~w~ - Odo: ~g~~h~%4$1.2fKM~w~ - Avg/Max: ~y~~h~%5$1.1f~w~/~r~~h~%6$1.1f~w~ KPH";
+			if (!isAutoRepair) format = "%11$s%1$s [%7$s%8$s%9$s%10$s~w~]~n~VHP: ~b~~h~%3$1.1f%%~w~ - Odo: ~g~~h~%4$1.2fKM~w~ - Avg/Max: ~y~~h~%5$1.1f~w~/~r~~h~%6$1.1f~w~ KPH";
+			String text = String.format(format, formatedTime, dmg, vhp, metres, avgSpd, maxSpd, autoRepair, unlimitedNOS, autoFlip, lockDoor, extMessage);
 			otherInfo.setText(text);
 		}
 
 		Color healthBarColorRed = new Color(255, 0, 0, 160);
 		Color healthBarColorGreen = new Color(0, 255, 0, 48);
-		healthBar.setBoxColor(ColorUtils.colorBlend(healthBarColorRed, healthBarColorGreen, (int)(255*((vhp-25.0f)/75.0f))));
-		healthBar.setTextSize(640.0f*((vhp-25.0f)/75.0f), 2.0f);
-		healthBar.show();
+		
+		if (!isAutoRepair)
+		{
+			healthBar.setBoxColor(ColorUtils.colorBlend(healthBarColorRed, healthBarColorGreen, (int)(255*((vhp-25.0f)/75.0f))));
+			healthBar.setTextSize(640.0f*((vhp-25.0f)/75.0f), 2.0f);
+			healthBar.show();
+		}
+		else
+		{
+			if (healthBar.isShowed()) healthBar.hide();
+		}
 	}
 }
 
