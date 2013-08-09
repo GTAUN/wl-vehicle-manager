@@ -21,11 +21,13 @@ import java.util.List;
 import java.util.Map;
 
 import net.gtaun.shoebill.Shoebill;
+import net.gtaun.shoebill.common.vehicle.VehicleUtils;
 import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
+import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic.StatisticType;
 
 import com.google.code.morphia.Datastore;
 
@@ -61,7 +63,8 @@ public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
 		Vehicle vehicle = player.getVehicle();
 		if (vehicle != null)
 		{
-			nowOnceStatistic = new OncePlayerVehicleStatisticImpl(shoebill, rootEventManager, player);
+			StatisticType type = VehicleUtils.isVehicleDriver(vehicle, player) ? StatisticType.DRIVER : StatisticType.PASSENGER;
+			nowOnceStatistic = new OncePlayerVehicleStatisticImpl(shoebill, rootEventManager, player, type);
 			nowOnceStatistic.start();
 		}
 	}
@@ -114,6 +117,27 @@ public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
 		return nowOnceStatistic;
 	}
 	
+	public OncePlayerVehicleStatisticImpl startRacingStatistic()
+	{
+		if (nowOnceStatistic != null) nowOnceStatistic.end();
+		
+		nowOnceStatistic = new OncePlayerVehicleStatisticImpl(shoebill, rootEventManager, player, StatisticType.RACING);
+		nowOnceStatistic.start();
+		recordedOnceStatistics.offerFirst(nowOnceStatistic);
+		
+		return nowOnceStatistic;
+	}
+	
+	public void endRacingStatistic()
+	{
+		
+	}
+	
+	public boolean isRacingStatistic()
+	{
+		return false;
+	}
+	
 	public List<OncePlayerVehicleStatistic> getRecordedOnceStatistics()
 	{
 		return Collections.unmodifiableList((List<? extends OncePlayerVehicleStatistic>) recordedOnceStatistics);
@@ -130,24 +154,33 @@ public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
 		GlobalVehicleStatisticImpl globalStat = statisticManager.getGlobalVehicleStatistic(modelId);
 		globalStat.onDrive();
 		
-		nowOnceStatistic = new OncePlayerVehicleStatisticImpl(shoebill, rootEventManager, player);
-		nowOnceStatistic.start();
-		recordedOnceStatistics.offerFirst(nowOnceStatistic);
+		if (nowOnceStatistic == null || nowOnceStatistic.getType() != StatisticType.RACING)
+		{
+			nowOnceStatistic = new OncePlayerVehicleStatisticImpl(shoebill, rootEventManager, player, StatisticType.DRIVER);
+			nowOnceStatistic.start();
+			recordedOnceStatistics.offerFirst(nowOnceStatistic);
+		}
 	}
 	
 	@Override
 	protected void onBecomePassenger(Vehicle vehicle)
 	{
-		nowOnceStatistic = new OncePlayerVehicleStatisticImpl(shoebill, rootEventManager, player);
-		nowOnceStatistic.start();
-		recordedOnceStatistics.offerFirst(nowOnceStatistic);
+		if (nowOnceStatistic == null || nowOnceStatistic.getType() != StatisticType.RACING)
+		{
+			nowOnceStatistic = new OncePlayerVehicleStatisticImpl(shoebill, rootEventManager, player, StatisticType.PASSENGER);
+			nowOnceStatistic.start();
+			recordedOnceStatistics.offerFirst(nowOnceStatistic);
+		}
 	}
 	
 	@Override
 	protected void onLeaveVehicle(Vehicle vehicle)
 	{
-		nowOnceStatistic.end();
-		nowOnceStatistic = null;
+		if (nowOnceStatistic != null && nowOnceStatistic.getType() != StatisticType.RACING)
+		{
+			nowOnceStatistic.end();
+			nowOnceStatistic = null;
+		}
 	}
 	
 	@Override

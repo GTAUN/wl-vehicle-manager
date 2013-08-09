@@ -15,14 +15,20 @@ package net.gtaun.wl.vehicle.stat;
 
 import java.util.Date;
 
-import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.object.Player;
 
 public interface OncePlayerVehicleStatistic
 {
+	public enum StatisticType
+	{
+		DRIVER,
+		PASSENGER,
+		RACING,
+	}
+	
 	Player getPlayer();
 	boolean isActive();
-	PlayerState getType();
+	StatisticType getType();
 	
 	int getModelId();
 	double getDamageCount();

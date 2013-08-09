@@ -143,4 +143,22 @@ public class VehicleStatisticManager extends AbstractShoebillContext
 		PlayerVehicleStatisticActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticActuator.class);
 		return actuator.getRecordedOnceStatistics();
 	}
+	
+	public OncePlayerVehicleStatisticImpl startRacingStatistic(Player player)
+	{
+		PlayerVehicleStatisticActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticActuator.class);
+		return actuator.startRacingStatistic();
+	}
+	
+	public void endRacingStatistic(Player player)
+	{
+		PlayerVehicleStatisticActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticActuator.class);
+		actuator.endRacingStatistic();
+	}
+	
+	public boolean isRacingStatistic(Player player)
+	{
+		PlayerVehicleStatisticActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticActuator.class);
+		return actuator.isRacingStatistic();
+	}
 }

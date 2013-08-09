@@ -46,6 +46,7 @@ import net.gtaun.util.event.ManagedEventManager;
 import net.gtaun.wl.vehicle.dialog.VehicleManagerDialog;
 import net.gtaun.wl.vehicle.stat.GlobalVehicleStatistic;
 import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic;
+import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatisticImpl;
 import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
 import net.gtaun.wl.vehicle.stat.VehicleStatisticManager;
 
@@ -261,6 +262,24 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 	public List<OncePlayerVehicleStatistic> getPlayerRecordedOnceStatistics(Player player)
 	{
 		return statisticManager.getPlayerRecordedOnceStatistics(player);
+	}
+	
+	@Override
+	public OncePlayerVehicleStatisticImpl startRacingStatistic(Player player)
+	{
+		return statisticManager.startRacingStatistic(player);
+	}
+	
+	@Override
+	public void endRacingStatistic(Player player)
+	{
+		statisticManager.endRacingStatistic(player);
+	}
+	
+	@Override
+	public boolean isRacingStatistic(Player player)
+	{
+		return statisticManager.isRacingStatistic(player);
 	}
 	
 	@Override

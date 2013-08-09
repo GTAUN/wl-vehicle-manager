@@ -52,4 +52,8 @@ public interface VehicleManagerService extends Service
 
 	OncePlayerVehicleStatistic getPlayerCurrentOnceStatistic(Player player);
 	List<OncePlayerVehicleStatistic> getPlayerRecordedOnceStatistics(Player player);
+	
+	OncePlayerVehicleStatistic startRacingStatistic(Player player);
+	void endRacingStatistic(Player player);
+	boolean isRacingStatistic(Player player);
 }

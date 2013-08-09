@@ -23,7 +23,7 @@ import net.gtaun.util.event.EventManager;
 
 public class OncePlayerVehicleStatisticImpl extends AbstractPlayerVehicleProbe implements OncePlayerVehicleStatistic
 {
-	private PlayerState type;
+	private StatisticType type;
 	
 	private int modelId;
 	private double damageCount;
@@ -36,16 +36,17 @@ public class OncePlayerVehicleStatisticImpl extends AbstractPlayerVehicleProbe i
 	private Date endTime;
 	
 	
-	public OncePlayerVehicleStatisticImpl(Shoebill shoebill, EventManager rootEventManager, Player player)
+	public OncePlayerVehicleStatisticImpl(Shoebill shoebill, EventManager rootEventManager, Player player, StatisticType type)
 	{
 		super(shoebill, rootEventManager, player);
+		this.type = type;
+		
 		modelId = player.getVehicle().getModelId();
 		damageCount = 0.0;
 		driveOdometer = 0.0;
 		maxSpeed = 0.0f;
 		
 		allowState(PlayerState.PASSENGER);
-		type = player.getState();
 	}
 	
 	@Override
@@ -94,7 +95,7 @@ public class OncePlayerVehicleStatisticImpl extends AbstractPlayerVehicleProbe i
 	}
 	
 	@Override
-	public PlayerState getType()
+	public StatisticType getType()
 	{
 		return type;
 	}

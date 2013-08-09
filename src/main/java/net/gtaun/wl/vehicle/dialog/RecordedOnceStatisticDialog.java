@@ -18,7 +18,6 @@ import java.util.List;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
-import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
@@ -48,10 +47,16 @@ public class RecordedOnceStatisticDialog extends AbstractPageListDialog
 			Date endTime = stat.getEndTime();
 			if (endTime != null) endTimeStr = DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(stat.getEndTime());
 			
-			String type = "驾驶记录";
-			if (stat.getType() == PlayerState.PASSENGER) type = "乘坐记录";
+			String type;
+			switch (stat.getType())
+			{
+			case DRIVER:		type = "驾驶";	break;
+			case PASSENGER:		type = "乘坐";	break;
+			case RACING:		type = "赛车";	break;
+			default:			type = "未知";	break;
+			}
 			
-			String item = String.format("[%1$s] %2$s (%3$d) - %4$s ~ %5$s", type, modelName, modelId, startTimeStr, endTimeStr);
+			String item = String.format("[%1$s记录] %2$s (%3$d) - %4$s ~ %5$s", type, modelName, modelId, startTimeStr, endTimeStr);
 			dialogListItems.add(new DialogListItem(item)
 			{
 				@Override

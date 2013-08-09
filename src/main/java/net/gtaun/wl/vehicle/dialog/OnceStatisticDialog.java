@@ -17,7 +17,6 @@ import java.util.Date;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
-import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
@@ -52,8 +51,14 @@ public class OnceStatisticDialog extends AbstractMsgboxDialog
 		Date endTime = stat.getEndTime();
 		if (endTime != null) endTimeStr = DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(endTime);
 		
-		String type = "驾驶";
-		if (stat.getType() == PlayerState.PASSENGER) type = "乘坐";
+		String type;
+		switch (stat.getType())
+		{
+		case DRIVER:		type = "驾驶";	break;
+		case PASSENGER:		type = "乘坐";	break;
+		case RACING:		type = "赛车";	break;
+		default:			type = "未知";	break;
+		}
 		
 		this.caption = String.format("%1$s: %2$s (%3$d) 的%4$s记录信息 (%5$s~%6$s)", "车管", name, modelId, type, startTimeStr, endTimeStr);
 		
