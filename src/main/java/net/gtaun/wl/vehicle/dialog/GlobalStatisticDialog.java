@@ -33,7 +33,7 @@ public class GlobalStatisticDialog extends AbstractMsgboxDialog
 	
 	public GlobalStatisticDialog(Player player, Shoebill shoebill, EventManager rootEventManager, AbstractDialog parentDialog, final VehicleManagerService vehicleManager)
 	{
-		super(player, shoebill, rootEventManager);
+		super(player, shoebill, rootEventManager, parentDialog);
 		this.vehicleManager = vehicleManager;
 	}
 	
