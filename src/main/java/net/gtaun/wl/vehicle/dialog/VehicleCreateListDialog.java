@@ -61,7 +61,7 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 			driveCount = stat.getDriveCount();
 			globalDriveCount = globalStat.getDriveCount();
 			
-			setItemString(String.format("%1$s (型号: %2$d , 座位数: %3$d, 驾驶次数: %4$d, 人气: %5$d)", name, modelId, seats, driveCount, globalDriveCount));
+			this.itemString = (String.format("%1$s (型号: %2$d , 座位数: %3$d, 驾驶次数: %4$d, 人气: %5$d)", name, modelId, seats, driveCount, globalDriveCount));
 		}
 
 		@Override
