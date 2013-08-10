@@ -27,14 +27,14 @@ import com.google.code.morphia.annotations.Transient;
 @Entity("VehicleManagerPlayerPreferences")
 public final class PlayerPreferencesImpl implements PlayerPreferences
 {
-	interface SpeedometerWidgetSwitchCallback
+	interface VehicleWidgetSwitchCallback
 	{
 		void onSwitch();
 	}
 	
 	
 	@Transient private Player player;
-	@Transient private SpeedometerWidgetSwitchCallback speedometerWidgetSwitchCallback;
+	@Transient private VehicleWidgetSwitchCallback vehicleWidgetSwitchCallback;
 	
 	@Id private ObjectId objectId;
 	
@@ -65,9 +65,9 @@ public final class PlayerPreferencesImpl implements PlayerPreferences
 		this.player = player;
 	}
 	
-	public void setSpeedometerWidgetSwitchCallback(SpeedometerWidgetSwitchCallback speedometerWidgetSwitchCallback)
+	public void setVehicleWidgetSwitchCallback(VehicleWidgetSwitchCallback widgetSwitchCallback)
 	{
-		this.speedometerWidgetSwitchCallback = speedometerWidgetSwitchCallback;
+		this.vehicleWidgetSwitchCallback = widgetSwitchCallback;
 	}
 	
 	@Override
@@ -142,15 +142,15 @@ public final class PlayerPreferencesImpl implements PlayerPreferences
 	}
 
 	@Override
-	public boolean isSpeedometerWidgetEnabled()
+	public boolean isVehicleWidgetEnabled()
 	{
 		return speedometerWidgetEnabled;
 	}
 	
 	@Override
-	public void setSpeedometerWidgetEnabled(boolean enabled)
+	public void setVehicleWidgetEnabled(boolean enabled)
 	{
 		this.speedometerWidgetEnabled = enabled;
-		speedometerWidgetSwitchCallback.onSwitch();
+		vehicleWidgetSwitchCallback.onSwitch();
 	}
 }

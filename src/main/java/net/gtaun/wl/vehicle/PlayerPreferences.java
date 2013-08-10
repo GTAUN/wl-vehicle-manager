@@ -31,6 +31,6 @@ public interface PlayerPreferences
 	boolean isAutoCarryPassengers();
 	void setAutoCarryPassengers(boolean enabled);
 	
-	boolean isSpeedometerWidgetEnabled();
-	void setSpeedometerWidgetEnabled(boolean enabled);
+	boolean isVehicleWidgetEnabled();
+	void setVehicleWidgetEnabled(boolean enabled);
 }

@@ -43,7 +43,7 @@ import net.gtaun.shoebill.object.Timer.TimerCallback;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
-import net.gtaun.wl.vehicle.PlayerPreferencesImpl.SpeedometerWidgetSwitchCallback;
+import net.gtaun.wl.vehicle.PlayerPreferencesImpl.VehicleWidgetSwitchCallback;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl.OwnedVehicleLastPassengers;
 import net.gtaun.wl.vehicle.textdraw.VehicleWidget;
 
@@ -113,7 +113,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 		else pref = new PlayerPreferencesImpl(player, uniqueId);
 		playerPreferences = pref;
 		
-		playerPreferences.setSpeedometerWidgetSwitchCallback(speedometerWidgetSwitchCallback);
+		playerPreferences.setVehicleWidgetSwitchCallback(speedometerWidgetSwitchCallback);
 	}
 
 	@Override
@@ -149,7 +149,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 		}
 		
 		PlayerState state = player.getState();
-		if (playerPreferences.isSpeedometerWidgetEnabled() &&
+		if (playerPreferences.isVehicleWidgetEnabled() &&
 			(state == PlayerState.DRIVER || state == PlayerState.PASSENGER))
 		{
 			vehicleWidget = new VehicleWidget(shoebill, rootEventManager, player, vehicleManager);
@@ -157,7 +157,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 		}
 	}
 	
-	private SpeedometerWidgetSwitchCallback speedometerWidgetSwitchCallback = new SpeedometerWidgetSwitchCallback()
+	private VehicleWidgetSwitchCallback speedometerWidgetSwitchCallback = new VehicleWidgetSwitchCallback()
 	{
 		@Override
 		public void onSwitch()

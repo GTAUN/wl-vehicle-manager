@@ -37,14 +37,14 @@ public class PlayerPreferencesDialog extends AbstractListDialog
 			@Override
 			public boolean isSwitched()
 			{
-				return pref.isSpeedometerWidgetEnabled();
+				return pref.isVehicleWidgetEnabled();
 			}
 			
 			@Override
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				pref.setSpeedometerWidgetEnabled(!pref.isSpeedometerWidgetEnabled());
+				pref.setVehicleWidgetEnabled(!pref.isVehicleWidgetEnabled());
 				show();
 			}
 		});
