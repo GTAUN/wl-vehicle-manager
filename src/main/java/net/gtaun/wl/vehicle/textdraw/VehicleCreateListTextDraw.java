@@ -44,14 +44,14 @@ public class VehicleCreateListTextDraw implements Destroyable
 	protected final EventManager rootEventManager;
 	protected final ManagedEventManager eventManager;
 	protected final VehicleManagerService vehicleManager;
-	protected final int[] modelIds;
+	protected final Integer[] modelIds;
 	protected final ClickCallback clickCallback;
 	
 	private List<PlayerTextdraw> items;
 	
 	
 	public VehicleCreateListTextDraw
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager, int[] modelIds, ClickCallback callback)
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager, Integer[] modelIds, ClickCallback callback)
 	{
 		this.player = player;
 		this.shoebill = shoebill;

@@ -13,8 +13,10 @@
 
 package net.gtaun.wl.vehicle.dialog;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
@@ -35,13 +37,6 @@ import org.apache.commons.lang3.ArrayUtils;
 
 public class VehicleCreateListDialog extends AbstractPageListDialog
 {
-	private final VehicleManagerService vehicleManager;
-	private final String setName;
-	private final int[] modelIds;
-	
-	private VehicleCreateListTextDraw previewTextdraw;
-	
-	
 	public class DialogListItemVehicle extends DialogListItem
 	{
 		private final int modelId;
@@ -77,34 +72,97 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 	}
 	
 	
-	public VehicleCreateListDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager, final String setname, int[] modelIds)
-	{
-		this(player, shoebill, eventManager, null, vehicleManager, setname, modelIds,
-			new Comparator<Integer>()
-			{
-				@Override
-				public int compare(Integer o1, Integer o2)
-				{
-					GlobalVehicleStatistic s1 = vehicleManager.getGlobalVehicleStatistic(o1);
-					GlobalVehicleStatistic s2 = vehicleManager.getGlobalVehicleStatistic(o2);
-					return (int) (s2.getDriveCount() - s1.getDriveCount());
-				}
-			});
-	}
+	private final VehicleManagerService vehicleManager;
+	private final String setName;
+	private final Integer[] modelIds;
+	
+	private VehicleCreateListTextDraw previewTextdraw;
+	
+	private List<Comparator<Integer>> modelIdComparators;
+	private Comparator<Integer> modelIdComparator;
+	
 	
 	public VehicleCreateListDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerService vehicleManager, final String setname, int[] modelIds, Comparator<Integer> sortComparator)
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerService vehicleManager, final String setname, int[] modelIds)
 	{
 		super(player, shoebill, eventManager, parentDialog);
 		this.vehicleManager = vehicleManager;
 		this.setName = setname;
 		
-		Integer[] sortedModelIds = ArrayUtils.toObject(modelIds);
-		Arrays.sort(sortedModelIds, sortComparator);
+		modelIdComparators = new ArrayList<>();
+		modelIdComparators.add(new Comparator<Integer>()
+		{
+			@Override
+			public int compare(Integer o1, Integer o2)
+			{
+				GlobalVehicleStatistic s1 = vehicleManager.getGlobalVehicleStatistic(o1);
+				GlobalVehicleStatistic s2 = vehicleManager.getGlobalVehicleStatistic(o2);
+				return (int) (s2.getDriveCount() - s1.getDriveCount());
+			}
+		});
+		modelIdComparators.add(new Comparator<Integer>()
+		{
+			@Override
+			public int compare(Integer o1, Integer o2)
+			{
+				PlayerVehicleStatistic s1 = vehicleManager.getPlayerVehicleStatistic(player, o1);
+				PlayerVehicleStatistic s2 = vehicleManager.getPlayerVehicleStatistic(player, o2);
+				return (int) (s2.getDriveCount() - s1.getDriveCount());
+			}
+		});
+		modelIdComparators.add(new Comparator<Integer>()
+		{
+			@Override
+			public int compare(Integer o1, Integer o2)
+			{
+				return (int) (VehicleModel.getSeats(o2) - VehicleModel.getSeats(o1));
+			}
+		});
+		modelIdComparators.add(new Comparator<Integer>()
+		{
+			@Override
+			public int compare(Integer o1, Integer o2)
+			{
+				return (int) (VehicleModel.getType(o1).ordinal() - VehicleModel.getType(o2).ordinal());
+			}
+		});
 		
-		for (int modelId : sortedModelIds) dialogListItems.add(new DialogListItemVehicle(modelId));
-		this.modelIds = ArrayUtils.toPrimitive(sortedModelIds);
+		this.modelIds = ArrayUtils.toObject(modelIds);
+		modelIdComparator = modelIdComparators.get(0);
+		
+		changeSortMode(0);
+	}
+	
+	private void changeSortMode(int mode)
+	{
+		dialogListItems.clear();
+		dialogListItems.add(new DialogListItemRadio("排序方式: ")
+		{
+			{
+				addItem(new RadioItem("人气", Color.LIGHTPINK));
+				addItem(new RadioItem("使用次数", Color.LIGHTBLUE));
+				addItem(new RadioItem("座位数", Color.LIGHTGREEN));
+				addItem(new RadioItem("类型", Color.LIGHTYELLOW));
+			}
+			
+			@Override
+			public int getSelected()
+			{
+				return modelIdComparators.indexOf(modelIdComparator);
+			}
+			
+			@Override
+			public void onItemSelect(RadioItem item, int itemIndex)
+			{
+				player.playSound(1083, player.getLocation());
+				modelIdComparator = modelIdComparators.get(itemIndex);
+				changeSortMode(itemIndex);
+				show();
+			}
+		});
+		
+		Arrays.sort(this.modelIds, modelIdComparator);
+		for (int modelId : modelIds) dialogListItems.add(new DialogListItemVehicle(modelId));
 	}
 	
 	@Override
@@ -137,7 +195,7 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 		destroyPreviewTextdraw();
 		
 		int index = getCurrentPage() * getItemsPerPage();
-		int[] nowIds = ArrayUtils.subarray(modelIds, index, index+getItemsPerPage());
+		Integer[] nowIds = ArrayUtils.subarray(modelIds, index, index+getItemsPerPage());
 		previewTextdraw = new VehicleCreateListTextDraw(player, shoebill, rootEventManager, vehicleManager, nowIds, callback);
 		previewTextdraw.show();
 	}
