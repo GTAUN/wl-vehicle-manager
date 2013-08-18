@@ -116,6 +116,8 @@ public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
 	
 	private void endOnceStatistic()
 	{
+		if (nowOnceStatistic == null) return;
+		
 		nowOnceStatistic.end();
 		nowOnceStatistic = null;
 	}
