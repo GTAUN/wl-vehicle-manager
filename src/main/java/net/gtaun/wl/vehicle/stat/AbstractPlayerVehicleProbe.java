@@ -137,7 +137,7 @@ public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
 			if (lastVehicleHealth > health)
 			{
 				float damage = lastVehicleHealth - health;
-				onVehicleDamage(vehicle, damage);
+				if (damage <= 1000.0f) onVehicleDamage(vehicle, damage);
 			}
 			lastVehicleHealth = health;
 		}
