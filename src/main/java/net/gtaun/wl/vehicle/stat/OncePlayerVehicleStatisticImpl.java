@@ -52,9 +52,7 @@ public class OncePlayerVehicleStatisticImpl extends AbstractPlayerVehicleProbe i
 		
 		modelIds = new ArrayList<>();
 		
-		Vehicle vehicle = player.getVehicle();
-		if (vehicle != null) modelIds.add(vehicle.getModelId());
-		else modelIds.add(0);
+		if (player.isInAnyVehicle() == false) modelIds.add(0);
 		
 		damageCount = 0.0;
 		driveOdometer = 0.0;
