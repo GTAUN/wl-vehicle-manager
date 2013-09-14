@@ -68,16 +68,6 @@ public class OnceStatisticDialog extends AbstractMsgboxDialog
 		}
 		
 		this.caption = String.format("%1$s: %2$s (%3$d) 的%4$s记录信息 (%5$s~%6$s)", "车管", name, modelId, type, startTimeStr, endTimeStr);
-		
-		String textFormat = caption + "\n" +
-						"累计损伤花费: %2$1.1f辆\n" +
-						"累计%1$s时间: %3$s\n" +
-						"累计%1$s里程: %4$1.3f公里\n" +
-						"平均%1$s速度: %5$1.2fKM/H\n" +
-						"最高%1$s速度: %6$1.2fKM/H\n" +
-						"平均爆车速率: %7$1.1f辆 / 10分钟\n" +
-						"开始%1$s时间: %8$s\n" + 
-						"停止%1$s时间: %9$s";
 
 		double avgSpeed = stat.getDriveOdometer() / stat.getDriveSecondCount() * 60 * 60 / 1000.0f;
 		double maxSpeed = stat.getMaxSpeed() * 60 * 60 / 1000.0f;
@@ -88,10 +78,28 @@ public class OnceStatisticDialog extends AbstractMsgboxDialog
 		long hours = stat.getDriveSecondCount() / 60 / 60;
 		String formatedTime = String.format("%1$d小时 %2$d分 %3$d秒", hours, minutes, seconds);
 		
+		String modelIdMessage = "";
+		for (int mid : modelIds)
+		{
+			if (mid != 0) modelIdMessage +=  VehicleModel.getName(mid) + "(" + mid + "), ";
+			else modelIdMessage += "步行" + ", ";
+		}
+		modelIdMessage = modelIdMessage.substring(0, modelIdMessage.length()-2);
+		
+		String textFormat = caption + "\n" +
+						"驾驶过的车辆: %10$s\n" +
+						"累计损伤花费: %2$1.1f辆\n" +
+						"累计%1$s时间: %3$s\n" +
+						"累计%1$s里程: %4$1.3f公里\n" +
+						"平均%1$s速度: %5$1.2fKM/H\n" +
+						"最高%1$s速度: %6$1.2fKM/H\n" +
+						"平均爆车速率: %7$1.1f辆 / 10分钟\n" +
+						"开始%1$s时间: %8$s\n" + 
+						"停止%1$s时间: %9$s";
 		String text = String.format
 		(
 			textFormat, type, stat.getDamageCount()/1000.0f, formatedTime, stat.getDriveOdometer()/1000.0f,
-			avgSpeed, maxSpeed, avgExpratePer10Minutes, startTimeStr, endTimeStr
+			avgSpeed, maxSpeed, avgExpratePer10Minutes, startTimeStr, endTimeStr, modelIdMessage
 		);
 		
 		show(text);

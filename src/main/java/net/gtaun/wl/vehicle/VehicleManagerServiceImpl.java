@@ -294,6 +294,41 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 		return actuator.getPlayerPreferences();
 	}
 	
+	@Override
+	public PlayerPreferencesBase getEffectivePlayerPreferences(Player player)
+	{
+		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
+		return actuator.getEffectivePlayerPreferences();
+	}
+
+	@Override
+	public void addOverrideLimit(Player player, PlayerOverrideLimit limit)
+	{
+		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
+		actuator.getEffectivePlayerPreferences().addLimit(limit);
+	}
+	
+	@Override
+	public void removeOverrideLimit(Player player, PlayerOverrideLimit limit)
+	{
+		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
+		actuator.getEffectivePlayerPreferences().removeLimit(limit);
+	}
+	
+	@Override
+	public boolean hasOverrideLimit(Player player, PlayerOverrideLimit limit)
+	{
+		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
+		return actuator.getEffectivePlayerPreferences().hasLimit(limit);
+	}
+	
+	@Override
+	public void clearOverrideLimits(Player player)
+	{
+		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
+		actuator.getEffectivePlayerPreferences().clearLimits();
+	}
+	
 	private PlayerEventHandler playerEventHandler = new PlayerEventHandler()
 	{
 		protected void onPlayerConnect(PlayerConnectEvent event)

@@ -18,9 +18,9 @@
 
 package net.gtaun.wl.vehicle;
 
-import net.gtaun.shoebill.constant.VehicleComponentModel;
 import net.gtaun.shoebill.object.Player;
-import net.gtaun.shoebill.object.Vehicle;
+import net.gtaun.util.event.EventManager;
+import net.gtaun.wl.vehicle.event.PlayerPreferencesUpdateEvent;
 
 import org.bson.types.ObjectId;
 
@@ -32,14 +32,8 @@ import com.google.code.morphia.annotations.Transient;
 @Entity("VehicleManagerPlayerPreferences")
 public final class PlayerPreferencesImpl implements PlayerPreferences
 {
-	interface VehicleWidgetSwitchCallback
-	{
-		void onSwitch();
-	}
-	
-	
+	@Transient private EventManager eventManager;
 	@Transient private Player player;
-	@Transient private VehicleWidgetSwitchCallback vehicleWidgetSwitchCallback;
 	
 	@Id private ObjectId objectId;
 	
@@ -58,21 +52,24 @@ public final class PlayerPreferencesImpl implements PlayerPreferences
 		speedometerWidgetEnabled = true;
 	}
 	
-	PlayerPreferencesImpl(Player player, String playerUniqueId)
+	PlayerPreferencesImpl(EventManager eventManager, Player player, String playerUniqueId)
 	{
 		this();
+		this.eventManager = eventManager;
 		this.player = player;
 		this.playerUniqueId = playerUniqueId;
 	}
 	
-	public void setPlayer(Player player)
+	public void setContext(EventManager eventManager, Player player)
 	{
+		this.eventManager = eventManager;
 		this.player = player;
 	}
 	
-	public void setVehicleWidgetSwitchCallback(VehicleWidgetSwitchCallback widgetSwitchCallback)
+	private void dispatchUpdateEvent()
 	{
-		this.vehicleWidgetSwitchCallback = widgetSwitchCallback;
+		PlayerPreferencesUpdateEvent event = new PlayerPreferencesUpdateEvent(this);
+		eventManager.dispatchEvent(event, player, this);
 	}
 	
 	@Override
@@ -90,17 +87,9 @@ public final class PlayerPreferencesImpl implements PlayerPreferences
 	@Override
 	public void setUnlimitedNOS(boolean enabled)
 	{
+		if (unlimitedNOS == enabled) return;
 		this.unlimitedNOS = enabled;
-		if (unlimitedNOS)
-		{
-			Vehicle vehicle = player.getVehicle();
-			if (vehicle == null) return;
-			
-			if (VehicleComponentModel.isVehicleSupported(vehicle.getModelId(), VehicleComponentModel.NITRO_10_TIMES))
-			{
-				vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
-			}
-		}
+		dispatchUpdateEvent();
 	}
 
 	@Override
@@ -112,14 +101,9 @@ public final class PlayerPreferencesImpl implements PlayerPreferences
 	@Override
 	public void setAutoRepair(boolean enabled)
 	{
+		if (autoRepair == enabled) return;
 		this.autoRepair = enabled;
-		if (autoRepair)
-		{
-			Vehicle vehicle = player.getVehicle();
-			if (vehicle == null) return;
-			
-			if (vehicle.getHealth() < 1000.0f) vehicle.repair();
-		}
+		dispatchUpdateEvent();
 	}
 
 	@Override
@@ -131,7 +115,9 @@ public final class PlayerPreferencesImpl implements PlayerPreferences
 	@Override
 	public void setAutoFlip(boolean enabled)
 	{
+		if (autoFlip == enabled) return;
 		this.autoFlip = enabled;
+		dispatchUpdateEvent();
 	}
 
 	@Override
@@ -143,7 +129,9 @@ public final class PlayerPreferencesImpl implements PlayerPreferences
 	@Override
 	public void setAutoCarryPassengers(boolean enabled)
 	{
+		if (autoCarryPassengers == enabled) return;
 		this.autoCarryPassengers = enabled;
+		dispatchUpdateEvent();
 	}
 
 	@Override
@@ -155,7 +143,8 @@ public final class PlayerPreferencesImpl implements PlayerPreferences
 	@Override
 	public void setVehicleWidgetEnabled(boolean enabled)
 	{
-		this.speedometerWidgetEnabled = enabled;
-		vehicleWidgetSwitchCallback.onSwitch();
+		if (speedometerWidgetEnabled == enabled) return;
+		speedometerWidgetEnabled = enabled;
+		dispatchUpdateEvent();
 	}
 }

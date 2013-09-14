@@ -48,9 +48,11 @@ import net.gtaun.shoebill.object.Timer.TimerCallback;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
-import net.gtaun.wl.vehicle.PlayerPreferencesImpl.VehicleWidgetSwitchCallback;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl.OwnedVehicleLastPassengers;
+import net.gtaun.wl.vehicle.event.PlayerPreferencesUpdateEvent;
+import net.gtaun.wl.vehicle.event.VehicleManagerEventHandler;
 import net.gtaun.wl.vehicle.textdraw.VehicleWidget;
+import net.gtaun.wl.vehicle.util.PlayerOverridePreferences;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -80,14 +82,15 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	private final Timer timer;
 	
 	private final PlayerPreferencesImpl playerPreferences;
+	private final PlayerOverridePreferences effectivePlayerPreferences;
 	
 	private VehicleWidget vehicleWidget;
 	private Vehicle lastDriveVehicle;
 	
 	
-	public PlayerVehicleActuator(Shoebill shoebill, EventManager eventManager, final Player player, VehicleManagerServiceImpl vehicleManager, Datastore datastore)
+	public PlayerVehicleActuator(Shoebill shoebill, EventManager rootEventManager, final Player player, VehicleManagerServiceImpl vehicleManager, Datastore datastore)
 	{
-		super(shoebill, eventManager, player);
+		super(shoebill, rootEventManager, player);
 		this.vehicleManager = vehicleManager;
 		this.datastore = datastore;
 		
@@ -101,7 +104,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 				{
 					Vehicle vehicle = player.getVehicle();
 					int modelId = vehicle.getModelId();
-					if (playerPreferences.isUnlimitedNOS() && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
+					if (effectivePlayerPreferences.isUnlimitedNOS() && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
 					{
 						vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
 					}
@@ -114,11 +117,12 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 		String uniqueId = player.getName();
 		
 		PlayerPreferencesImpl pref = datastore.createQuery(PlayerPreferencesImpl.class).filter("playerUniqueId", uniqueId).get();
-		if (pref != null) pref.setPlayer(player);
-		else pref = new PlayerPreferencesImpl(player, uniqueId);
+		if (pref != null) pref.setContext(eventManager, player);
+		else pref = new PlayerPreferencesImpl(eventManager, player, uniqueId);
 		playerPreferences = pref;
+		effectivePlayerPreferences = new PlayerOverridePreferences(pref, eventManager);
 		
-		playerPreferences.setVehicleWidgetSwitchCallback(speedometerWidgetSwitchCallback);
+		rootEventManager.registerHandler(PlayerPreferencesUpdateEvent.class, effectivePlayerPreferences, vehicleManagerEventHandler, HandlerPriority.NORMAL);
 	}
 
 	@Override
@@ -145,6 +149,11 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 		return playerPreferences;
 	}
 	
+	public PlayerOverridePreferences getEffectivePlayerPreferences()
+	{
+		return effectivePlayerPreferences;
+	}
+	
 	private void createOrDestroySpeedometerWidget()
 	{
 		if (vehicleWidget != null)
@@ -154,7 +163,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 		}
 		
 		PlayerState state = player.getState();
-		if (playerPreferences.isVehicleWidgetEnabled() &&
+		if (effectivePlayerPreferences.isVehicleWidgetEnabled() &&
 			(state == PlayerState.DRIVER || state == PlayerState.PASSENGER))
 		{
 			vehicleWidget = new VehicleWidget(shoebill, rootEventManager, player, vehicleManager);
@@ -162,12 +171,30 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 		}
 	}
 	
-	private VehicleWidgetSwitchCallback speedometerWidgetSwitchCallback = new VehicleWidgetSwitchCallback()
+	private VehicleManagerEventHandler vehicleManagerEventHandler = new VehicleManagerEventHandler()
 	{
-		@Override
-		public void onSwitch()
+		protected void onPlayerPreferencesUpdate(PlayerPreferencesUpdateEvent event)
 		{
 			createOrDestroySpeedometerWidget();
+			
+			if (effectivePlayerPreferences.isAutoRepair())
+			{
+				Vehicle vehicle = player.getVehicle();
+				if (vehicle == null) return;
+				
+				if (vehicle.getHealth() < 1000.0f) vehicle.repair();
+			}
+
+			if (effectivePlayerPreferences.isUnlimitedNOS())
+			{
+				Vehicle vehicle = player.getVehicle();
+				if (vehicle == null) return;
+				
+				if (VehicleComponentModel.isVehicleSupported(vehicle.getModelId(), VehicleComponentModel.NITRO_10_TIMES))
+				{
+					vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
+				}
+			}
 		}
 	};
 	
@@ -231,7 +258,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 				Vehicle vehicle = player.getVehicle();
 				int modelId = vehicle.getModelId();
 
-				if (playerPreferences.isAutoCarryPassengers() && lastDriveVehicle != null)
+				if (effectivePlayerPreferences.isAutoCarryPassengers() && lastDriveVehicle != null)
 				{
 					List<Player> passengers = null;
 					if (lastDriveVehicle.isDestroyed())
@@ -255,12 +282,12 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 				}
 				lastDriveVehicle = vehicle;
 				
-				if (playerPreferences.isUnlimitedNOS() && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
+				if (effectivePlayerPreferences.isUnlimitedNOS() && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
 				{
 					vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
 				}
 				
-				if (playerPreferences.isAutoRepair() && vehicle.getHealth() < 1000.0f) vehicle.repair();
+				if (effectivePlayerPreferences.isAutoRepair() && vehicle.getHealth() < 1000.0f) vehicle.repair();
 			}
 			
 			createOrDestroySpeedometerWidget();
@@ -310,7 +337,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 			if (player.getState() != PlayerState.DRIVER || vehicle != player.getVehicle()) return;
 
 			int modelId = vehicle.getModelId();
-			if (playerPreferences.isAutoFlip() && VehicleModel.getType(modelId) != VehicleType.AIRCRAFT)
+			if (effectivePlayerPreferences.isAutoFlip() && VehicleModel.getType(modelId) != VehicleType.AIRCRAFT)
 			{
 				Quaternion quat = vehicle.getRotationQuat();
 				final float w = quat.getW();
@@ -331,7 +358,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 				}
 			}
 			
-			if (playerPreferences.isAutoRepair() && vehicle.getHealth() < 1000.0f) vehicle.repair();
+			if (effectivePlayerPreferences.isAutoRepair() && vehicle.getHealth() < 1000.0f) vehicle.repair();
 		}
 		
 		protected void onVehicleUpdateDamage(VehicleUpdateDamageEvent event)
@@ -339,7 +366,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 			Vehicle vehicle = event.getVehicle();
 			if (player.getState() != PlayerState.DRIVER || vehicle != player.getVehicle()) return;
 			
-			if (playerPreferences.isAutoRepair() && vehicle == player.getVehicle()) vehicle.repair();
+			if (effectivePlayerPreferences.isAutoRepair() && vehicle == player.getVehicle()) vehicle.repair();
 		}
 	};
 }

@@ -48,6 +48,12 @@ public interface VehicleManagerService extends Service
 	boolean isOwned(Vehicle vehicle);
 
 	PlayerPreferences getPlayerPreferences(Player player);
+	PlayerPreferencesBase getEffectivePlayerPreferences(Player player);
+	
+	void addOverrideLimit(Player player, PlayerOverrideLimit limit);
+	void removeOverrideLimit(Player player, PlayerOverrideLimit limit);
+	boolean hasOverrideLimit(Player player, PlayerOverrideLimit limit);
+	void clearOverrideLimits(Player player);
 
 	GlobalVehicleStatistic getGlobalVehicleStatistic(int modelId);
 	Collection<GlobalVehicleStatistic> getGlobalVehicleStatistics();
