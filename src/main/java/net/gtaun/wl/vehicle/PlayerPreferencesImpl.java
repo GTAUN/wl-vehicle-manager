@@ -39,7 +39,7 @@ public final class PlayerPreferencesImpl implements PlayerPreferences
 	
 	@Indexed private String playerUniqueId;		// 玩家唯一ID
 	
-	private boolean unlimitedNOS;
+	private boolean infiniteNitrous;
 	private boolean autoRepair;
 	private boolean autoFlip;
 	private boolean autoCarryPassengers;
@@ -79,16 +79,16 @@ public final class PlayerPreferencesImpl implements PlayerPreferences
 	}
 
 	@Override
-	public boolean isUnlimitedNOS()
+	public boolean isInfiniteNitrous()
 	{
-		return unlimitedNOS;
+		return infiniteNitrous;
 	}
 
 	@Override
-	public void setUnlimitedNOS(boolean enabled)
+	public void setInfiniteNitrous(boolean enabled)
 	{
-		if (unlimitedNOS == enabled) return;
-		this.unlimitedNOS = enabled;
+		if (infiniteNitrous == enabled) return;
+		this.infiniteNitrous = enabled;
 		dispatchUpdateEvent();
 	}
 

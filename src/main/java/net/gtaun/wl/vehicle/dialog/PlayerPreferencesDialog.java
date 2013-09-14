@@ -59,14 +59,14 @@ public class PlayerPreferencesDialog extends AbstractListDialog
 			@Override
 			public boolean isSwitched()
 			{
-				return pref.isUnlimitedNOS();
+				return pref.isInfiniteNitrous();
 			}
 			
 			@Override
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				pref.setUnlimitedNOS(!pref.isUnlimitedNOS());
+				pref.setInfiniteNitrous(!pref.isInfiniteNitrous());
 				show();
 			}
 		});

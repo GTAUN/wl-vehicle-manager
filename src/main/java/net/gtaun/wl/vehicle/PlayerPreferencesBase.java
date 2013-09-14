@@ -6,7 +6,7 @@ public interface PlayerPreferencesBase
 {
 	Player getPlayer();
 	
-	boolean isUnlimitedNOS();
+	boolean isInfiniteNitrous();
 	boolean isAutoRepair();
 	boolean isAutoFlip();
 	boolean isAutoCarryPassengers();

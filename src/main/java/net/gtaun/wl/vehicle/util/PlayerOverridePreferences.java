@@ -73,10 +73,10 @@ public class PlayerOverridePreferences implements PlayerPreferencesBase
 	}
 
 	@Override
-	public boolean isUnlimitedNOS()
+	public boolean isInfiniteNitrous()
 	{
-		boolean enabled = preferences.isUnlimitedNOS();
-		for (PlayerOverrideLimit limit : limits) enabled = limit.isUnlimitedNOS(enabled);
+		boolean enabled = preferences.isInfiniteNitrous();
+		for (PlayerOverrideLimit limit : limits) enabled = limit.isInfiniteNitrous(enabled);
 		return enabled;
 	}
 

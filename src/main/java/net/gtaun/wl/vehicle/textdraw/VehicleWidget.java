@@ -136,7 +136,7 @@ public class VehicleWidget extends AbstractPlayerContext
 
 		boolean isAutoRepair = vehicleManager.getEffectivePlayerPreferences(player).isAutoRepair();
 		String autoRepair = isAutoRepair ? "~g~R" : "~w~-";
-		String unlimitedNOS = vehicleManager.getEffectivePlayerPreferences(player).isUnlimitedNOS() ? "~r~N" : "~w~-";
+		String infiniteNitrous = vehicleManager.getEffectivePlayerPreferences(player).isInfiniteNitrous() ? "~r~N" : "~w~-";
 		String autoFlip = vehicleManager.getEffectivePlayerPreferences(player).isAutoFlip() ? "~b~F" : "~w~-";
 		String lockDoor = vehicle.getState().getDoors()!=0 ? "~y~D" : "~w~-";
 
@@ -149,7 +149,7 @@ public class VehicleWidget extends AbstractPlayerContext
 		{
 			String format = "%11$s%1$s [%7$s%8$s%9$s%10$s~w~]~n~Dmg: ~p~~h~%2$1.0f%%~w~ - Odo: ~g~~h~%4$1.2fKM~w~ - Avg/Max: ~y~~h~%5$1.1f~w~/~r~~h~%6$1.1f~w~ KPH";
 			if (!isAutoRepair) format = "%11$s%1$s [%7$s%8$s%9$s%10$s~w~]~n~VHP: ~b~~h~%3$1.1f%%~w~ - Odo: ~g~~h~%4$1.2fKM~w~ - Avg/Max: ~y~~h~%5$1.1f~w~/~r~~h~%6$1.1f~w~ KPH";
-			String text = String.format(format, formatedTime, dmg, vhp, metres, avgSpd, maxSpd, autoRepair, unlimitedNOS, autoFlip, lockDoor, extMessage);
+			String text = String.format(format, formatedTime, dmg, vhp, metres, avgSpd, maxSpd, autoRepair, infiniteNitrous, autoFlip, lockDoor, extMessage);
 			otherInfo.setText(text);
 		}
 

@@ -20,7 +20,7 @@ package net.gtaun.wl.vehicle;
 
 public interface PlayerPreferences extends PlayerPreferencesBase
 {
-	void setUnlimitedNOS(boolean enabled);
+	void setInfiniteNitrous(boolean enabled);
 	
 	void setAutoRepair(boolean enabled);
 	

@@ -104,7 +104,7 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 				{
 					Vehicle vehicle = player.getVehicle();
 					int modelId = vehicle.getModelId();
-					if (effectivePlayerPreferences.isUnlimitedNOS() && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
+					if (effectivePlayerPreferences.isInfiniteNitrous() && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
 					{
 						vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
 					}
@@ -185,7 +185,7 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 				if (vehicle.getHealth() < 1000.0f) vehicle.repair();
 			}
 
-			if (effectivePlayerPreferences.isUnlimitedNOS())
+			if (effectivePlayerPreferences.isInfiniteNitrous())
 			{
 				Vehicle vehicle = player.getVehicle();
 				if (vehicle == null) return;
@@ -282,7 +282,7 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 				}
 				lastDriveVehicle = vehicle;
 				
-				if (effectivePlayerPreferences.isUnlimitedNOS() && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
+				if (effectivePlayerPreferences.isInfiniteNitrous() && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
 				{
 					vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
 				}
