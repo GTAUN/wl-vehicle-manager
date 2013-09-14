@@ -60,15 +60,15 @@ public class VehicleStatisticManager extends AbstractShoebillContext
 	{
 		load();
 
-		PlayerLifecycleObjectFactory<PlayerVehicleStatisticActuator> factory = new PlayerLifecycleObjectFactory<PlayerVehicleStatisticActuator>()
+		PlayerLifecycleObjectFactory<PlayerVehicleStatisticContext> factory = new PlayerLifecycleObjectFactory<PlayerVehicleStatisticContext>()
 		{
 			@Override
-			public PlayerVehicleStatisticActuator create(Shoebill shoebill, EventManager eventManager, Player player)
+			public PlayerVehicleStatisticContext create(Shoebill shoebill, EventManager eventManager, Player player)
 			{
-				return new PlayerVehicleStatisticActuator(shoebill, eventManager, player, VehicleStatisticManager.this, VehicleStatisticManager.this.datastore);
+				return new PlayerVehicleStatisticContext(shoebill, eventManager, player, VehicleStatisticManager.this, VehicleStatisticManager.this.datastore);
 			}
 		};
-		playerLifecycleHolder.registerClass(PlayerVehicleStatisticActuator.class, factory);
+		playerLifecycleHolder.registerClass(PlayerVehicleStatisticContext.class, factory);
 		
 		saveTimer = shoebill.getSampObjectFactory().createTimer(1000*60*5);
 		saveTimer.setCallback(new TimerCallback()
@@ -110,8 +110,8 @@ public class VehicleStatisticManager extends AbstractShoebillContext
 	{
 		datastore.save(globalVehicleStatistics.values());
 		
-		Collection<PlayerVehicleStatisticActuator> actuators = playerLifecycleHolder.getObjects(PlayerVehicleStatisticActuator.class);
-		for (PlayerVehicleStatisticActuator actuator : actuators) actuator.save();
+		Collection<PlayerVehicleStatisticContext> contexts = playerLifecycleHolder.getObjects(PlayerVehicleStatisticContext.class);
+		for (PlayerVehicleStatisticContext context : contexts) context.save();
 	}
 
 	public GlobalVehicleStatisticImpl getGlobalVehicleStatistic(int modelId)
@@ -127,43 +127,43 @@ public class VehicleStatisticManager extends AbstractShoebillContext
 	
 	public PlayerVehicleStatisticImpl getPlayerVehicleStatistic(Player player, int modelId)
 	{
-		PlayerVehicleStatisticActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticActuator.class);
-		return actuator.getVehicleStatistic(modelId);
+		PlayerVehicleStatisticContext context = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticContext.class);
+		return context.getVehicleStatistic(modelId);
 	}
 	
 	public Collection<PlayerVehicleStatistic> getPlayerVehicleStatistics(Player player)
 	{
-		PlayerVehicleStatisticActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticActuator.class);
-		return Collections.unmodifiableCollection((Collection<? extends PlayerVehicleStatistic>) actuator.getVehicleStatistics());
+		PlayerVehicleStatisticContext context = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticContext.class);
+		return Collections.unmodifiableCollection((Collection<? extends PlayerVehicleStatistic>) context.getVehicleStatistics());
 	}
 
 	public OncePlayerVehicleStatistic getPlayerCurrentOnceStatistic(Player player)
 	{
-		PlayerVehicleStatisticActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticActuator.class);
-		return actuator.getCurrentOnceStatistic();
+		PlayerVehicleStatisticContext context = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticContext.class);
+		return context.getCurrentOnceStatistic();
 	}
 	
 	public List<OncePlayerVehicleStatistic> getPlayerRecordedOnceStatistics(Player player)
 	{
-		PlayerVehicleStatisticActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticActuator.class);
-		return actuator.getRecordedOnceStatistics();
+		PlayerVehicleStatisticContext context = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticContext.class);
+		return context.getRecordedOnceStatistics();
 	}
 	
 	public OncePlayerVehicleStatisticImpl startRacingStatistic(Player player)
 	{
-		PlayerVehicleStatisticActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticActuator.class);
-		return actuator.startRacingStatistic();
+		PlayerVehicleStatisticContext context = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticContext.class);
+		return context.startRacingStatistic();
 	}
 	
 	public void endRacingStatistic(Player player)
 	{
-		PlayerVehicleStatisticActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticActuator.class);
-		actuator.endRacingStatistic();
+		PlayerVehicleStatisticContext context = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticContext.class);
+		context.endRacingStatistic();
 	}
 	
 	public boolean isRacingStatistic(Player player)
 	{
-		PlayerVehicleStatisticActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticActuator.class);
-		return actuator.isRacingStatistic();
+		PlayerVehicleStatisticContext context = playerLifecycleHolder.getObject(player, PlayerVehicleStatisticContext.class);
+		return context.isRacingStatistic();
 	}
 }

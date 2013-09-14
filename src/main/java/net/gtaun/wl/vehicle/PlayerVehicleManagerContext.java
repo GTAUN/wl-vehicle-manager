@@ -58,7 +58,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.code.morphia.Datastore;
 
-class PlayerVehicleActuator extends AbstractPlayerContext
+class PlayerVehicleManagerContext extends AbstractPlayerContext
 {
 	private static final Map<String, Integer> VEHICLE_SHORT_NAMES = createVehicleShortNames();
 	private static Map<String, Integer> createVehicleShortNames()
@@ -88,7 +88,7 @@ class PlayerVehicleActuator extends AbstractPlayerContext
 	private Vehicle lastDriveVehicle;
 	
 	
-	public PlayerVehicleActuator(Shoebill shoebill, EventManager rootEventManager, final Player player, VehicleManagerServiceImpl vehicleManager, Datastore datastore)
+	public PlayerVehicleManagerContext(Shoebill shoebill, EventManager rootEventManager, final Player player, VehicleManagerServiceImpl vehicleManager, Datastore datastore)
 	{
 		super(shoebill, rootEventManager, player);
 		this.vehicleManager = vehicleManager;

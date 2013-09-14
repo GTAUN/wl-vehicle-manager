@@ -110,15 +110,15 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 	
 	protected void onInit()
 	{
-		PlayerLifecycleObjectFactory<PlayerVehicleActuator> factory = new PlayerLifecycleObjectFactory<PlayerVehicleActuator>()
+		PlayerLifecycleObjectFactory<PlayerVehicleManagerContext> factory = new PlayerLifecycleObjectFactory<PlayerVehicleManagerContext>()
 		{
 			@Override
-			public PlayerVehicleActuator create(Shoebill shoebill, EventManager eventManager, Player player)
+			public PlayerVehicleManagerContext create(Shoebill shoebill, EventManager eventManager, Player player)
 			{
-				return new PlayerVehicleActuator(shoebill, eventManager, player, VehicleManagerServiceImpl.this, datastore);
+				return new PlayerVehicleManagerContext(shoebill, eventManager, player, VehicleManagerServiceImpl.this, datastore);
 			}
 		};
-		playerLifecycleHolder.registerClass(PlayerVehicleActuator.class, factory);
+		playerLifecycleHolder.registerClass(PlayerVehicleManagerContext.class, factory);
 		
 		eventManager.registerHandler(PlayerConnectEvent.class, playerEventHandler, HandlerPriority.NORMAL);
 		eventManager.registerHandler(PlayerDisconnectEvent.class, playerEventHandler, HandlerPriority.NORMAL);
@@ -290,43 +290,43 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 	@Override
 	public PlayerPreferences getPlayerPreferences(Player player)
 	{
-		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		return actuator.getPlayerPreferences();
+		PlayerVehicleManagerContext context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContext.class);
+		return context.getPlayerPreferences();
 	}
 	
 	@Override
 	public PlayerPreferencesBase getEffectivePlayerPreferences(Player player)
 	{
-		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		return actuator.getEffectivePlayerPreferences();
+		PlayerVehicleManagerContext context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContext.class);
+		return context.getEffectivePlayerPreferences();
 	}
 
 	@Override
 	public void addOverrideLimit(Player player, PlayerOverrideLimit limit)
 	{
-		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		actuator.getEffectivePlayerPreferences().addLimit(limit);
+		PlayerVehicleManagerContext context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContext.class);
+		context.getEffectivePlayerPreferences().addLimit(limit);
 	}
 	
 	@Override
 	public void removeOverrideLimit(Player player, PlayerOverrideLimit limit)
 	{
-		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		actuator.getEffectivePlayerPreferences().removeLimit(limit);
+		PlayerVehicleManagerContext context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContext.class);
+		context.getEffectivePlayerPreferences().removeLimit(limit);
 	}
 	
 	@Override
 	public boolean hasOverrideLimit(Player player, PlayerOverrideLimit limit)
 	{
-		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		return actuator.getEffectivePlayerPreferences().hasLimit(limit);
+		PlayerVehicleManagerContext context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContext.class);
+		return context.getEffectivePlayerPreferences().hasLimit(limit);
 	}
 	
 	@Override
 	public void clearOverrideLimits(Player player)
 	{
-		PlayerVehicleActuator actuator = playerLifecycleHolder.getObject(player, PlayerVehicleActuator.class);
-		actuator.getEffectivePlayerPreferences().clearLimits();
+		PlayerVehicleManagerContext context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContext.class);
+		context.getEffectivePlayerPreferences().clearLimits();
 	}
 	
 	private PlayerEventHandler playerEventHandler = new PlayerEventHandler()

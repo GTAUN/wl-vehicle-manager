@@ -36,7 +36,7 @@ import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic.StatisticType;
 
 import com.google.code.morphia.Datastore;
 
-public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
+public class PlayerVehicleStatisticContext extends AbstractPlayerVehicleProbe
 {
 	private final VehicleStatisticManager statisticManager;
 	private final Datastore datastore;
@@ -47,7 +47,7 @@ public class PlayerVehicleStatisticActuator extends AbstractPlayerVehicleProbe
 	private OncePlayerVehicleStatisticImpl nowOnceStatistic;
 	
 	
-	public PlayerVehicleStatisticActuator(Shoebill shoebill, EventManager rootEventManager, Player player, VehicleStatisticManager statisticManager, Datastore datastore)
+	public PlayerVehicleStatisticContext(Shoebill shoebill, EventManager rootEventManager, Player player, VehicleStatisticManager statisticManager, Datastore datastore)
 	{
 		super(shoebill, rootEventManager, player);
 		this.statisticManager = statisticManager;
