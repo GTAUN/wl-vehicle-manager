@@ -32,7 +32,8 @@ import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.dialog.AbstractPageListDialog;
-import net.gtaun.wl.vehicle.VehicleManagerService;
+import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 import net.gtaun.wl.vehicle.stat.GlobalVehicleStatistic;
 import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
 import net.gtaun.wl.vehicle.textdraw.VehicleCreateListTextDraw;
@@ -50,34 +51,37 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 		
 		public DialogListItemVehicle(int modelId)
 		{
+			final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
 			this.modelId = modelId;
 			
 			final String name = VehicleModel.getName(modelId);
 			final int seats = VehicleModel.getSeats(modelId);
 
-			PlayerVehicleStatistic stat = vehicleManager.getPlayerVehicleStatistic(player, modelId);
-			GlobalVehicleStatistic globalStat = vehicleManager.getGlobalVehicleStatistic(modelId);
+			PlayerVehicleStatistic stat = vehicleManagerService.getPlayerVehicleStatistic(player, modelId);
+			GlobalVehicleStatistic globalStat = vehicleManagerService.getGlobalVehicleStatistic(modelId);
 			
 			driveCount = stat.getDriveCount();
 			globalDriveCount = globalStat.getDriveCount();
 			
-			this.itemString = (String.format("%1$s (型号: %2$d , 座位数: %3$d, 驾驶次数: %4$d, 人气: %5$d)", name, modelId, seats, driveCount, globalDriveCount));
+			this.itemString = stringSet.format(player, "Dialog.VehicleCreateListDialog.Item", name, modelId, seats, driveCount, globalDriveCount);
 		}
 
 		@Override
 		public void onItemSelect()
 		{
+			final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+			
 			player.playSound(1057, player.getLocation());
 			
-			Vehicle vehicle = vehicleManager.createOwnVehicle(player, modelId);
+			Vehicle vehicle = vehicleManagerService.createOwnVehicle(player, modelId);
 			vehicle.putPlayer(player, 0);
-			player.sendMessage(Color.LIGHTBLUE, "%1$s: 您的专属座驾 %2$s 已创建！", "车管", VehicleModel.getName(vehicle.getModelId()));
+			player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Dialog.VehicleCreateListDialog.CreateMessage", VehicleModel.getName(vehicle.getModelId())));
 			destroy();
 		}
 	}
 	
-	
-	private final VehicleManagerService vehicleManager;
+
+	private final VehicleManagerServiceImpl vehicleManagerService;
 	private final String setName;
 	private final Integer[] modelIds;
 	
@@ -88,10 +92,10 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 	
 	
 	public VehicleCreateListDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerService vehicleManager, final String setname, int[] modelIds)
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerServiceImpl vehicleManagerService, final String setname, int[] modelIds)
 	{
 		super(player, shoebill, eventManager, parentDialog);
-		this.vehicleManager = vehicleManager;
+		this.vehicleManagerService = vehicleManagerService;
 		this.setName = setname;
 		
 		modelIdComparators = new ArrayList<>();
@@ -100,8 +104,8 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 			@Override
 			public int compare(Integer o1, Integer o2)
 			{
-				GlobalVehicleStatistic s1 = vehicleManager.getGlobalVehicleStatistic(o1);
-				GlobalVehicleStatistic s2 = vehicleManager.getGlobalVehicleStatistic(o2);
+				GlobalVehicleStatistic s1 = vehicleManagerService.getGlobalVehicleStatistic(o1);
+				GlobalVehicleStatistic s2 = vehicleManagerService.getGlobalVehicleStatistic(o2);
 				return (int) (s2.getDriveCount() - s1.getDriveCount());
 			}
 		});
@@ -110,8 +114,8 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 			@Override
 			public int compare(Integer o1, Integer o2)
 			{
-				PlayerVehicleStatistic s1 = vehicleManager.getPlayerVehicleStatistic(player, o1);
-				PlayerVehicleStatistic s2 = vehicleManager.getPlayerVehicleStatistic(player, o2);
+				PlayerVehicleStatistic s1 = vehicleManagerService.getPlayerVehicleStatistic(player, o1);
+				PlayerVehicleStatistic s2 = vehicleManagerService.getPlayerVehicleStatistic(player, o2);
 				return (int) (s2.getDriveCount() - s1.getDriveCount());
 			}
 		});
@@ -140,14 +144,16 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 	
 	private void changeSortMode(int mode)
 	{
+		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		
 		dialogListItems.clear();
-		dialogListItems.add(new DialogListItemRadio("排序方式: ")
+		dialogListItems.add(new DialogListItemRadio(stringSet.get(player, "Dialog.VehicleCreateListDialog.ItemSortMode"))
 		{
 			{
-				addItem(new RadioItem("人气", Color.LIGHTPINK));
-				addItem(new RadioItem("使用次数", Color.LIGHTBLUE));
-				addItem(new RadioItem("座位数", Color.LIGHTGREEN));
-				addItem(new RadioItem("类型", Color.LIGHTYELLOW));
+				addItem(new RadioItem(stringSet.get(player, "Vehicle.SortMode.Hot"), Color.LIGHTPINK));
+				addItem(new RadioItem(stringSet.get(player, "Vehicle.SortMode.UseCount"), Color.LIGHTBLUE));
+				addItem(new RadioItem(stringSet.get(player, "Vehicle.SortMode.Seats"), Color.LIGHTGREEN));
+				addItem(new RadioItem(stringSet.get(player, "Vehicle.SortMode.Type"), Color.LIGHTYELLOW));
 			}
 			
 			@Override
@@ -179,6 +185,8 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 	@Override
 	public void show()
 	{
+		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		
 		ClickCallback callback = new ClickCallback()
 		{
 			@Override
@@ -187,21 +195,21 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 				player.cancelDialog();
 				player.playSound(1057, player.getLocation());
 				
-				Vehicle vehicle = vehicleManager.createOwnVehicle(player, modelId);
+				Vehicle vehicle = vehicleManagerService.createOwnVehicle(player, modelId);
 				vehicle.putPlayer(player, 0);
-				player.sendMessage(Color.LIGHTBLUE, "%1$s: 您的专属座驾 %2$s 已创建！", "车管", VehicleModel.getName(vehicle.getModelId()));
+				player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Dialog.VehicleCreateListDialog.CreateMessage", VehicleModel.getName(vehicle.getModelId())));
 				destroyPreviewTextdraw();
 			}
 		};
 		
-		this.caption = String.format("%1$s: 刷车 - 车辆选择 - %2$s (%3$d/%4$d)", "车管", setName, getCurrentPage() + 1, getMaxPage() + 1);
+		this.caption = stringSet.format(player, "Dialog.VehicleCreateListDialog.Caption", setName, getCurrentPage() + 1, getMaxPage() + 1);
 		super.show();
 		
 		destroyPreviewTextdraw();
 		
 		int index = getCurrentPage() * getItemsPerPage();
 		Integer[] nowIds = ArrayUtils.subarray(modelIds, index, index+getItemsPerPage());
-		previewTextdraw = new VehicleCreateListTextDraw(player, shoebill, rootEventManager, vehicleManager, nowIds, callback);
+		previewTextdraw = new VehicleCreateListTextDraw(player, shoebill, rootEventManager, vehicleManagerService, nowIds, callback);
 		previewTextdraw.show();
 	}
 	

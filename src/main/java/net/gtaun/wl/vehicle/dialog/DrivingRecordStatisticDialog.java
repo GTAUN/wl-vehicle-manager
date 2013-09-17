@@ -27,28 +27,31 @@ import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.dialog.AbstractPageListDialog;
-import net.gtaun.wl.vehicle.VehicleManagerService;
+import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 
-public class RecordedOnceStatisticDialog extends AbstractPageListDialog
+public class DrivingRecordStatisticDialog extends AbstractPageListDialog
 {
-	public RecordedOnceStatisticDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerService vehicleManager)
+	public DrivingRecordStatisticDialog
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerServiceImpl vehicleManagerService)
 	{
 		super(player, shoebill, eventManager, parentDialog);
-		this.caption = String.format("%1$s: 驾驶和乘坐记录", "车管");
+		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
 		
-		List<OncePlayerVehicleStatistic> stats = vehicleManager.getPlayerRecordedOnceStatistics(player);
+		this.caption = stringSet.get(player, "Dialog.DrivingRecordStatisticDialog.Caption");
+		
+		List<OncePlayerVehicleStatistic> stats = vehicleManagerService.getPlayerRecordedOnceStatistics(player);
 		
 		for (final OncePlayerVehicleStatistic stat : stats)
 		{
 			List<Integer> modelIds = stat.getModelIds();
 			final int modelId = modelIds.get(0);
-			final String modelName = modelIds.size() == 1 ? VehicleModel.getName(modelId) : "多种移动方式";
+			final String modelName = modelIds.size() == 1 ? VehicleModel.getName(modelId) : stringSet.get(player, "Statistic.MoveWay.Multiple");
 			String startTimeStr = DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(stat.getStartTime());
-			String endTimeStr = "未知";
+			String endTimeStr = stringSet.get(player, "Time.NA");
 			
 			Date endTime = stat.getEndTime();
 			if (endTime != null) endTimeStr = DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(stat.getEndTime());
@@ -56,19 +59,19 @@ public class RecordedOnceStatisticDialog extends AbstractPageListDialog
 			String type;
 			switch (stat.getType())
 			{
-			case DRIVER:		type = "驾驶";	break;
-			case PASSENGER:		type = "乘坐";	break;
-			case RACING:		type = "赛车";	break;
-			default:			type = "未知";	break;
+			case DRIVER:	type = stringSet.get(player, "Statistic.Type.Driver");	break;
+			case PASSENGER:	type = stringSet.get(player, "Statistic.Type.Passenger");	break;
+			case RACING:	type = stringSet.get(player, "Statistic.Type.Racing");	break;
+			default:		type = stringSet.get(player, "Statistic.Type.Unknown");	break;
 			}
 			
-			String item = String.format("[%1$s记录] %2$s (%3$d) - %4$s ~ %5$s", type, modelName, modelId, startTimeStr, endTimeStr);
+			String item = stringSet.format(player, "Dialog.DrivingRecordStatisticDialog.Item", type, modelName, modelId, startTimeStr, endTimeStr);
 			dialogListItems.add(new DialogListItem(item)
 			{
 				@Override
 				public void onItemSelect()
 				{
-					new OnceStatisticDialog(player, shoebill, eventManager, RecordedOnceStatisticDialog.this, vehicleManager, stat).show();
+					new OnceStatisticDialog(player, shoebill, eventManager, DrivingRecordStatisticDialog.this, vehicleManagerService, stat).show();
 				}
 			});
 		}

@@ -27,7 +27,8 @@ import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.dialog.AbstractMsgboxDialog;
-import net.gtaun.wl.vehicle.VehicleManagerService;
+import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 import net.gtaun.wl.vehicle.stat.GlobalVehicleStatistic;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -35,34 +36,27 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 public class GlobalVehicleStatisticDialog extends AbstractMsgboxDialog
 {
 	private final Vehicle vehicle;
-	private final VehicleManagerService vehicleManager;
+	private final VehicleManagerServiceImpl vehicleManagerService;
 	
 	
-	public GlobalVehicleStatisticDialog(Player player, Shoebill shoebill, EventManager rootEventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerService vehicleManager)
+	public GlobalVehicleStatisticDialog(Player player, Shoebill shoebill, EventManager rootEventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerServiceImpl vehicleManager)
 	{
 		super(player, shoebill, rootEventManager, parentDialog);
 		this.vehicle = vehicle;
-		this.vehicleManager = vehicleManager;
+		this.vehicleManagerService = vehicleManager;
 	}
 	
 	@Override
 	public void show()
 	{
+		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		
 		int modelId = vehicle.getModelId();
 		String name = VehicleModel.getName(modelId);
-		GlobalVehicleStatistic stat = vehicleManager.getGlobalVehicleStatistic(modelId);
+		GlobalVehicleStatistic stat = vehicleManagerService.getGlobalVehicleStatistic(modelId);
 		
-		this.caption = String.format("%1$s: %2$s (模型: %3$d) 的全局统计信息", "车管", name, modelId);
-		
-		String textFormat = caption + "\n" +
-						"累计刷车次数: %1$d\n" +
-						"累计损伤花费: %2$1.1f辆\n" +
-						"累计驾驶次数: %3$d次\n" +
-						"累计驾驶时间: %4$s\n" +
-						"累计驾驶里程: %5$1.3f公里\n" +
-						"平均驾驶速度: %6$1.2fKM/H\n" +
-						"平均爆车速率: %7$1.1f辆 / 10分钟\n" +
-						"最后更新时间: %8$s";
+		this.caption = stringSet.format(player, "Dialog.GlobalVehicleStatisticDialog.Caption", name, modelId);
+		String textFormat = stringSet.get(player, "Dialog.GlobalVehicleStatisticDialog.Text");
 
 		double avgSpeed = stat.getDriveOdometer() / stat.getDriveTimeCount() * 60 * 60 / 1000.0f;
 		double avgExpratePer10Minutes = stat.getDamageCount() / 750.0f / stat.getDriveTimeCount() * 60 * 10;
@@ -70,15 +64,15 @@ public class GlobalVehicleStatisticDialog extends AbstractMsgboxDialog
 		long seconds = stat.getDriveTimeCount() % 60;
 		long minutes = (stat.getDriveTimeCount() / 60) % 60;
 		long hours = stat.getDriveTimeCount() / 60 / 60;
-		String formatedTime = String.format("%1$d小时 %2$d分 %3$d秒", hours, minutes, seconds);
+		String formatedTime = stringSet.format(player, "Time.HMS", hours, minutes, seconds);
 
-		String lastUpdateString = "从未";
+		String lastUpdateString = stringSet.get(player, "Time.Never");
 		Date lastUpdate = stat.getLastUpdate();
 		if (lastUpdate != null) lastUpdateString = DateFormatUtils.ISO_DATETIME_FORMAT.format(lastUpdate);
 		
 		String text = String.format
 		(
-			textFormat, stat.getSpawnCount(), stat.getDamageCount()/1000.0f, stat.getDriveCount(), formatedTime,
+			textFormat, caption, stat.getSpawnCount(), stat.getDamageCount()/1000.0f, stat.getDriveCount(), formatedTime,
 			stat.getDriveOdometer()/1000.0f, avgSpeed, avgExpratePer10Minutes, lastUpdateString
 		);
 		

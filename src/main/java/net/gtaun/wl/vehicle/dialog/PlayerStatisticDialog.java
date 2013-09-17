@@ -26,30 +26,33 @@ import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.dialog.AbstractMsgboxDialog;
-import net.gtaun.wl.vehicle.VehicleManagerService;
+import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 
 public class PlayerStatisticDialog extends AbstractMsgboxDialog
 {
-	private final VehicleManagerService vehicleManager;
+	private final VehicleManagerServiceImpl vehicleManagerService;
 	
 	
-	public PlayerStatisticDialog(Player player, Shoebill shoebill, EventManager rootEventManager, AbstractDialog parentDialog, final VehicleManagerService vehicleManager)
+	public PlayerStatisticDialog(Player player, Shoebill shoebill, EventManager rootEventManager, AbstractDialog parentDialog, final VehicleManagerServiceImpl vehicleManagerService)
 	{
 		super(player, shoebill, rootEventManager, parentDialog);
-		this.vehicleManager = vehicleManager;
+		this.vehicleManagerService = vehicleManagerService;
 	}
 	
 	@Override
 	public void show()
 	{
+		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		
 		long spawnCount = 0, driveCount = 0, driveSecondCount = 0;
 		double damageCount = 0.0f, driveOdometer = 0.0f;
 		Date lastUpdate = new Date(0);
 		
-		Collection<PlayerVehicleStatistic> stats = vehicleManager.getPlayerVehicleStatistics(player);
+		Collection<PlayerVehicleStatistic> stats = vehicleManagerService.getPlayerVehicleStatistics(player);
 		for (PlayerVehicleStatistic stat : stats)
 		{
 			spawnCount += stat.getSpawnCount();
@@ -62,17 +65,8 @@ public class PlayerStatisticDialog extends AbstractMsgboxDialog
 			if (update != null && lastUpdate.before(update)) lastUpdate = update;
 		}
 		
-		this.caption = String.format("%1$s: 所有车辆的个人统计信息", "车管");
-		
-		String textFormat = caption + "\n" +
-						"累计刷车次数: %1$d\n" +
-						"累计损伤花费: %2$1.1f辆\n" +
-						"累计驾驶次数: %3$d次\n" +
-						"累计驾驶时间: %4$s\n" +
-						"累计驾驶里程: %5$1.3f公里\n" +
-						"平均驾驶速度: %6$1.2fKM/H\n" +
-						"平均爆车速率: %7$1.1f辆 / 10分钟\n" +
-						"最后更新时间: %8$s";
+		this.caption = stringSet.get(player, "Dialog.PlayerStatisticDialog.Caption");
+		String textFormat = stringSet.get(player, "Dialog.PlayerStatisticDialog.Text");
 
 		double avgSpeed = driveOdometer / driveSecondCount * 60 * 60 / 1000.0f;
 		double avgExpratePer10Minutes = damageCount / 750.0f / driveSecondCount * 60 * 10;
@@ -80,14 +74,14 @@ public class PlayerStatisticDialog extends AbstractMsgboxDialog
 		long seconds = driveSecondCount % 60;
 		long minutes = (driveSecondCount / 60) % 60;
 		long hours = driveSecondCount / 60 / 60;
-		String formatedTime = String.format("%1$d小时 %2$d分 %3$d秒", hours, minutes, seconds);
+		String formatedTime = stringSet.format(player, "Time.HMS", hours, minutes, seconds);
 
-		String lastUpdateString = "从未";
+		String lastUpdateString = stringSet.get(player, "Time.Never");
 		if (lastUpdate != null) lastUpdateString = DateFormatUtils.ISO_DATETIME_FORMAT.format(lastUpdate);
 		
 		String text = String.format
 		(
-			textFormat, spawnCount, damageCount/1000.0f, driveCount, formatedTime,
+			textFormat, caption, spawnCount, damageCount/1000.0f, driveCount, formatedTime,
 			driveOdometer/1000.0f, avgSpeed, avgExpratePer10Minutes, lastUpdateString
 		);
 		

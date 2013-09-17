@@ -18,10 +18,7 @@
 
 package net.gtaun.wl.vehicle.dialog;
 
-import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
@@ -33,73 +30,51 @@ import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.dialog.AbstractListDialog;
-import net.gtaun.wl.vehicle.VehicleManagerService;
+import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
+import net.gtaun.wl.vehicle.util.VehicleTextUtils;
 
 public class VehicleComponentDialog extends AbstractListDialog
 {
-	private static Map<VehicleComponentSlot, String> VEHICLE_COMPONENT_SLOT_NAMES = new TreeMap<>();
-	static
-	{
-		VEHICLE_COMPONENT_SLOT_NAMES.put(VehicleComponentSlot.SPOILER, "扰流板");
-		VEHICLE_COMPONENT_SLOT_NAMES.put(VehicleComponentSlot.HOOD, "发动机罩");
-		VEHICLE_COMPONENT_SLOT_NAMES.put(VehicleComponentSlot.ROOF, "车顶");
-		VEHICLE_COMPONENT_SLOT_NAMES.put(VehicleComponentSlot.SIDE_SKIRT, "侧裙");
-		VEHICLE_COMPONENT_SLOT_NAMES.put(VehicleComponentSlot.LAMPS, "车灯");
-		VEHICLE_COMPONENT_SLOT_NAMES.put(VehicleComponentSlot.NITRO, "氮气加速装置");
-		VEHICLE_COMPONENT_SLOT_NAMES.put(VehicleComponentSlot.EXHAUST, "排气管");
-		VEHICLE_COMPONENT_SLOT_NAMES.put(VehicleComponentSlot.WHEELS, "车轮轮圈");
-		VEHICLE_COMPONENT_SLOT_NAMES.put(VehicleComponentSlot.STEREO, "立体声音响");
-		VEHICLE_COMPONENT_SLOT_NAMES.put(VehicleComponentSlot.HYDRAULICS, "液压系统");
-		VEHICLE_COMPONENT_SLOT_NAMES.put(VehicleComponentSlot.FRONT_BUMPER, "前保险杠");
-		VEHICLE_COMPONENT_SLOT_NAMES.put(VehicleComponentSlot.REAR_BUMPER, "后保险杠");
-		VEHICLE_COMPONENT_SLOT_NAMES.put(VehicleComponentSlot.VENT_RIGHT, "右进气口");
-		VEHICLE_COMPONENT_SLOT_NAMES.put(VehicleComponentSlot.VENT_LEFT, "左进气口");
-		
-		VEHICLE_COMPONENT_SLOT_NAMES = Collections.unmodifiableMap(VEHICLE_COMPONENT_SLOT_NAMES);
-	}
-	
-	public static Map<VehicleComponentSlot, String> getVehicleComponentSlotNames()
-	{
-		return VEHICLE_COMPONENT_SLOT_NAMES;
-	}
-
-	
+	private final VehicleManagerServiceImpl vehicleManagerService;
 	private final Vehicle vehicle;
 	
 	
 	public VehicleComponentDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerService vehicleManager)
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerServiceImpl vehicleManagerService)
 	{
 		super(player, shoebill, eventManager, parentDialog);
+		this.vehicleManagerService = vehicleManagerService;
 		this.vehicle = vehicle;
+		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
 
 		final int vehcileModelId = vehicle.getModelId();
 		
-		final String paintjobItem = String.format("%1$s", "喷漆");
+		final String paintjobItem = stringSet.get(player, "Component.Paintjob");
 		if (VehicleModel.isPrintjobSupported(vehcileModelId)) dialogListItems.add(new DialogListItem(paintjobItem)
 		{
 			@Override
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				new VehicleComponentPaintjobDialog(player, shoebill, eventManager, VehicleComponentDialog.this, vehicle, vehicleManager).show();
+				new VehicleComponentPaintjobDialog(player, shoebill, eventManager, VehicleComponentDialog.this, vehicle, vehicleManagerService).show();
 			}
 		});
 		
 		for (final VehicleComponentSlot slot : VehicleComponentModel.getVehicleSupportedSlots(vehcileModelId))
 		{
 			final Set<Integer> components = VehicleComponentModel.getSlotSupportedComponents(vehcileModelId, slot);
-			final String slotName = VEHICLE_COMPONENT_SLOT_NAMES.get(slot);
+			final String slotName = VehicleTextUtils.getComponentSlotName(stringSet, player, slot);
 			final String curName = VehicleComponentModel.getName(vehicle.getComponent().get(slot));
 			
-			final String item = String.format("%1$s -	当前部件: %2$s (%3$d 个可用部件)", slotName, curName, components.size());
+			final String item = stringSet.format(player, "Dialog.VehicleComponentDialog.Item", slotName, curName, components.size());
 			dialogListItems.add(new DialogListItem(item)
 			{
 				@Override
 				public void onItemSelect()
 				{
 					player.playSound(1083, player.getLocation());
-					new VehicleComponentAddDialog(player, shoebill, rootEventManager, VehicleComponentDialog.this, vehicle, vehicleManager, slot).show();
+					new VehicleComponentAddDialog(player, shoebill, rootEventManager, VehicleComponentDialog.this, vehicle, vehicleManagerService, slot).show();
 				}
 			});
 		}
@@ -108,6 +83,8 @@ public class VehicleComponentDialog extends AbstractListDialog
 	@Override
 	public void show()
 	{
+		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		
 		int modelId = vehicle.getModelId();
 		String name = VehicleModel.getName(modelId);
 		
@@ -119,7 +96,7 @@ public class VehicleComponentDialog extends AbstractListDialog
 			player.setCameraPosition(loc);
 		}
 		
-		this.caption = String.format("%1$s: 改装 %2$s (模型：%3$d, HP：%4$1.0f％)", "车管", name, modelId, vehicle.getHealth()/10);
+		this.caption = stringSet.format(player, "Dialog.VehicleComponentDialog.Caption", name, modelId, vehicle.getHealth()/10);
 		super.show();
 	}
 }

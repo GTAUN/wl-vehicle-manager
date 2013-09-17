@@ -26,18 +26,22 @@ import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.dialog.AbstractListDialog;
-import net.gtaun.wl.vehicle.VehicleManagerService;
+import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 
 public class VehicleComponentPaintjobDialog extends AbstractListDialog
 {
+	private final VehicleManagerServiceImpl vehicleManagerService;
 	private final Vehicle vehicle;
 	
 	
 	public VehicleComponentPaintjobDialog
-	(final Player player, final Shoebill shoebill, final EventManager rootEventManager, final AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerService vehicleManager)
+	(final Player player, final Shoebill shoebill, final EventManager rootEventManager, final AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerServiceImpl vehicleManagerService)
 	{
 		super(player, shoebill, rootEventManager, parentDialog);
+		this.vehicleManagerService = vehicleManagerService;
 		this.vehicle = vehicle;
+		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
 
 		final int modelId = vehicle.getModelId();
 		final String name = VehicleModel.getName(modelId);
@@ -45,7 +49,7 @@ public class VehicleComponentPaintjobDialog extends AbstractListDialog
 		for (int i=0; i<3; i++)
 		{
 			final int paintjobId = i;
-			final String item = String.format("%1$s: %2$s %3$d", "喷漆", "喷漆", paintjobId);
+			final String item = stringSet.format(player, "Dialog.VehicleComponentPaintjobDialog.Item", paintjobId);
 			
 			dialogListItems.add(new DialogListItem(item)
 			{
@@ -53,7 +57,7 @@ public class VehicleComponentPaintjobDialog extends AbstractListDialog
 				public void onItemSelect()
 				{
 					player.playSound(1134, player.getLocation());
-					player.sendMessage(Color.LIGHTBLUE, "%1$s: 您的车子 %2$s 已喷漆: %3$s %4$d 。", "车管", name, "喷漆", paintjobId);
+					player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "PaintMessage", name, paintjobId));
 					
 					vehicle.setPaintjob(paintjobId);
 					showParentDialog();
@@ -65,10 +69,12 @@ public class VehicleComponentPaintjobDialog extends AbstractListDialog
 	@Override
 	public void show()
 	{
+		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		
 		int modelId = vehicle.getModelId();
 		String name = VehicleModel.getName(modelId);
 		
-		this.caption = String.format("%1$s: 改装 %2$s - 选择%3$s部件", "车管", name, "喷漆");
+		this.caption = stringSet.format(player, "Dialog.VehicleComponentPaintjobDialog.Caption", name);
 		super.show();
 	}
 }

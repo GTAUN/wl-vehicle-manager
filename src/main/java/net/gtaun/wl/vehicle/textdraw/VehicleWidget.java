@@ -32,13 +32,14 @@ import net.gtaun.shoebill.object.Timer.TimerCallback;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.textdraw.TextDrawUtils;
-import net.gtaun.wl.vehicle.VehicleManagerService;
+import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic;
 import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic.StatisticType;
 
 public class VehicleWidget extends AbstractPlayerContext
 {
-	private final VehicleManagerService vehicleManager;
+	private final VehicleManagerServiceImpl vehicleManagerService;
 	
 	private Timer timer;
 
@@ -48,15 +49,16 @@ public class VehicleWidget extends AbstractPlayerContext
 	private PlayerTextdraw healthBar;
 	
 	
-	public VehicleWidget(Shoebill shoebill, EventManager rootEventManager, Player player, VehicleManagerService vehicleManager)
+	public VehicleWidget(Shoebill shoebill, EventManager rootEventManager, Player player, VehicleManagerServiceImpl vehicleManagerService)
 	{
 		super(shoebill, rootEventManager, player);
-		this.vehicleManager = vehicleManager;
+		this.vehicleManagerService = vehicleManagerService;
 	}
 
 	@Override
 	protected void onInit()
 	{
+		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
 		SampObjectFactory factory = shoebill.getSampObjectFactory();
 		
 		speedDisplay = TextDrawUtils.createPlayerText(factory, player, 625, 410, "0");
@@ -66,7 +68,7 @@ public class VehicleWidget extends AbstractPlayerContext
 		speedDisplay.setShadowSize(2);
 		speedDisplay.show();
 		
-		unitDisplay = TextDrawUtils.createPlayerText(factory, player, 635, 445, "KPH");
+		unitDisplay = TextDrawUtils.createPlayerText(factory, player, 635, 445, stringSet.get(player, "Unit.KPH"));
 		unitDisplay.setAlignment(TextDrawAlign.RIGHT);
 		unitDisplay.setFont(TextDrawFont.BANK_GOTHIC);
 		unitDisplay.setLetterSize(0.3f, 1.2f);
@@ -116,7 +118,9 @@ public class VehicleWidget extends AbstractPlayerContext
 	
 	private void update()
 	{
-		OncePlayerVehicleStatistic stat = vehicleManager.getPlayerCurrentOnceStatistic(player);
+		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		
+		OncePlayerVehicleStatistic stat = vehicleManagerService.getPlayerCurrentOnceStatistic(player);
 		if (stat == null) return;
 		
 		Vehicle vehicle = player.getVehicle();
@@ -134,21 +138,22 @@ public class VehicleWidget extends AbstractPlayerContext
 		long hours = stat.getDriveSecondCount() / 60 / 60;
 		String formatedTime = String.format("%1$02d:%2$02d:%3$02d", hours, minutes, seconds);
 
-		boolean isAutoRepair = vehicleManager.getEffectivePlayerPreferences(player).isAutoRepair();
-		String autoRepair = isAutoRepair ? "~g~R" : "~w~-";
-		String infiniteNitrous = vehicleManager.getEffectivePlayerPreferences(player).isInfiniteNitrous() ? "~r~N" : "~w~-";
-		String autoFlip = vehicleManager.getEffectivePlayerPreferences(player).isAutoFlip() ? "~b~F" : "~w~-";
-		String lockDoor = vehicle.getState().getDoors()!=0 ? "~y~D" : "~w~-";
+		String offMark = stringSet.get(player, "Textdraw.VehicleWidget.StatusMark.Off");
+		boolean isAutoRepair = vehicleManagerService.getEffectivePlayerPreferences(player).isAutoRepair();
+		String autoRepair = isAutoRepair ? stringSet.get(player, "Textdraw.VehicleWidget.StatusMark.AutoRepair") : offMark;
+		String infiniteNitrous = vehicleManagerService.getEffectivePlayerPreferences(player).isInfiniteNitrous() ? stringSet.get(player, "Textdraw.VehicleWidget.StatusMark.InfiniteNitrous") : offMark;
+		String autoFlip = vehicleManagerService.getEffectivePlayerPreferences(player).isAutoFlip() ? stringSet.get(player, "Textdraw.VehicleWidget.StatusMark.AutoFlip") : offMark;
+		String lockDoor = vehicle.getState().getDoors()!=0 ? stringSet.get(player, "Textdraw.VehicleWidget.StatusMark.LockDoors") : offMark;
 
 		speedDisplay.setText(String.format("%1$1.0f", spd));
 		
 		String extMessage = "";
-		if (stat.getType() == StatisticType.RACING) extMessage += "[RACING] ";
+		if (stat.getType() == StatisticType.RACING) extMessage += stringSet.get(player, "Textdraw.VehicleWidget.RacingExtMessage") + " ";
 		
 		if (timer.getCount() % 5 == 0)
 		{
-			String format = "%11$s%1$s [%7$s%8$s%9$s%10$s~w~]~n~Dmg: ~p~~h~%2$1.0f%%~w~ - Odo: ~g~~h~%4$1.2fKM~w~ - Avg/Max: ~y~~h~%5$1.1f~w~/~r~~h~%6$1.1f~w~ KPH";
-			if (!isAutoRepair) format = "%11$s%1$s [%7$s%8$s%9$s%10$s~w~]~n~VHP: ~b~~h~%3$1.1f%%~w~ - Odo: ~g~~h~%4$1.2fKM~w~ - Avg/Max: ~y~~h~%5$1.1f~w~/~r~~h~%6$1.1f~w~ KPH";
+			String format = stringSet.get(player, "Textdraw.VehicleWidget.Format");
+			if (!isAutoRepair) format = stringSet.get(player, "Textdraw.VehicleWidget.IncludeHealthFormat");
 			String text = String.format(format, formatedTime, dmg, vhp, metres, avgSpd, maxSpd, autoRepair, infiniteNitrous, autoFlip, lockDoor, extMessage);
 			otherInfo.setText(text);
 		}

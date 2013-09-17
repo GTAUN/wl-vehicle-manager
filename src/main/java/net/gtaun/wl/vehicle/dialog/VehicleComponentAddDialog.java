@@ -30,31 +30,36 @@ import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.dialog.AbstractListDialog;
-import net.gtaun.wl.vehicle.VehicleManagerService;
+import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
+import net.gtaun.wl.vehicle.util.VehicleTextUtils;
 
 public class VehicleComponentAddDialog extends AbstractListDialog
 {
+	private final VehicleManagerServiceImpl vehicleManagerService;
 	private final Vehicle vehicle;
 	private final VehicleComponentSlot componentSlot;
 	
 	
 	public VehicleComponentAddDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, final AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerService vehicleManager, final VehicleComponentSlot slot)
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, final AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerServiceImpl vehicleManagerService, final VehicleComponentSlot slot)
 	{
 		super(player, shoebill, eventManager, parentDialog);
+		this.vehicleManagerService = vehicleManagerService;
 		this.vehicle = vehicle;
 		this.componentSlot = slot;
+		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
 
 		final int modelId = vehicle.getModelId();
 		final String name = VehicleModel.getName(modelId);
 		
 		final Set<Integer> components = VehicleComponentModel.getSlotSupportedComponents(modelId, slot);
-		final String slotName = VehicleComponentDialog.getVehicleComponentSlotNames().get(slot);
+		final String slotName = VehicleTextUtils.getComponentSlotName(stringSet, player, slot);
 		
 		for (final int cid : components)
 		{
 			final String componentName = VehicleComponentModel.getName(cid);
-			final String item = String.format("%1$s: %2$s", slotName, componentName);
+			final String item = stringSet.format(player, "Dialog.VehicleComponentAddDialog.Item", slotName, componentName);
 			
 			dialogListItems.add(new DialogListItem(item)
 			{
@@ -62,7 +67,7 @@ public class VehicleComponentAddDialog extends AbstractListDialog
 				public void onItemSelect()
 				{
 					player.playSound(1133, player.getLocation());
-					player.sendMessage(Color.LIGHTBLUE, "%1$s: 您的车子 %2$s 已安装%3$s新组件: %4$s 。", "车管", name, slotName, componentName);
+					player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Dialog.VehicleComponentAddDialog.AddMessage", name, slotName, componentName));
 					
 					vehicle.getComponent().add(cid);
 					showParentDialog();
@@ -74,10 +79,13 @@ public class VehicleComponentAddDialog extends AbstractListDialog
 	@Override
 	public void show()
 	{
+		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		
 		int modelId = vehicle.getModelId();
 		String name = VehicleModel.getName(modelId);
+		String slotName = VehicleTextUtils.getComponentSlotName(stringSet, player, componentSlot);
 		
-		this.caption = String.format("%1$s: 改装 %2$s - 选择%3$s部件", "车管", name, VehicleComponentDialog.getVehicleComponentSlotNames().get(componentSlot));
+		this.caption = stringSet.format(player, "Dialog.VehicleComponentAddDialog.Caption", name, slotName);
 		super.show();
 	}
 }

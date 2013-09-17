@@ -48,6 +48,7 @@ import net.gtaun.shoebill.object.Timer.TimerCallback;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
+import net.gtaun.wl.lang.LocalizedStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl.OwnedVehicleLastPassengers;
 import net.gtaun.wl.vehicle.event.PlayerPreferencesUpdateEvent;
 import net.gtaun.wl.vehicle.event.VehicleManagerEventHandler;
@@ -77,7 +78,7 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 	}
 	
 	
-	private final VehicleManagerServiceImpl vehicleManager;
+	private final VehicleManagerServiceImpl vehicleManagerService;
 	private final Datastore datastore;
 	private final Timer timer;
 	
@@ -91,7 +92,7 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 	public PlayerVehicleManagerContext(Shoebill shoebill, EventManager rootEventManager, final Player player, VehicleManagerServiceImpl vehicleManager, Datastore datastore)
 	{
 		super(shoebill, rootEventManager, player);
-		this.vehicleManager = vehicleManager;
+		this.vehicleManagerService = vehicleManager;
 		this.datastore = datastore;
 		
 		timer = shoebill.getSampObjectFactory().createTimer(10000);
@@ -166,7 +167,7 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 		if (effectivePlayerPreferences.isVehicleWidgetEnabled() &&
 			(state == PlayerState.DRIVER || state == PlayerState.PASSENGER))
 		{
-			vehicleWidget = new VehicleWidget(shoebill, rootEventManager, player, vehicleManager);
+			vehicleWidget = new VehicleWidget(shoebill, rootEventManager, player, vehicleManagerService);
 			vehicleWidget.init();
 		}
 	}
@@ -202,6 +203,8 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 	{
 		protected void onPlayerText(PlayerTextEvent event)
 		{
+			final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+			
 			Player player = event.getPlayer();
 			String text = event.getText();
 			
@@ -212,7 +215,7 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 			
 			if (text.length() < 4)
 			{
-				player.sendMessage(Color.LIGHTBLUE, "%1$s: 快捷刷车命令用法：\\[车辆模型ID] 或者 \\[车辆名字前三位] ，比如 \\411 或者 \\tur 。", "车管");
+				player.sendMessage(Color.LIGHTBLUE, stringSet.get(player, "Command.Create.Usage"));
 				return;
 			}
 			
@@ -227,13 +230,13 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 				modelId = Integer.parseInt(name);
 				if (VehicleModel.isVaildId(modelId) == false)
 				{
-					player.sendMessage(Color.LIGHTBLUE, "%1$s: 不是合法的车辆模型ID %2$d 。", "车管", modelId);
+					player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Command.Create.InvalidID", modelId));
 					return;
 				}
 			}
 			else if (VEHICLE_SHORT_NAMES.containsKey(name) == false)
 			{
-				player.sendMessage(Color.LIGHTBLUE, "%1$s: 不存在这个车辆简写名称 %2$s 。", "车管", name);
+				player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Command.Create.InvalidAbbr", name));
 				return;
 			}
 			else
@@ -242,9 +245,9 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 			}
 			
 			player.playSound(1057, player.getLocation());
-			Vehicle vehicle = vehicleManager.createOwnVehicle(player, modelId);
+			Vehicle vehicle = vehicleManagerService.createOwnVehicle(player, modelId);
 			vehicle.putPlayer(player, 0);
-			player.sendMessage(Color.LIGHTBLUE, "%1$s: 您的专属座驾 %2$s 已创建！", "车管", VehicleModel.getName(vehicle.getModelId()));
+			player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Command.Create.Message", VehicleModel.getName(vehicle.getModelId())));
 		}
 		
 		protected void onPlayerStateChange(PlayerStateChangeEvent event)
@@ -263,7 +266,7 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 					List<Player> passengers = null;
 					if (lastDriveVehicle.isDestroyed())
 					{
-						OwnedVehicleLastPassengers lastPassengers = vehicleManager.getOwnedVehicleLastPassengers(player);
+						OwnedVehicleLastPassengers lastPassengers = vehicleManagerService.getOwnedVehicleLastPassengers(player);
 						if (lastPassengers != null && lastPassengers.lastUpdate+2000L > System.currentTimeMillis())
 						{
 							passengers = lastPassengers.passengers;

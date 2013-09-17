@@ -32,8 +32,8 @@
 
 	<licenses>
 		<license>
-			<name>GNU General Public License, version 2 (GPL-2.0)</name>
-			<url>http://www.gnu.org/licenses/gpl-2.0.html</url>
+			<name>GNU Affero General Public License, version 3 (AGPL-3.0)</name>
+			<url>http://www.gnu.org/licenses/agpl-3.0.html</url>
 		</license>
 	</licenses>
 
@@ -72,6 +72,14 @@
 		<dependency>
 			<groupId>net.gtaun.wl</groupId>
 			<artifactId>wl-common</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>net.gtaun.wl</groupId>
+			<artifactId>wl-language</artifactId>
 			<version>0.1.0-SNAPSHOT</version>
 			<type>jar</type>
 			<scope>compile</scope>

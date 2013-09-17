@@ -18,6 +18,7 @@
 
 package net.gtaun.wl.vehicle;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,7 +37,6 @@ import net.gtaun.shoebill.common.player.PlayerLifecycleHolder;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder.PlayerLifecycleObjectFactory;
 import net.gtaun.shoebill.common.vehicle.VehicleUtils;
 import net.gtaun.shoebill.constant.VehicleModel;
-import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Velocity;
 import net.gtaun.shoebill.event.PlayerEventHandler;
 import net.gtaun.shoebill.event.player.PlayerCommandEvent;
@@ -48,6 +48,8 @@ import net.gtaun.shoebill.resource.Plugin;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
 import net.gtaun.util.event.ManagedEventManager;
+import net.gtaun.wl.lang.LanguageService;
+import net.gtaun.wl.lang.LocalizedStringSet;
 import net.gtaun.wl.vehicle.dialog.VehicleManagerDialog;
 import net.gtaun.wl.vehicle.stat.GlobalVehicleStatistic;
 import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic;
@@ -78,6 +80,8 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 	private final ManagedEventManager eventManager;
 	private final PlayerLifecycleHolder playerLifecycleHolder;
 	
+	private final LocalizedStringSet localizedStringSet;
+	
 	private boolean isCommandEnabled = true;
 	private String commandOperation = "/v";
 	
@@ -97,6 +101,9 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 		
 		eventManager = new ManagedEventManager(rootEventManager);
 		playerLifecycleHolder = new PlayerLifecycleHolder(shoebill, eventManager);
+		
+		LanguageService languageService = shoebill.getServiceStore().getService(LanguageService.class);
+		localizedStringSet = languageService.createStringSet(new File(plugin.getDataDir(), "text"));
 		
 		statisticManager = new VehicleStatisticManager(shoebill, eventManager, playerLifecycleHolder, this.datastore);
 		
@@ -131,6 +138,11 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 	protected void onDestroy()
 	{
 		
+	}
+	
+	public LocalizedStringSet getLocalizedStringSet()
+	{
+		return localizedStringSet;
 	}
 	
 	public OwnedVehicleLastPassengers getOwnedVehicleLastPassengers(Player player)
@@ -362,13 +374,6 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 			
 			if (operation.equals(commandOperation))
 			{
-				if (args.size() > 1)
-				{
-					player.sendMessage(Color.YELLOW, "Usage: " + commandOperation + " [VehicleID]");
-					event.setProcessed();
-					return;
-				}
-				
 				new VehicleManagerDialog(player, shoebill, rootEventManager, VehicleManagerServiceImpl.this).show();
 				event.setProcessed();
 				return;

@@ -27,47 +27,52 @@ import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.dialog.AbstractMsgboxDialog;
-import net.gtaun.wl.vehicle.VehicleManagerService;
+import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 
 public class OnceStatisticDialog extends AbstractMsgboxDialog
 {
+	private final VehicleManagerServiceImpl vehicleManagerService;
 	private final OncePlayerVehicleStatistic stat;
 	
 	
-	public OnceStatisticDialog(Player player, Shoebill shoebill, EventManager rootEventManager, AbstractDialog parentDialog, VehicleManagerService vehicleManager, OncePlayerVehicleStatistic stat)
+	public OnceStatisticDialog(Player player, Shoebill shoebill, EventManager rootEventManager, AbstractDialog parentDialog, VehicleManagerServiceImpl vehicleManagerService, OncePlayerVehicleStatistic stat)
 	{
 		super(player, shoebill, rootEventManager, parentDialog);
+		this.vehicleManagerService = vehicleManagerService;
 		this.stat = stat;
 	}
 	
 	@Override
 	public void show()
 	{
+		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		
 		List<Integer> modelIds = stat.getModelIds();
 		int modelId = modelIds.get(0);
-		String name = modelIds.size() == 1 ? VehicleModel.getName(modelId) : "多种移动方式";
+		String name = modelIds.size() == 1 ? VehicleModel.getName(modelId) : stringSet.get(player, "Statistic.MoveWay.Multiple");
 
-		String startTimeStr = "N/A";
+		String startTimeStr = stringSet.get(player, "Time.NA");
 		Date startTime = stat.getStartTime();
 		if (startTime != null) startTimeStr = DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(startTime);
 		
-		String endTimeStr = "N/A";
+		String endTimeStr = stringSet.get(player, "Time.NA");
 		Date endTime = stat.getEndTime();
 		if (endTime != null) endTimeStr = DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(endTime);
 		
 		String type;
 		switch (stat.getType())
 		{
-		case DRIVER:		type = "驾驶";	break;
-		case PASSENGER:		type = "乘坐";	break;
-		case RACING:		type = "赛车";	break;
-		default:			type = "未知";	break;
+		case DRIVER:	type = stringSet.get(player, "Statistic.Type.Driver");	break;
+		case PASSENGER:	type = stringSet.get(player, "Statistic.Type.Passenger");	break;
+		case RACING:	type = stringSet.get(player, "Statistic.Type.Racing");	break;
+		default:		type = stringSet.get(player, "Statistic.Type.Unknown");	break;
 		}
 		
-		this.caption = String.format("%1$s: %2$s (%3$d) 的%4$s记录信息 (%5$s~%6$s)", "车管", name, modelId, type, startTimeStr, endTimeStr);
+		this.caption = stringSet.format(player, "Dialog.OnceStatisticDialog.Caption", name, modelId, type, startTimeStr, endTimeStr);
 
 		double avgSpeed = stat.getDriveOdometer() / stat.getDriveSecondCount() * 60 * 60 / 1000.0f;
 		double maxSpeed = stat.getMaxSpeed() * 60 * 60 / 1000.0f;
@@ -76,30 +81,21 @@ public class OnceStatisticDialog extends AbstractMsgboxDialog
 		long seconds = stat.getDriveSecondCount() % 60;
 		long minutes = (stat.getDriveSecondCount() / 60) % 60;
 		long hours = stat.getDriveSecondCount() / 60 / 60;
-		String formatedTime = String.format("%1$d小时 %2$d分 %3$d秒", hours, minutes, seconds);
+		String formatedTime = stringSet.format(player, "Time.HMS", hours, minutes, seconds);
 		
 		String modelIdMessage = "";
 		for (int mid : modelIds)
 		{
 			if (mid != 0) modelIdMessage +=  VehicleModel.getName(mid) + "(" + mid + "), ";
-			else modelIdMessage += "步行" + ", ";
+			else modelIdMessage += stringSet.get(player, "Statistic.MoveWay.OnFoot") + ", ";
 		}
 		modelIdMessage = modelIdMessage.substring(0, modelIdMessage.length()-2);
 		
-		String textFormat = caption + "\n" +
-						"驾驶过的车辆: %10$s\n" +
-						"累计损伤花费: %2$1.1f辆\n" +
-						"累计%1$s时间: %3$s\n" +
-						"累计%1$s里程: %4$1.3f公里\n" +
-						"平均%1$s速度: %5$1.2fKM/H\n" +
-						"最高%1$s速度: %6$1.2fKM/H\n" +
-						"平均爆车速率: %7$1.1f辆 / 10分钟\n" +
-						"开始%1$s时间: %8$s\n" + 
-						"停止%1$s时间: %9$s";
+		String textFormat = stringSet.get(player, "Dialog.OnceStatisticDialog.Text");
 		String text = String.format
 		(
-			textFormat, type, stat.getDamageCount()/1000.0f, formatedTime, stat.getDriveOdometer()/1000.0f,
-			avgSpeed, maxSpeed, avgExpratePer10Minutes, startTimeStr, endTimeStr, modelIdMessage
+			textFormat, caption, type, modelIdMessage, stat.getDamageCount()/1000.0f, formatedTime, stat.getDriveOdometer()/1000.0f,
+			avgSpeed, maxSpeed, avgExpratePer10Minutes, startTimeStr, endTimeStr
 		);
 		
 		show(text);

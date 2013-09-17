@@ -32,20 +32,22 @@ import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.shoebill.object.VehicleDamage;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.dialog.AbstractListDialog;
-import net.gtaun.wl.vehicle.VehicleManagerService;
+import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 
 public class VehicleDialog extends AbstractListDialog
 {
 	private final Vehicle vehicle;
-	private final VehicleManagerService vehicleManager;
+	private final VehicleManagerServiceImpl vehicleManagerService;
 	
 	
 	public VehicleDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerService vehicleManager)
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerServiceImpl vehicleManager)
 	{
 		super(player, shoebill, eventManager, parentDialog);
 		this.vehicle = vehicle;
-		this.vehicleManager = vehicleManager;
+		this.vehicleManagerService = vehicleManager;
+		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
 		
 		if (vehicle == null)
 		{
@@ -53,7 +55,7 @@ public class VehicleDialog extends AbstractListDialog
 			return;
 		}
 		
-		dialogListItems.add(new DialogListItem("上车")
+		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.GetOn"))
 		{
 			@Override
 			public boolean isEnabled()
@@ -68,13 +70,13 @@ public class VehicleDialog extends AbstractListDialog
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
-				player.sendMessage(Color.LIGHTBLUE, "%1$s: 你已传送到车子 %2$s 里了。", "车管", VehicleModel.getName(vehicle.getModelId()));
+				player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Dialog.VehicleDialog.GetOnMessage", VehicleModel.getName(vehicle.getModelId())));
 				vehicle.putPlayer(player, 0);
 				destroy();
 			}
 		});
 		
-		dialogListItems.add(new DialogListItem("成为我的车子")
+		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.OwnThisVehicle"))
 		{
 			@Override
 			public boolean isEnabled()
@@ -88,13 +90,13 @@ public class VehicleDialog extends AbstractListDialog
 			public void onItemSelect()
 			{
 				player.playSound(1057, player.getLocation());
-				player.sendMessage(Color.LIGHTBLUE, "%1$s: 车子 %2$s 已成为您的专属座驾！", "车管", VehicleModel.getName(vehicle.getModelId()));
+				player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Dialog.VehicleDialog.OwnMessage", VehicleModel.getName(vehicle.getModelId())));
 				vehicleManager.ownVehicle(player, vehicle);
 				show();
 			}
 		});
 		
-		dialogListItems.add(new DialogListItem("传送到身边并上车")
+		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.FetchAndGetOn"))
 		{
 			@Override
 			public boolean isEnabled()
@@ -112,12 +114,12 @@ public class VehicleDialog extends AbstractListDialog
 				vehicle.setLocation(player.getLocation());
 				vehicle.putPlayer(player, 0);
 
-				player.sendMessage(Color.LIGHTBLUE, "%1$s: 车子 %2$s 已传送到你身边！", "车管", VehicleModel.getName(vehicle.getModelId()));
+				player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Dialog.VehicleDialog.FetchMessage", VehicleModel.getName(vehicle.getModelId())));
 				destroy();
 			}
 		});
 		
-		dialogListItems.add(new DialogListItem("修复车子")
+		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.Repair"))
 		{
 			@Override
 			public boolean isEnabled()
@@ -142,7 +144,7 @@ public class VehicleDialog extends AbstractListDialog
 			}
 		});
 		
-		dialogListItems.add(new DialogListItem("翻转车子")
+		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.Flip"))
 		{
 			@Override
 			public boolean isEnabled()
@@ -159,7 +161,7 @@ public class VehicleDialog extends AbstractListDialog
 			}
 		});
 		
-		dialogListItems.add(new DialogListItem("改变颜色")
+		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.ChangeColor"))
 		{
 			@Override
 			public boolean isEnabled()
@@ -175,7 +177,7 @@ public class VehicleDialog extends AbstractListDialog
 			}
 		});
 		
-		dialogListItems.add(new DialogListItem("踢掉乘客")
+		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.KickPassengers"))
 		{
 			@Override
 			public boolean isEnabled()
@@ -191,16 +193,16 @@ public class VehicleDialog extends AbstractListDialog
 				List<Player> passengers = VehicleUtils.getVehiclePassengers(vehicle);
 				for (Player passenger : passengers)
 				{
-					passenger.sendMessage(Color.LIGHTBLUE, "%1$s: 你被司机 %2$s 给踢下车了！", "车管", player.getName());
+					passenger.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Dialog.VehicleDialog.KickPassengerMessage", player.getName()));
 					passenger.removeFromVehicle();
 				}
 				
-				player.sendMessage(Color.LIGHTBLUE, "%1$s: 已踢出 %2$d 个乘客！", "车管", passengers.size());
+				player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Dialog.VehicleDialog.KickCompleteMessage", passengers.size()));
 				destroy();
 			}
 		});
 		
-		dialogListItems.add(new DialogListItem("改装车子")
+		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.Modifications"))
 		{
 			@Override
 			public boolean isEnabled()
@@ -217,7 +219,7 @@ public class VehicleDialog extends AbstractListDialog
 			}
 		});
 		
-		dialogListItems.add(new DialogListItemSwitch("锁车门")
+		dialogListItems.add(new DialogListItemSwitch(stringSet.get(player, "Dialog.VehicleDialog.LockDoors"))
 		{
 			@Override
 			public boolean isEnabled()
@@ -240,7 +242,7 @@ public class VehicleDialog extends AbstractListDialog
 			}
 		});
 		
-		dialogListItems.add(new DialogListItem("显示此车辆的个人统计信息")
+		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.PersonalStatistics"))
 		{
 			@Override
 			public void onItemSelect()
@@ -250,7 +252,7 @@ public class VehicleDialog extends AbstractListDialog
 			}
 		});
 		
-		dialogListItems.add(new DialogListItem("显示此车辆的全局统计信息")
+		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.GlobalStatistics"))
 		{
 			@Override
 			public void onItemSelect()
@@ -264,11 +266,13 @@ public class VehicleDialog extends AbstractListDialog
 	@Override
 	public void show()
 	{
+		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		
 		int modelId = vehicle.getModelId();
 		String name = VehicleModel.getName(modelId);
 		
-		boolean owned = vehicleManager.getOwnedVehicle(player) == vehicle;
-		String ownMessage = owned ? "我的车子" : "车辆";
+		boolean owned = vehicleManagerService.getOwnedVehicle(player) == vehicle;
+		String ownMessage = owned ? stringSet.get(player, "Vehicle.Owned") : stringSet.get(player, "Vehicle.Normal");
 		
 		if (player.getVehicle() != vehicle)
 		{
@@ -278,7 +282,7 @@ public class VehicleDialog extends AbstractListDialog
 			player.setCameraPosition(loc);
 		}
 		
-		this.caption = String.format("%1$s: %2$s %3$s (模型: %4$d, HP: %5$1.0f％)", "车管", ownMessage, name, modelId, vehicle.getHealth()/10);
+		this.caption = stringSet.format(player, "Dialog.VehicleDialog.Caption", ownMessage, name, modelId, vehicle.getHealth()/10);
 		super.show();
 	}
 	

@@ -29,28 +29,14 @@ import net.gtaun.shoebill.constant.VehicleModel.VehicleType;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.dialog.AbstractListDialog;
-import net.gtaun.wl.vehicle.VehicleManagerService;
+import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
+import net.gtaun.wl.vehicle.util.VehicleTextUtils;
 
 import org.apache.commons.lang3.ArrayUtils;
 
 public class VehicleCreateMainDialog extends AbstractListDialog
 {
-	private static final Map<VehicleType, String> TYPE_NAMES = new HashMap<>();
-	static
-	{
-		TYPE_NAMES.put(VehicleType.UNKNOWN,			"其他");
-		TYPE_NAMES.put(VehicleType.BICYCLE,			"自行车");
-		TYPE_NAMES.put(VehicleType.MOTORBIKE,		"摩托车");
-		TYPE_NAMES.put(VehicleType.CAR,				"普通车子");
-		TYPE_NAMES.put(VehicleType.TRAILER,			"拖车");
-		TYPE_NAMES.put(VehicleType.REMOTE_CONTROL,	"遥控装置");
-		TYPE_NAMES.put(VehicleType.TRAIN,			"火车");
-		TYPE_NAMES.put(VehicleType.BOAT,			"船只");
-		TYPE_NAMES.put(VehicleType.AIRCRAFT,		"飞机");
-		TYPE_NAMES.put(VehicleType.HELICOPTER,		"直升机");
-		TYPE_NAMES.put(VehicleType.TANK,			"坦克");
-	}
-	
 	private static final Map<String, int[]> COMMON_VEHICLES = new HashMap<>();
 	static
 	{
@@ -69,19 +55,21 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 	}
 	
 	
-	public VehicleCreateMainDialog(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerService vehicleManager)
+	public VehicleCreateMainDialog(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerServiceImpl vehicleManagerService)
 	{
 		super(player, shoebill, eventManager, parentDialog);
-		this.caption = String.format("%1$s: 刷车 - 车辆类型选择", "车管");
+		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
 		
-		dialogListItems.add(new DialogListItem("列出所有车辆")
+		this.caption = stringSet.get(player, "Dialog.VehicleCreateMainDialog.Caption");
+		
+		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleCreateMainDialog.ItemAll"))
 		{
 			@Override
 			public void onItemSelect()
 			{
 				player.playSound(1083, player.getLocation());
 				int[] vehicleModelIds = ArrayUtils.toPrimitive(VehicleModel.getIds().toArray(new Integer[0]));
-				new VehicleCreateListDialog(player, shoebill, eventManager, VehicleCreateMainDialog.this, vehicleManager, "所有车辆", vehicleModelIds).show();
+				new VehicleCreateListDialog(player, shoebill, eventManager, VehicleCreateMainDialog.this, vehicleManagerService, stringSet.get(player, "Dialog.VehicleCreateMainDialog.AllVehicleText"), vehicleModelIds).show();
 			}
 		});
 		
@@ -90,24 +78,22 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 			final String setname = entry.getKey();
 			final int[] set = entry.getValue();
 			
-			final String itemName = "常用列表: " + setname;
+			final String itemName = stringSet.format(player, "Dialog.VehicleCreateMainDialog.ItemCommon", setname);
 			dialogListItems.add(new DialogListItem(itemName)
 			{
 				@Override
 				public void onItemSelect()
 				{
 					player.playSound(1083, player.getLocation());
-					new VehicleCreateListDialog(player, shoebill, eventManager, VehicleCreateMainDialog.this, vehicleManager, itemName, set).show();
+					new VehicleCreateListDialog(player, shoebill, eventManager, VehicleCreateMainDialog.this, vehicleManagerService, itemName, set).show();
 				}
 			});
 		}
 		
-		for (Map.Entry<VehicleType, String> entry : TYPE_NAMES.entrySet())
-		{
-			final VehicleType type = entry.getKey();
-			final String typename = entry.getValue();
-
-			final String itemName = "类型: " + typename;
+		for (final VehicleType type : VehicleType.values())
+		{			
+			final String typename = VehicleTextUtils.getVehicleTypeName(stringSet, player, type);
+			final String itemName = stringSet.format(player, "Dialog.VehicleCreateMainDialog.ItemType", typename);
 			dialogListItems.add(new DialogListItem(itemName)
 			{
 				@Override
@@ -115,7 +101,7 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 				{
 					player.playSound(1083, player.getLocation());
 					int[] vehicleModelIds = ArrayUtils.toPrimitive(VehicleModel.getIds(type).toArray(new Integer[0]));
-					new VehicleCreateListDialog(player, shoebill, eventManager, VehicleCreateMainDialog.this, vehicleManager, itemName, vehicleModelIds).show();
+					new VehicleCreateListDialog(player, shoebill, eventManager, VehicleCreateMainDialog.this, vehicleManagerService, itemName, vehicleModelIds).show();
 				}
 			});
 		}

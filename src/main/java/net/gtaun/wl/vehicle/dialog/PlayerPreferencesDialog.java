@@ -23,21 +23,22 @@ import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.dialog.AbstractListDialog;
+import net.gtaun.wl.lang.LocalizedStringSet;
 import net.gtaun.wl.vehicle.PlayerPreferences;
-import net.gtaun.wl.vehicle.VehicleManagerService;
+import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 
 public class PlayerPreferencesDialog extends AbstractListDialog
 {
 	public PlayerPreferencesDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerService vehicleManager)
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerServiceImpl vehicleManagerService)
 	{
 		super(player, shoebill, eventManager, parentDialog);
+		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		final PlayerPreferences pref = vehicleManagerService.getPlayerPreferences(player);
 		
-		this.caption = String.format("%1$s: 个人偏好设置", "车管");
+		this.caption = stringSet.get(player, "Dialog.PlayerPreferencesDialog.Caption");
 		
-		final PlayerPreferences pref = vehicleManager.getPlayerPreferences(player);
-
-		dialogListItems.add(new DialogListItemSwitch("显示速度计挂件")
+		dialogListItems.add(new DialogListItemSwitch(stringSet.get(player, "Dialog.PlayerPreferencesDialog.VehicleWidget"))
 		{
 			@Override
 			public boolean isSwitched()
@@ -54,7 +55,7 @@ public class PlayerPreferencesDialog extends AbstractListDialog
 			}
 		});
 		
-		dialogListItems.add(new DialogListItemSwitch("无限氮气加速")
+		dialogListItems.add(new DialogListItemSwitch(stringSet.get(player, "Dialog.PlayerPreferencesDialog.InfiniteNitrous"))
 		{
 			@Override
 			public boolean isSwitched()
@@ -71,7 +72,7 @@ public class PlayerPreferencesDialog extends AbstractListDialog
 			}
 		});
 		
-		dialogListItems.add(new DialogListItemSwitch("自动修复车辆")
+		dialogListItems.add(new DialogListItemSwitch(stringSet.get(player, "Dialog.PlayerPreferencesDialog.AutoRepair"))
 		{
 			@Override
 			public boolean isSwitched()
@@ -88,7 +89,7 @@ public class PlayerPreferencesDialog extends AbstractListDialog
 			}
 		});
 		
-		dialogListItems.add(new DialogListItemSwitch("自动翻转车辆")
+		dialogListItems.add(new DialogListItemSwitch(stringSet.get(player, "Dialog.PlayerPreferencesDialog.AutoFlip"))
 		{
 			@Override
 			public boolean isSwitched()
@@ -105,7 +106,7 @@ public class PlayerPreferencesDialog extends AbstractListDialog
 			}
 		});
 		
-		dialogListItems.add(new DialogListItemSwitch("自动携带乘客")
+		dialogListItems.add(new DialogListItemSwitch(stringSet.get(player, "Dialog.PlayerPreferencesDialog.AutoCarryPassengers"))
 		{
 			@Override
 			public boolean isSwitched()

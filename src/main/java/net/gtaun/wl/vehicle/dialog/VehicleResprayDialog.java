@@ -26,20 +26,22 @@ import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.dialog.AbstractListDialog;
-import net.gtaun.wl.vehicle.VehicleManagerService;
+import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 
 public class VehicleResprayDialog extends AbstractListDialog
 {
 	public VehicleResprayDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerService vehicleManager, final int start, final int end)
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerServiceImpl vehicleManagerService, final int start, final int end)
 	{
-		this(player, shoebill, eventManager, parentDialog, vehicle, vehicleManager, start, end, -1);
+		this(player, shoebill, eventManager, parentDialog, vehicle, vehicleManagerService, start, end, -1);
 	}
 	
 	public VehicleResprayDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerService vehicleManager, final int start, final int end, final int color1)
+	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerServiceImpl vehicleManagerService, final int start, final int end, final int color1)
 	{
 		super(player, shoebill, eventManager, parentDialog);
+		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
 		
 		if (vehicle == null)
 		{
@@ -50,16 +52,16 @@ public class VehicleResprayDialog extends AbstractListDialog
 		int modelId = vehicle.getModelId();
 		String name = VehicleModel.getName(modelId);
 		
-		String type = "主颜色";
-		if (color1 != -1) type = "子颜色";
+		String type = stringSet.get(player, "Component.Color.Primary");
+		if (color1 != -1) type = stringSet.get(player, "Component.Color.Secondary");
 		
-		this.caption = String.format("%1$s: 选择 %2$s 的%3$s (模型: %4$d, HP: %5$1.0f％)", "车管", name, type, modelId, vehicle.getHealth()/10);
+		this.caption = stringSet.format(player, "Dialog.VehicleResprayDialog.Caption", name, type, modelId, vehicle.getHealth()/10);
 		
 		for (int i=start; i<end; i++)
 		{
 			final int idx = i;
 			
-			String item = String.format("\t\t\t%1$s▇{FFFFFF} 颜色: %2$d %1$s▇", new Color(VehicleResprayGroupDialog.VEHICLE_COLOR_TABLE_RGBA[idx]).toEmbeddingString(), idx);
+			String item = stringSet.format(player, "Dialog.VehicleResprayDialog.Item", new Color(VehicleResprayGroupDialog.VEHICLE_COLOR_TABLE_RGBA[idx]).toEmbeddingString(), idx);
 			dialogListItems.add(new DialogListItem(item)
 			{
 				@Override
@@ -67,7 +69,7 @@ public class VehicleResprayDialog extends AbstractListDialog
 				{
 					player.playSound(1083, player.getLocation());
 					
-					if (color1 == -1) new VehicleResprayGroupDialog(player, shoebill, eventManager, VehicleResprayDialog.this, vehicle, vehicleManager, idx).show();
+					if (color1 == -1) new VehicleResprayGroupDialog(player, shoebill, eventManager, VehicleResprayDialog.this, vehicle, vehicleManagerService, idx).show();
 					else player.getVehicle().setColor(color1, idx);
 				}
 			});
