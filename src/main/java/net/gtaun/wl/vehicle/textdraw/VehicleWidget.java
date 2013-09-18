@@ -138,7 +138,7 @@ public class VehicleWidget extends AbstractPlayerContext
 		long hours = stat.getDriveSecondCount() / 60 / 60;
 		String formatedTime = String.format("%1$02d:%2$02d:%3$02d", hours, minutes, seconds);
 
-		String offMark = stringSet.get(player, "Textdraw.VehicleWidget.StatusMark.Off");
+		String offMark = stringSet.get(player, "Textdraw.VehicleWidget.StatusMark.OffMark");
 		boolean isAutoRepair = vehicleManagerService.getEffectivePlayerPreferences(player).isAutoRepair();
 		String autoRepair = isAutoRepair ? stringSet.get(player, "Textdraw.VehicleWidget.StatusMark.AutoRepair") : offMark;
 		String infiniteNitrous = vehicleManagerService.getEffectivePlayerPreferences(player).isInfiniteNitrous() ? stringSet.get(player, "Textdraw.VehicleWidget.StatusMark.InfiniteNitrous") : offMark;
