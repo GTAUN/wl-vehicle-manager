@@ -215,7 +215,7 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 			
 			if (text.length() < 4)
 			{
-				player.sendMessage(Color.LIGHTBLUE, stringSet.get(player, "Command.Create.Usage"));
+				player.sendMessage(Color.LIGHTBLUE, stringSet.get(player, "Command.CreateVehicle.Usage"));
 				return;
 			}
 			
@@ -230,13 +230,13 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 				modelId = Integer.parseInt(name);
 				if (VehicleModel.isVaildId(modelId) == false)
 				{
-					player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Command.Create.InvalidID", modelId));
+					player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Command.CreateVehicle.InvalidID", modelId));
 					return;
 				}
 			}
 			else if (VEHICLE_SHORT_NAMES.containsKey(name) == false)
 			{
-				player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Command.Create.InvalidAbbr", name));
+				player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Command.CreateVehicle.InvalidAbbr", name));
 				return;
 			}
 			else
@@ -247,7 +247,7 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 			player.playSound(1057, player.getLocation());
 			Vehicle vehicle = vehicleManagerService.createOwnVehicle(player, modelId);
 			vehicle.putPlayer(player, 0);
-			player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Command.Create.Message", VehicleModel.getName(vehicle.getModelId())));
+			player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Command.CreateVehicle.Message", VehicleModel.getName(vehicle.getModelId())));
 		}
 		
 		protected void onPlayerStateChange(PlayerStateChangeEvent event)
