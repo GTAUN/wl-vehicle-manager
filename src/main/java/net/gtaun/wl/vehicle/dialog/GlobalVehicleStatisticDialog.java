@@ -26,6 +26,7 @@ import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
+import net.gtaun.wl.common.UnitUtils;
 import net.gtaun.wl.common.dialog.AbstractMsgboxDialog;
 import net.gtaun.wl.lang.LocalizedStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
@@ -58,8 +59,9 @@ public class GlobalVehicleStatisticDialog extends AbstractMsgboxDialog
 		this.caption = stringSet.format(player, "Dialog.GlobalVehicleStatisticDialog.Caption", name, modelId);
 		String textFormat = stringSet.get(player, "Dialog.GlobalVehicleStatisticDialog.Text");
 
-		double avgSpeed = stat.getDriveOdometer() / stat.getDriveTimeCount() * 60 * 60 / 1000.0f;
-		double avgExpratePer10Minutes = stat.getDamageCount() / 750.0f / stat.getDriveTimeCount() * 60 * 10;
+		double odometer = stat.getDriveOdometer() / 1000.0f;
+		double avgSpeed = odometer / stat.getDriveTimeCount() * 60 * 60;
+		double avgScrapePer10Minutes = stat.getDamageCount() / 750.0f / stat.getDriveTimeCount() * 60 * 10;
 		
 		long seconds = stat.getDriveTimeCount() % 60;
 		long minutes = (stat.getDriveTimeCount() / 60) % 60;
@@ -72,8 +74,10 @@ public class GlobalVehicleStatisticDialog extends AbstractMsgboxDialog
 		
 		String text = String.format
 		(
-			textFormat, caption, stat.getSpawnCount(), stat.getDamageCount()/1000.0f, stat.getDriveCount(), formatedTime,
-			stat.getDriveOdometer()/1000.0f, avgSpeed, avgExpratePer10Minutes, lastUpdateString
+			textFormat,
+			caption, stat.getSpawnCount(), stat.getDamageCount()/1000.0f, stat.getDriveCount(), formatedTime,
+			odometer, UnitUtils.kmToMi(odometer), avgSpeed, UnitUtils.kmToMi(avgSpeed), avgScrapePer10Minutes,
+			lastUpdateString
 		);
 		
 		show(text);

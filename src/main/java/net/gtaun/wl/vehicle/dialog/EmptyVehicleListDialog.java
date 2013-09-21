@@ -34,6 +34,7 @@ import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
+import net.gtaun.wl.common.UnitUtils;
 import net.gtaun.wl.common.dialog.AbstractPageListDialog;
 import net.gtaun.wl.lang.LocalizedStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
@@ -90,7 +91,7 @@ public class EmptyVehicleListDialog extends AbstractPageListDialog
 					final int modelId = vehicle.getModelId();
 					final String modelName = VehicleModel.getName(modelId);
 					
-					return String.format(format, vehicle.getId(), modelName, modelId, distance);
+					return String.format(format, vehicle.getId(), modelName, modelId, distance, UnitUtils.meterToYard(distance));
 				}
 				
 				@Override

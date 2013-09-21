@@ -150,8 +150,8 @@ public class VehicleCreateListDialog extends AbstractPageListDialog
 		dialogListItems.add(new DialogListItemRadio(stringSet.get(player, "Dialog.VehicleCreateListDialog.ItemSortMode"))
 		{
 			{
-				addItem(new RadioItem(stringSet.get(player, "Vehicle.SortMode.Hot"), Color.LIGHTPINK));
-				addItem(new RadioItem(stringSet.get(player, "Vehicle.SortMode.UseCount"), Color.LIGHTBLUE));
+				addItem(new RadioItem(stringSet.get(player, "Vehicle.SortMode.Popular"), Color.LIGHTPINK));
+				addItem(new RadioItem(stringSet.get(player, "Vehicle.SortMode.SpawnedTimes"), Color.LIGHTBLUE));
 				addItem(new RadioItem(stringSet.get(player, "Vehicle.SortMode.Seats"), Color.LIGHTGREEN));
 				addItem(new RadioItem(stringSet.get(player, "Vehicle.SortMode.Type"), Color.LIGHTYELLOW));
 			}

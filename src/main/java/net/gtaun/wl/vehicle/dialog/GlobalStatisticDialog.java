@@ -25,6 +25,7 @@ import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
+import net.gtaun.wl.common.UnitUtils;
 import net.gtaun.wl.common.dialog.AbstractMsgboxDialog;
 import net.gtaun.wl.lang.LocalizedStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
@@ -69,7 +70,7 @@ public class GlobalStatisticDialog extends AbstractMsgboxDialog
 		String textFormat = stringSet.get(player, "Dialog.GlobalStatisticDialog.Text");
 
 		double avgSpeed = driveOdometer / driveSecondCount * 60 * 60 / 1000.0f;
-		double avgExpratePer10Minutes = damageCount / 750.0f / driveSecondCount * 60 * 10;
+		double avgScrapePer10Minutes = damageCount / 750.0f / driveSecondCount * 60 * 10;
 		
 		long seconds = driveSecondCount % 60;
 		long minutes = (driveSecondCount / 60) % 60;
@@ -81,8 +82,10 @@ public class GlobalStatisticDialog extends AbstractMsgboxDialog
 		
 		String text = String.format
 		(
-			textFormat, caption, spawnCount, damageCount/1000.0f, driveCount, formatedTime,
-			driveOdometer/1000.0f, avgSpeed, avgExpratePer10Minutes, lastUpdateString
+			textFormat,
+			caption, spawnCount, damageCount/1000.0f, driveCount, formatedTime,
+			driveOdometer/1000.0f, UnitUtils.kmToMi(driveOdometer/1000.0f), avgSpeed, UnitUtils.kmToMi(avgSpeed), avgScrapePer10Minutes,
+			lastUpdateString
 		);
 		
 		show(text);
