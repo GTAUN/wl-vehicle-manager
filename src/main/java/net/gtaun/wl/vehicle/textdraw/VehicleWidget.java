@@ -18,6 +18,8 @@
 
 package net.gtaun.wl.vehicle.textdraw;
 
+import static net.gtaun.wl.common.textdraw.TextDrawUtils.*;
+
 import net.gtaun.shoebill.SampObjectFactory;
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.ColorUtils;
@@ -69,7 +71,7 @@ public class VehicleWidget extends AbstractPlayerContext
 		speedDisplay.setShadowSize(2);
 		speedDisplay.show();
 		
-		unitDisplay = TextDrawUtils.createPlayerText(factory, player, 635, 445, stringSet.get(player, "Textdraw.VehicleWidget.SpeedUnit"));
+		unitDisplay = TextDrawUtils.createPlayerText(factory, player, 635, 445, convertCharacters(stringSet.get(player, "Textdraw.VehicleWidget.SpeedUnit")));
 		unitDisplay.setAlignment(TextDrawAlign.RIGHT);
 		unitDisplay.setFont(TextDrawFont.BANK_GOTHIC);
 		unitDisplay.setLetterSize(0.3f, 1.2f);
@@ -139,17 +141,17 @@ public class VehicleWidget extends AbstractPlayerContext
 		long hours = stat.getDriveSecondCount() / 60 / 60;
 		String formatedTime = String.format("%1$02d:%2$02d:%3$02d", hours, minutes, seconds);
 
-		String offMark = stringSet.get(player, "Textdraw.VehicleWidget.StatusMark.OffMark");
+		String offMark = convertCharacters(stringSet.get(player, "Textdraw.VehicleWidget.StatusMark.OffMark"));
 		boolean isAutoRepair = vehicleManagerService.getEffectivePlayerPreferences(player).isAutoRepair();
-		String autoRepair = isAutoRepair ? stringSet.get(player, "Textdraw.VehicleWidget.StatusMark.AutoRepair") : offMark;
-		String infiniteNitrous = vehicleManagerService.getEffectivePlayerPreferences(player).isInfiniteNitrous() ? stringSet.get(player, "Textdraw.VehicleWidget.StatusMark.InfiniteNitrous") : offMark;
-		String autoFlip = vehicleManagerService.getEffectivePlayerPreferences(player).isAutoFlip() ? stringSet.get(player, "Textdraw.VehicleWidget.StatusMark.AutoFlip") : offMark;
-		String lockDoor = vehicle.getState().getDoors()!=0 ? stringSet.get(player, "Textdraw.VehicleWidget.StatusMark.LockDoors") : offMark;
+		String autoRepair = isAutoRepair ? convertCharacters(stringSet.get(player, "Textdraw.VehicleWidget.StatusMark.AutoRepair")) : offMark;
+		String infiniteNitrous = vehicleManagerService.getEffectivePlayerPreferences(player).isInfiniteNitrous() ? convertCharacters(stringSet.get(player, "Textdraw.VehicleWidget.StatusMark.InfiniteNitrous")) : offMark;
+		String autoFlip = vehicleManagerService.getEffectivePlayerPreferences(player).isAutoFlip() ? convertCharacters(stringSet.get(player, "Textdraw.VehicleWidget.StatusMark.AutoFlip")) : offMark;
+		String lockDoor = vehicle.getState().getDoors()!=0 ? convertCharacters(stringSet.get(player, "Textdraw.VehicleWidget.StatusMark.LockDoors")) : offMark;
 
 		speedDisplay.setText(stringSet.format(player, "Textdraw.VehicleWidget.SpeedFormat", spd, UnitUtils.kmToMi(spd)));
 		
 		String extMessage = "";
-		if (stat.getType() == StatisticType.RACING) extMessage += stringSet.get(player, "Textdraw.VehicleWidget.RacingExtMessage") + " ";
+		if (stat.getType() == StatisticType.RACING) extMessage += convertCharacters(stringSet.get(player, "Textdraw.VehicleWidget.RacingExtMessage")) + " ";
 		
 		if (timer.getCount() % 5 == 0)
 		{
@@ -159,7 +161,7 @@ public class VehicleWidget extends AbstractPlayerContext
 				formatedTime, dmg, vhp, dist, UnitUtils.kmToMi(dist),
 				avgSpd, UnitUtils.kmToMi(avgSpd), maxSpd,  UnitUtils.kmToMi(maxSpd), autoRepair,
 				infiniteNitrous, autoFlip, lockDoor, extMessage);
-			otherInfo.setText(text);
+			otherInfo.setText(convertCharacters(text));
 		}
 
 		Color healthBarColorRed = new Color(255, 0, 0, 160);
