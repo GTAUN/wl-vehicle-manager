@@ -89,13 +89,13 @@ public class VehicleResprayGroupDialog extends AbstractListDialog
 		String name = VehicleModel.getName(modelId);
 		
 		this.caption = stringSet.format(player, "Dialog.VehicleResprayGroupDialog.Caption", name, type, modelId, vehicle.getHealth()/10);
+		String colorBlock = stringSet.get(player, "Dialog.VehicleResprayGroupDialog.ColorBlockText");
 		
 		for (int i=0; i<VEHICLE_COLOR_TABLE_RGBA.length; i+=10)
 		{
 			final int index = i;
 			final int max = i+10 > VEHICLE_COLOR_TABLE_RGBA.length ? VEHICLE_COLOR_TABLE_RGBA.length : i+10;
 			
-			String colorBlock = stringSet.get(player, "Dialog.VehicleResprayGroupDialog.ColorBlockText");
 			String item = stringSet.get(player, "Dialog.VehicleResprayGroupDialog.Item");
 			for (int j=i; j<max; j++)
 			{

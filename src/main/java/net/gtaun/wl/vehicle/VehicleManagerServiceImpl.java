@@ -33,6 +33,8 @@ import java.util.WeakHashMap;
 
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.AbstractShoebillContext;
+import net.gtaun.shoebill.common.dialog.AbstractDialog;
+import net.gtaun.shoebill.common.dialog.AbstractListDialog.DialogListItem;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder.PlayerLifecycleObjectFactory;
 import net.gtaun.shoebill.common.vehicle.VehicleUtils;
@@ -48,8 +50,11 @@ import net.gtaun.shoebill.resource.Plugin;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.EventManager.HandlerPriority;
 import net.gtaun.util.event.ManagedEventManager;
+import net.gtaun.wl.gamemode.event.GamemodeDialogEventHandler;
+import net.gtaun.wl.gamemode.event.MainMenuDialogShowEvent;
 import net.gtaun.wl.lang.LanguageService;
 import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.vehicle.dialog.VehicleDialog;
 import net.gtaun.wl.vehicle.dialog.VehicleManagerDialog;
 import net.gtaun.wl.vehicle.stat.GlobalVehicleStatistic;
 import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic;
@@ -130,6 +135,8 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 		eventManager.registerHandler(PlayerConnectEvent.class, playerEventHandler, HandlerPriority.NORMAL);
 		eventManager.registerHandler(PlayerDisconnectEvent.class, playerEventHandler, HandlerPriority.NORMAL);
 		eventManager.registerHandler(PlayerCommandEvent.class, playerEventHandler, HandlerPriority.NORMAL);
+		
+		eventManager.registerHandler(MainMenuDialogShowEvent.class, gamemodeDialogEventHandler, HandlerPriority.NORMAL);
 
 		addDestroyable(playerLifecycleHolder);
 		addDestroyable(statisticManager);
@@ -154,6 +161,12 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 	public Plugin getPlugin()
 	{
 		return plugin;
+	}
+	
+	@Override
+	public void showMainDialog(Player player, AbstractDialog parentDialog)
+	{
+		new VehicleManagerDialog(player, shoebill, rootEventManager, parentDialog, VehicleManagerServiceImpl.this).show();
 	}
 	
 	@Override
@@ -374,10 +387,63 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 			
 			if (operation.equals(commandOperation))
 			{
-				new VehicleManagerDialog(player, shoebill, rootEventManager, VehicleManagerServiceImpl.this).show();
+				showMainDialog(player, null);
 				event.setProcessed();
 				return;
 			}
+		}
+	};
+	
+	private GamemodeDialogEventHandler gamemodeDialogEventHandler = new GamemodeDialogEventHandler()
+	{
+		@Override
+		protected void onMainMenuDialogShow(final MainMenuDialogShowEvent event)
+		{
+			final Player player = event.getPlayer();
+			
+			event.addItem(new DialogListItem(localizedStringSet.get(player, "Dialog.VehicleManagerDialog.CurrentVehicle"))
+			{
+				@Override
+				public boolean isEnabled()
+				{
+					return player.isInAnyVehicle() && getOwnedVehicle(player) != player.getVehicle();
+				}
+				
+				@Override
+				public void onItemSelect()
+				{
+					player.playSound(1083, player.getLocation());
+					Vehicle vehicle = player.getVehicle();
+					if (vehicle != null) new VehicleDialog(player, shoebill, eventManager, getCurrentDialog(), vehicle, VehicleManagerServiceImpl.this).show();
+				}
+			});
+			
+			event.addItem(new DialogListItem(localizedStringSet.get(player, "Dialog.VehicleManagerDialog.MyVehicle"))
+			{
+				@Override
+				public boolean isEnabled()
+				{
+					return getOwnedVehicle(player) != null;
+				}
+				
+				@Override
+				public void onItemSelect()
+				{
+					player.playSound(1083, player.getLocation());
+					Vehicle vehicle = getOwnedVehicle(player);
+					if (vehicle != null) new VehicleDialog(player, shoebill, eventManager, getCurrentDialog(), vehicle, VehicleManagerServiceImpl.this).show();
+				}
+			});
+			
+			event.addItem(new DialogListItem(localizedStringSet.get(player, "Name.Full"))
+			{
+				@Override
+				public void onItemSelect()
+				{
+					player.playSound(1083, player.getLocation());
+					showMainDialog(player, getCurrentDialog());
+				}
+			});
 		}
 	};
 }

@@ -34,13 +34,7 @@ import net.gtaun.wl.vehicle.util.DistanceVehicleFilter;
 import net.gtaun.wl.vehicle.util.NearbyVehicleComparator;
 
 public class VehicleManagerDialog extends AbstractListDialog
-{
-	public VehicleManagerDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerServiceImpl vehicleManagerService)
-	{
-		this(player, shoebill, eventManager, null, vehicleManagerService);
-	}
-	
+{	
 	public VehicleManagerDialog
 	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerServiceImpl vehicleManagerService)
 	{

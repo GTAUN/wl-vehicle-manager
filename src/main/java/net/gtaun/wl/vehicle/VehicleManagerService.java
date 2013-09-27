@@ -21,6 +21,7 @@ package net.gtaun.wl.vehicle;
 import java.util.Collection;
 import java.util.List;
 
+import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.shoebill.resource.Plugin;
@@ -32,6 +33,8 @@ import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
 public interface VehicleManagerService extends Service
 {
 	Plugin getPlugin();
+	
+	void showMainDialog(Player player, AbstractDialog parentDialog);
 	
 	Vehicle createOwnVehicle(Player player, int modelId);
 	
