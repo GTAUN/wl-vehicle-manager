@@ -1,51 +1,78 @@
 package net.gtaun.wl.vehicle.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.gtaun.shoebill.constant.VehicleComponentSlot;
 import net.gtaun.shoebill.constant.VehicleModel.VehicleType;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.lang.LocalizedStringSet.PlayerStringSet;
 
 public final class VehicleTextUtils
 {
+	private static final Map<VehicleComponentSlot, String> COMPONENT_SLOT_NAME_KEYS = new HashMap<>();
+	static
+	{
+		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.SPOILER,		"Component.Slot.Spoiler");
+		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.SPOILER,		"Component.Slot.Spoiler");
+		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.HOOD,			"Component.Slot.Hood");
+		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.ROOF,			"Component.Slot.Roof");
+		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.SIDE_SKIRT,	"Component.Slot.SideSkirt");
+		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.LAMPS,		"Component.Slot.Lamps");
+		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.NITRO,		"Component.Slot.Nitro");
+		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.EXHAUST,		"Component.Slot.Exhaust");
+		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.WHEELS,		"Component.Slot.Wheels");
+		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.STEREO,		"Component.Slot.Stereo");
+		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.HYDRAULICS,	"Component.Slot.Hydraulics");
+		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.FRONT_BUMPER,	"Component.Slot.FrontBumper");
+		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.REAR_BUMPER,	"Component.Slot.RearBumper");
+		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.VENT_RIGHT,	"Component.Slot.VentRight");
+		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.VENT_LEFT,	"Component.Slot.VentLeft");
+		COMPONENT_SLOT_NAME_KEYS.put(null,								"Component.Slot.Unknown");
+	}
+	
+	private static final Map<VehicleType, String> VEHICLE_TYPE_NAME_KEYS = new HashMap<>();
+	static
+	{
+		VEHICLE_TYPE_NAME_KEYS.put(VehicleType.BICYCLE,			"Vehicle.Type.Bicycle");
+		VEHICLE_TYPE_NAME_KEYS.put(VehicleType.MOTORBIKE,		"Vehicle.Type.Motorbike");
+		VEHICLE_TYPE_NAME_KEYS.put(VehicleType.CAR,				"Vehicle.Type.Car");
+		VEHICLE_TYPE_NAME_KEYS.put(VehicleType.TRAILER,			"Vehicle.Type.Trailer");
+		VEHICLE_TYPE_NAME_KEYS.put(VehicleType.REMOTE_CONTROL,	"Vehicle.Type.RemoteControl");
+		VEHICLE_TYPE_NAME_KEYS.put(VehicleType.TRAIN,			"Vehicle.Type.Train");
+		VEHICLE_TYPE_NAME_KEYS.put(VehicleType.BOAT,			"Vehicle.Type.Boat");
+		VEHICLE_TYPE_NAME_KEYS.put(VehicleType.AIRCRAFT,		"Vehicle.Type.Aircraft");
+		VEHICLE_TYPE_NAME_KEYS.put(VehicleType.HELICOPTER,		"Vehicle.Type.Helicopter");
+		VEHICLE_TYPE_NAME_KEYS.put(VehicleType.TANK, 			"Vehicle.Type.Tank");
+		VEHICLE_TYPE_NAME_KEYS.put(null,						"Vehicle.Type.Unknown");
+	}
+	
+
 	public static String getComponentSlotName(LocalizedStringSet stringSet, Player player, VehicleComponentSlot slot)
 	{
-		switch (slot)
-		{
-		case SPOILER:		return stringSet.get(player, "Component.Slot.Spoiler");
-		case HOOD:			return stringSet.get(player, "Component.Slot.Hood");
-		case ROOF:			return stringSet.get(player, "Component.Slot.Roof");
-		case SIDE_SKIRT:	return stringSet.get(player, "Component.Slot.SideSkirt");
-		case LAMPS:			return stringSet.get(player, "Component.Slot.Lamps");
-		case NITRO:			return stringSet.get(player, "Component.Slot.Nitro");
-		case EXHAUST:		return stringSet.get(player, "Component.Slot.Exhaust");
-		case WHEELS:		return stringSet.get(player, "Component.Slot.Wheels");
-		case STEREO:		return stringSet.get(player, "Component.Slot.Stereo");
-		case HYDRAULICS:	return stringSet.get(player, "Component.Slot.Hydraulics");
-		case FRONT_BUMPER:	return stringSet.get(player, "Component.Slot.FrontBumper");
-		case REAR_BUMPER:	return stringSet.get(player, "Component.Slot.RearBumper");
-		case VENT_RIGHT:	return stringSet.get(player, "Component.Slot.VentRight");
-		case VENT_LEFT:		return stringSet.get(player, "Component.Slot.VentLeft");
-		default:			return stringSet.get(player, "Component.Slot.Unknown");
-		}
+		String key = COMPONENT_SLOT_NAME_KEYS.get(slot);
+		return stringSet.get(player, key);
+	}
+	
+	public static String getComponentSlotName(PlayerStringSet stringSet, VehicleComponentSlot slot)
+	{
+		String key = COMPONENT_SLOT_NAME_KEYS.get(slot);
+		return stringSet.get(key);
 	}
 	
 	public static String getVehicleTypeName(LocalizedStringSet stringSet, Player player, VehicleType type)
 	{
-		switch (type)
-		{
-		case BICYCLE:			return stringSet.get(player, "Vehicle.Type.Bicycle");
-		case MOTORBIKE:			return stringSet.get(player, "Vehicle.Type.Motorbike");
-		case CAR:				return stringSet.get(player, "Vehicle.Type.Car");
-		case TRAILER:			return stringSet.get(player, "Vehicle.Type.Trailer");
-		case REMOTE_CONTROL:	return stringSet.get(player, "Vehicle.Type.RemoteControl");
-		case TRAIN:				return stringSet.get(player, "Vehicle.Type.Train");
-		case BOAT:				return stringSet.get(player, "Vehicle.Type.Boat");
-		case AIRCRAFT:			return stringSet.get(player, "Vehicle.Type.Aircraft");
-		case HELICOPTER:		return stringSet.get(player, "Vehicle.Type.Helicopter");
-		case TANK:				return stringSet.get(player, "Vehicle.Type.Tank");
-		default:				return stringSet.get(player, "Vehicle.Type.Unknown");
-		}
+		String key = VEHICLE_TYPE_NAME_KEYS.get(type);
+		return stringSet.get(player, key);
 	}
+	
+	public static String getVehicleTypeName(PlayerStringSet stringSet, VehicleType type)
+	{
+		String key = VEHICLE_TYPE_NAME_KEYS.get(type);
+		return stringSet.get(key);
+	}
+	
 	
 	private VehicleTextUtils()
 	{

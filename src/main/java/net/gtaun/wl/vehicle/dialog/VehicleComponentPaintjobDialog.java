@@ -18,63 +18,43 @@
 
 package net.gtaun.wl.vehicle.dialog;
 
-import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.wl.common.dialog.AbstractListDialog;
-import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.common.dialog.WlListDialog;
+import net.gtaun.wl.lang.LocalizedStringSet.PlayerStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 
-public class VehicleComponentPaintjobDialog extends AbstractListDialog
+public class VehicleComponentPaintjobDialog extends WlListDialog
 {
-	private final VehicleManagerServiceImpl vehicleManagerService;
-	private final Vehicle vehicle;
-	
-	
 	public VehicleComponentPaintjobDialog
-	(final Player player, final Shoebill shoebill, final EventManager rootEventManager, final AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerServiceImpl vehicleManagerService)
+	(Player player, EventManager eventManager, AbstractDialog parent, Vehicle vehicle, VehicleManagerServiceImpl service)
 	{
-		super(player, shoebill, rootEventManager, parentDialog);
-		this.vehicleManagerService = vehicleManagerService;
-		this.vehicle = vehicle;
-		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		super(player, eventManager);
+		setParentDialog(parent);
+		
+		PlayerStringSet stringSet = service.getLocalizedStringSet().getStringSet(player);
 
-		final int modelId = vehicle.getModelId();
-		final String name = VehicleModel.getName(modelId);
+		int modelId = vehicle.getModelId();
+		String name = VehicleModel.getName(modelId);
+		setCaption(stringSet.format("Dialog.VehicleComponentPaintjobDialog.Caption", name));
 		
 		for (int i=0; i<3; i++)
 		{
-			final int paintjobId = i;
-			final String item = stringSet.format(player, "Dialog.VehicleComponentPaintjobDialog.Item", paintjobId);
+			int paintjobId = i;
+			String item = stringSet.format("Dialog.VehicleComponentPaintjobDialog.Item", paintjobId);
 			
-			dialogListItems.add(new DialogListItem(item)
+			addItem(item, (d) ->
 			{
-				@Override
-				public void onItemSelect()
-				{
-					player.playSound(1134, player.getLocation());
-					player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "PaintMessage", name, paintjobId));
-					
-					vehicle.setPaintjob(paintjobId);
-					showParentDialog();
-				}
+				player.playSound(1134, player.getLocation());
+				stringSet.sendMessage(Color.LIGHTBLUE, "PaintMessage", name, paintjobId);
+				
+				vehicle.setPaintjob(paintjobId);
+				showParentDialog();
 			});
 		}
-	}
-	
-	@Override
-	public void show()
-	{
-		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
-		
-		int modelId = vehicle.getModelId();
-		String name = VehicleModel.getName(modelId);
-		
-		this.caption = stringSet.format(player, "Dialog.VehicleComponentPaintjobDialog.Caption", name);
-		super.show();
 	}
 }

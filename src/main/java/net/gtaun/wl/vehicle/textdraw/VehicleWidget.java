@@ -18,10 +18,7 @@
 
 package net.gtaun.wl.vehicle.textdraw;
 
-import static net.gtaun.wl.common.textdraw.TextDrawUtils.*;
-
-import net.gtaun.shoebill.SampObjectFactory;
-import net.gtaun.shoebill.Shoebill;
+import static net.gtaun.wl.common.textdraw.TextDrawUtils.convertCharacters;
 import net.gtaun.shoebill.common.ColorUtils;
 import net.gtaun.shoebill.common.player.AbstractPlayerContext;
 import net.gtaun.shoebill.constant.TextDrawAlign;
@@ -30,7 +27,6 @@ import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.PlayerTextdraw;
 import net.gtaun.shoebill.object.Timer;
-import net.gtaun.shoebill.object.Timer.TimerCallback;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.UnitUtils;
@@ -52,9 +48,9 @@ public class VehicleWidget extends AbstractPlayerContext
 	private PlayerTextdraw healthBar;
 	
 	
-	public VehicleWidget(Shoebill shoebill, EventManager rootEventManager, Player player, VehicleManagerServiceImpl vehicleManagerService)
+	public VehicleWidget(EventManager rootEventManager, Player player, VehicleManagerServiceImpl vehicleManagerService)
 	{
-		super(shoebill, rootEventManager, player);
+		super(rootEventManager, player);
 		this.vehicleManagerService = vehicleManagerService;
 	}
 
@@ -62,23 +58,22 @@ public class VehicleWidget extends AbstractPlayerContext
 	protected void onInit()
 	{
 		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
-		SampObjectFactory factory = shoebill.getSampObjectFactory();
 		
-		speedDisplay = TextDrawUtils.createPlayerText(factory, player, 625, 410, "0");
+		speedDisplay = TextDrawUtils.createPlayerText(player, 625, 410, "0");
 		speedDisplay.setAlignment(TextDrawAlign.RIGHT);
 		speedDisplay.setFont(TextDrawFont.PRICEDOWN);
 		speedDisplay.setLetterSize(1.2f, 3.75f);
 		speedDisplay.setShadowSize(2);
 		speedDisplay.show();
 		
-		unitDisplay = TextDrawUtils.createPlayerText(factory, player, 635, 445, convertCharacters(stringSet.get(player, "Textdraw.VehicleWidget.SpeedUnit")));
+		unitDisplay = TextDrawUtils.createPlayerText(player, 635, 445, convertCharacters(stringSet.get(player, "Textdraw.VehicleWidget.SpeedUnit")));
 		unitDisplay.setAlignment(TextDrawAlign.RIGHT);
 		unitDisplay.setFont(TextDrawFont.BANK_GOTHIC);
 		unitDisplay.setLetterSize(0.3f, 1.2f);
 		unitDisplay.setShadowSize(1);
 		unitDisplay.show();
 		
-		otherInfo = TextDrawUtils.createPlayerText(factory, player, 638, 460, "-");
+		otherInfo = TextDrawUtils.createPlayerText(player, 638, 460, "-");
 		otherInfo.setAlignment(TextDrawAlign.RIGHT);
 		otherInfo.setFont(TextDrawFont.FONT2);
 		otherInfo.setLetterSize(0.25f, 0.8f);
@@ -87,20 +82,15 @@ public class VehicleWidget extends AbstractPlayerContext
 		
 		Color healthBarColor = new Color(255, 0, 0, 64);
 		
-		healthBar = TextDrawUtils.createPlayerText(factory, player, 0, 478, " ");
+		healthBar = TextDrawUtils.createPlayerText(player, 0, 478, " ");
 		healthBar.setUseBox(true);
 		healthBar.setBoxColor(healthBarColor);
 		healthBar.setLetterSize(1.0f, 0.5f);
 		healthBar.show();
 		
-		timer = factory.createTimer(100);
-		timer.setCallback(new TimerCallback()
+		timer = Timer.create(100, (factualInterval) ->
 		{
-			@Override
-			public void onTick(int factualInterval)
-			{
-				update();
-			}
+			update();
 		});
 		timer.start();
 

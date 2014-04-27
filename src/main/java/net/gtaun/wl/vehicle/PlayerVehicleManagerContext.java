@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.player.AbstractPlayerContext;
 import net.gtaun.shoebill.common.vehicle.VehicleUtils;
 import net.gtaun.shoebill.constant.PlayerKey;
@@ -34,8 +33,6 @@ import net.gtaun.shoebill.constant.VehicleModel.VehicleType;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.data.Quaternion;
 import net.gtaun.shoebill.data.Velocity;
-import net.gtaun.shoebill.event.PlayerEventHandler;
-import net.gtaun.shoebill.event.VehicleEventHandler;
 import net.gtaun.shoebill.event.player.PlayerKeyStateChangeEvent;
 import net.gtaun.shoebill.event.player.PlayerStateChangeEvent;
 import net.gtaun.shoebill.event.player.PlayerTextEvent;
@@ -44,14 +41,13 @@ import net.gtaun.shoebill.event.vehicle.VehicleUpdateEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.PlayerKeyState;
 import net.gtaun.shoebill.object.Timer;
-import net.gtaun.shoebill.object.Timer.TimerCallback;
 import net.gtaun.shoebill.object.Vehicle;
+import net.gtaun.util.event.Attentions;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.util.event.EventManager.HandlerPriority;
+import net.gtaun.util.event.HandlerPriority;
 import net.gtaun.wl.lang.LocalizedStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl.OwnedVehicleLastPassengers;
 import net.gtaun.wl.vehicle.event.PlayerPreferencesUpdateEvent;
-import net.gtaun.wl.vehicle.event.VehicleManagerEventHandler;
 import net.gtaun.wl.vehicle.textdraw.VehicleWidget;
 import net.gtaun.wl.vehicle.util.PlayerOverridePreferences;
 
@@ -89,26 +85,21 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 	private Vehicle lastDriveVehicle;
 	
 	
-	public PlayerVehicleManagerContext(Shoebill shoebill, EventManager rootEventManager, final Player player, VehicleManagerServiceImpl vehicleManager, Datastore datastore)
+	public PlayerVehicleManagerContext(EventManager rootEventManager, final Player player, VehicleManagerServiceImpl vehicleManager, Datastore datastore)
 	{
-		super(shoebill, rootEventManager, player);
+		super(rootEventManager, player);
 		this.vehicleManagerService = vehicleManager;
 		this.datastore = datastore;
 		
-		timer = shoebill.getSampObjectFactory().createTimer(10000);
-		timer.setCallback(new TimerCallback()
+		timer = Timer.create(10000, (factualInterval) ->
 		{
-			@Override
-			public void onTick(int factualInterval)
+			if (player.getState() == PlayerState.DRIVER)
 			{
-				if (player.getState() == PlayerState.DRIVER)
+				Vehicle vehicle = player.getVehicle();
+				int modelId = vehicle.getModelId();
+				if (effectivePlayerPreferences.isInfiniteNitrous() && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
 				{
-					Vehicle vehicle = player.getVehicle();
-					int modelId = vehicle.getModelId();
-					if (effectivePlayerPreferences.isInfiniteNitrous() && VehicleComponentModel.isVehicleSupported(modelId, VehicleComponentModel.NITRO_10_TIMES))
-					{
-						vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
-					}
+					vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
 				}
 			}
 		});
@@ -123,58 +114,7 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 		playerPreferences = pref;
 		effectivePlayerPreferences = new PlayerOverridePreferences(pref, eventManager);
 		
-		rootEventManager.registerHandler(PlayerPreferencesUpdateEvent.class, effectivePlayerPreferences, vehicleManagerEventHandler, HandlerPriority.NORMAL);
-	}
-
-	@Override
-	protected void onInit()
-	{
-		eventManager.registerHandler(PlayerTextEvent.class, player, playerEventHandler, HandlerPriority.MONITOR);
-		eventManager.registerHandler(PlayerKeyStateChangeEvent.class, player, playerEventHandler, HandlerPriority.NORMAL);
-		eventManager.registerHandler(PlayerStateChangeEvent.class, player, playerEventHandler, HandlerPriority.NORMAL);
-		
-		eventManager.registerHandler(VehicleUpdateEvent.class, vehicleEventHandler, HandlerPriority.BOTTOM);
-		eventManager.registerHandler(VehicleUpdateDamageEvent.class, vehicleEventHandler, HandlerPriority.BOTTOM);
-		timer.start();
-	}
-
-	@Override
-	protected void onDestroy()
-	{
-		if (vehicleWidget != null) vehicleWidget.destroy();
-		datastore.save(playerPreferences);
-	}
-	
-	public PlayerPreferencesImpl getPlayerPreferences()
-	{
-		return playerPreferences;
-	}
-	
-	public PlayerOverridePreferences getEffectivePlayerPreferences()
-	{
-		return effectivePlayerPreferences;
-	}
-	
-	private void createOrDestroySpeedometerWidget()
-	{
-		if (vehicleWidget != null)
-		{
-			vehicleWidget.destroy();
-			vehicleWidget = null;
-		}
-		
-		PlayerState state = player.getState();
-		if (effectivePlayerPreferences.isVehicleWidgetEnabled() &&
-			(state == PlayerState.DRIVER || state == PlayerState.PASSENGER))
-		{
-			vehicleWidget = new VehicleWidget(shoebill, rootEventManager, player, vehicleManagerService);
-			vehicleWidget.init();
-		}
-	}
-	
-	private VehicleManagerEventHandler vehicleManagerEventHandler = new VehicleManagerEventHandler()
-	{
-		protected void onPlayerPreferencesUpdate(PlayerPreferencesUpdateEvent event)
+		rootEventManager.registerHandler(PlayerPreferencesUpdateEvent.class, HandlerPriority.NORMAL, Attentions.create().object(effectivePlayerPreferences), (e) ->
 		{
 			createOrDestroySpeedometerWidget();
 			
@@ -196,22 +136,23 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 					vehicle.getComponent().add(VehicleComponentModel.NITRO_10_TIMES);
 				}
 			}
-		}
-	};
-	
-	private PlayerEventHandler playerEventHandler = new PlayerEventHandler()
+		});
+	}
+
+	@Override
+	protected void onInit()
 	{
-		protected void onPlayerText(PlayerTextEvent event)
+		eventManager.registerHandler(PlayerTextEvent.class, HandlerPriority.MONITOR, Attentions.create().object(player), (e) ->
 		{
 			final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
 			
-			Player player = event.getPlayer();
-			String text = event.getText();
+			Player player = e.getPlayer();
+			String text = e.getText();
 			
 			if (text.charAt(0) != '\\') return;
 			
-			event.disallow();
-			event.interrupt();
+			e.disallow();
+			e.interrupt();
 			
 			if (text.length() < 4)
 			{
@@ -248,11 +189,11 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 			Vehicle vehicle = vehicleManagerService.createOwnVehicle(player, modelId);
 			vehicle.putPlayer(player, 0);
 			player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Command.CreateVehicle.Message", VehicleModel.getName(vehicle.getModelId())));
-		}
-		
-		protected void onPlayerStateChange(PlayerStateChangeEvent event)
+		});
+
+		eventManager.registerHandler(PlayerKeyStateChangeEvent.class, HandlerPriority.NORMAL, Attentions.create().object(player), (e) ->
 		{
-			Player player = event.getPlayer();
+			Player player = e.getPlayer();
 			PlayerState state = player.getState();
 			
 			if (state != PlayerState.DRIVER) lastDriveVehicle = null;
@@ -294,11 +235,11 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 			}
 			
 			createOrDestroySpeedometerWidget();
-		}
+		});
 		
-		protected void onPlayerKeyStateChange(PlayerKeyStateChangeEvent event)
+		eventManager.registerHandler(PlayerStateChangeEvent.class, HandlerPriority.NORMAL, Attentions.create().object(player), (e) ->
 		{
-			Player player = event.getPlayer();
+			Player player = e.getPlayer();
 			PlayerKeyState state = player.getKeyState();
 			
 			Vehicle vehicle = player.getVehicle();
@@ -329,14 +270,11 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 					vehicle.setColor(vehicle.getColor1(), color2);
 				}
 			}
-		}
-	};
-	
-	private VehicleEventHandler vehicleEventHandler = new VehicleEventHandler()
-	{
-		protected void onVehicleUpdate(VehicleUpdateEvent event)
+		});
+		
+		eventManager.registerHandler(VehicleUpdateEvent.class, HandlerPriority.BOTTOM, (e) ->
 		{
-			Vehicle vehicle = event.getVehicle();
+			Vehicle vehicle = e.getVehicle();
 			if (player.getState() != PlayerState.DRIVER || vehicle != player.getVehicle()) return;
 
 			int modelId = vehicle.getModelId();
@@ -362,14 +300,50 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 			}
 			
 			if (effectivePlayerPreferences.isAutoRepair() && vehicle.getHealth() < 1000.0f) vehicle.repair();
-		}
+		});
 		
-		protected void onVehicleUpdateDamage(VehicleUpdateDamageEvent event)
+		eventManager.registerHandler(VehicleUpdateDamageEvent.class, HandlerPriority.BOTTOM, (e) ->
 		{
-			Vehicle vehicle = event.getVehicle();
+			Vehicle vehicle = e.getVehicle();
 			if (player.getState() != PlayerState.DRIVER || vehicle != player.getVehicle()) return;
 			
 			if (effectivePlayerPreferences.isAutoRepair() && vehicle == player.getVehicle()) vehicle.repair();
+		});
+		
+		timer.start();
+	}
+
+	@Override
+	protected void onDestroy()
+	{
+		if (vehicleWidget != null) vehicleWidget.destroy();
+		datastore.save(playerPreferences);
+	}
+	
+	public PlayerPreferencesImpl getPlayerPreferences()
+	{
+		return playerPreferences;
+	}
+	
+	public PlayerOverridePreferences getEffectivePlayerPreferences()
+	{
+		return effectivePlayerPreferences;
+	}
+	
+	private void createOrDestroySpeedometerWidget()
+	{
+		if (vehicleWidget != null)
+		{
+			vehicleWidget.destroy();
+			vehicleWidget = null;
 		}
-	};
+		
+		PlayerState state = player.getState();
+		if (effectivePlayerPreferences.isVehicleWidgetEnabled() &&
+			(state == PlayerState.DRIVER || state == PlayerState.PASSENGER))
+		{
+			vehicleWidget = new VehicleWidget(rootEventManager, player, vehicleManagerService);
+			vehicleWidget.init();
+		}
+	}
 }

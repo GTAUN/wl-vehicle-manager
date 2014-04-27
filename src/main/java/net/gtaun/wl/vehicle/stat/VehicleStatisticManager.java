@@ -24,14 +24,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.AbstractShoebillContext;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder.PlayerLifecycleObjectFactory;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Timer;
-import net.gtaun.shoebill.object.Timer.TimerCallback;
 import net.gtaun.util.event.EventManager;
 
 import com.google.code.morphia.Datastore;
@@ -45,9 +43,9 @@ public class VehicleStatisticManager extends AbstractShoebillContext
 	private Timer saveTimer;
 	
 	
-	public VehicleStatisticManager(Shoebill shoebill, EventManager rootEventManager, PlayerLifecycleHolder holder, Datastore datastore)
+	public VehicleStatisticManager(EventManager rootEventManager, PlayerLifecycleHolder holder, Datastore datastore)
 	{
-		super(shoebill, rootEventManager);
+		super(rootEventManager);
 		this.playerLifecycleHolder = holder;
 		this.datastore = datastore;
 		this.globalVehicleStatistics = new HashMap<>();
@@ -60,25 +58,11 @@ public class VehicleStatisticManager extends AbstractShoebillContext
 	{
 		load();
 
-		PlayerLifecycleObjectFactory<PlayerVehicleStatisticContext> factory = new PlayerLifecycleObjectFactory<PlayerVehicleStatisticContext>()
-		{
-			@Override
-			public PlayerVehicleStatisticContext create(Shoebill shoebill, EventManager eventManager, Player player)
-			{
-				return new PlayerVehicleStatisticContext(shoebill, eventManager, player, VehicleStatisticManager.this, VehicleStatisticManager.this.datastore);
-			}
-		};
+		PlayerLifecycleObjectFactory<PlayerVehicleStatisticContext> factory = (eventManager, player) ->
+			new PlayerVehicleStatisticContext(eventManager, player, VehicleStatisticManager.this, VehicleStatisticManager.this.datastore);
 		playerLifecycleHolder.registerClass(PlayerVehicleStatisticContext.class, factory);
 		
-		saveTimer = shoebill.getSampObjectFactory().createTimer(1000*60*5);
-		saveTimer.setCallback(new TimerCallback()
-		{
-			@Override
-			public void onTick(int factualInterval)
-			{
-				save();
-			}
-		});
+		saveTimer = Timer.create(1000*60*5, (factualInterval) -> save());
 		saveTimer.start();
 		
 		addDestroyable(saveTimer);		

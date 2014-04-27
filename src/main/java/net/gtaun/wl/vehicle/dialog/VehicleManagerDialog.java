@@ -18,158 +18,95 @@
 
 package net.gtaun.wl.vehicle.dialog;
 
-import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
+import net.gtaun.shoebill.common.dialog.MsgboxDialog;
 import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.shoebill.resource.Plugin;
 import net.gtaun.shoebill.resource.ResourceDescription;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.wl.common.dialog.AbstractListDialog;
-import net.gtaun.wl.common.dialog.MsgboxDialog;
-import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.common.dialog.WlListDialog;
+import net.gtaun.wl.lang.LocalizedStringSet.PlayerStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 import net.gtaun.wl.vehicle.util.DistanceVehicleFilter;
 import net.gtaun.wl.vehicle.util.NearbyVehicleComparator;
 
-public class VehicleManagerDialog extends AbstractListDialog
-{	
-	public VehicleManagerDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerServiceImpl vehicleManagerService)
+public class VehicleManagerDialog
+{
+	public static WlListDialog create(Player player, EventManager eventManager, AbstractDialog parent, VehicleManagerServiceImpl service)
 	{
-		super(player, shoebill, eventManager, parentDialog);
-		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		PlayerStringSet stringSet = service.getLocalizedStringSet().getStringSet(player);
 		
-		this.caption = stringSet.get(player, "Dialog.VehicleManagerDialog.Caption");
-
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleManagerDialog.CurrentVehicle"))
-		{
-			@Override
-			public boolean isEnabled()
-			{
-				return player.isInAnyVehicle() && vehicleManagerService.getOwnedVehicle(player) != player.getVehicle();
-			}
+		return WlListDialog.create(player, eventManager)
+			.parentDialog(parent)
+			.caption(stringSet.get("Dialog.VehicleManagerDialog.Caption"))
 			
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				Vehicle vehicle = player.getVehicle();
-				if (vehicle != null) new VehicleDialog(player, shoebill, eventManager, VehicleManagerDialog.this, vehicle, vehicleManagerService).show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleManagerDialog.MyVehicle"))
-		{
-			@Override
-			public boolean isEnabled()
-			{
-				return vehicleManagerService.getOwnedVehicle(player) != null;
-			}
+			.item(stringSet.get("Dialog.VehicleManagerDialog.CurrentVehicle"),
+				() -> player.isInAnyVehicle() && service.getOwnedVehicle(player) != player.getVehicle(),
+				(i) ->
+				{
+					Vehicle vehicle = player.getVehicle();
+					if (vehicle != null) VehicleDialog.create(player, eventManager, i.getCurrentDialog(), vehicle, service).show();
+				})
 			
-			@Override
-			public void onItemSelect()
+			.item(stringSet.get("Dialog.VehicleManagerDialog.MyVehicle"),
+				() -> service.getOwnedVehicle(player) != null,
+				(i) ->
+				{
+					Vehicle vehicle = service.getOwnedVehicle(player);
+					if (vehicle != null) VehicleDialog.create(player, eventManager, i.getCurrentDialog(), vehicle, service).show();
+				})
+			
+			.item(stringSet.get("Dialog.VehicleManagerDialog.CreateVehicle"), (i) ->
+				new VehicleCreateMainDialog(player, eventManager, i.getCurrentDialog(), service).show())
+			
+			.item(stringSet.get("Dialog.VehicleManagerDialog.NearbyEmptyVehicle"), (i) ->
 			{
-				player.playSound(1083, player.getLocation());
-				Vehicle vehicle = vehicleManagerService.getOwnedVehicle(player);
-				if (vehicle != null) new VehicleDialog(player, shoebill, eventManager, VehicleManagerDialog.this, vehicle, vehicleManagerService).show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleManagerDialog.CreateVehicle"))
-		{
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				new VehicleCreateMainDialog(player, shoebill, eventManager, VehicleManagerDialog.this, vehicleManagerService).show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleManagerDialog.NearbyEmptyVehicle"))
-		{
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				
 				Location loc = player.getLocation();
-				new EmptyVehicleListDialog
-				(
-					player, shoebill, eventManager, VehicleManagerDialog.this, vehicleManagerService,
+				new EmptyVehicleListDialog(
+					player, eventManager, i.getCurrentDialog(), service,
 					new NearbyVehicleComparator(loc), new DistanceVehicleFilter(loc, 500.0f)
 				).show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleManagerDialog.DrivingAndRidingRecord"))
-		{
-			@Override
-			public void onItemSelect()
+			})
+			
+			.item(stringSet.get("Dialog.VehicleManagerDialog.DrivingAndRidingRecord"), (i) ->
+				new DrivingRecordStatisticDialog(player, eventManager, i.getCurrentDialog(), service).show())
+			
+			.item(stringSet.get("Dialog.VehicleManagerDialog.PersonalPreferences"), (i) ->
+				PlayerPreferencesDialog.create(player, eventManager, i.getCurrentDialog(), service).show())
+			
+			.item(stringSet.get("Dialog.VehicleManagerDialog.PersonalStatistics"), (i) ->
+				PlayerStatisticDialog.create(player, eventManager, i.getCurrentDialog(), service).show())
+			
+			.item(stringSet.get("Dialog.VehicleManagerDialog.GlobalStatistics"), (i) ->
+				GlobalStatisticDialog.create(player, eventManager, i.getCurrentDialog(), service).show())
+			
+			.item(stringSet.get("Dialog.VehicleManagerDialog.Help"), (i) ->
 			{
-				player.playSound(1083, player.getLocation());
-				new DrivingRecordStatisticDialog(player, shoebill, eventManager, VehicleManagerDialog.this, vehicleManagerService).show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleManagerDialog.PersonalPreferences"))
-		{
-			@Override
-			public void onItemSelect()
+				MsgboxDialog.create(player, eventManager)
+					.parentDialog(i.getCurrentDialog())
+					.caption(stringSet.get("Dialog.HelpDialog.Caption"))
+					.message(stringSet.get("Dialog.HelpDialog.Text"))
+					.build().show();
+			})
+			
+			.item(stringSet.get("Dialog.VehicleManagerDialog.About"), (i) ->
 			{
-				player.playSound(1083, player.getLocation());
-				new PlayerPreferencesDialog(player, shoebill, eventManager, VehicleManagerDialog.this, vehicleManagerService).show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleManagerDialog.PersonalStatistics"))
-		{
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				new PlayerStatisticDialog(player, shoebill, eventManager, VehicleManagerDialog.this, vehicleManagerService).show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleManagerDialog.GlobalStatistics"))
-		{
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				new GlobalStatisticDialog(player, shoebill, eventManager, VehicleManagerDialog.this, vehicleManagerService).show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleManagerDialog.Help"))
-		{
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				String caption = stringSet.get(player, "Dialog.HelpDialog.Caption");
-				new MsgboxDialog(player, shoebill, eventManager, VehicleManagerDialog.this, caption, stringSet.get(player, "Dialog.HelpDialog.Text")).show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleManagerDialog.About"))
-		{
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				
-				Plugin plugin = vehicleManagerService.getPlugin();
+				Plugin plugin = service.getPlugin();
 				ResourceDescription desc = plugin.getDescription();
 				
-				String caption = stringSet.get(player, "Dialog.AboutDialog.Caption");
-				String format = stringSet.get(player, "Dialog.AboutDialog.Text");
+				String caption = stringSet.get("Dialog.AboutDialog.Caption");
+				String format = stringSet.get("Dialog.AboutDialog.Text");
 				String message = String.format(format, desc.getVersion(), desc.getBuildNumber(), desc.getBuildDate());
 				
-				new MsgboxDialog(player, shoebill, eventManager, VehicleManagerDialog.this, caption, message).show();
-			}
-		});
+				MsgboxDialog.create(player, eventManager)
+					.parentDialog(i.getCurrentDialog())
+					.caption(caption)
+					.message(message)
+					.build().show();
+			})
+			.onClickOk((d, i) -> player.playSound(1083, player.getLocation()))
+			.build();
 	}
 }

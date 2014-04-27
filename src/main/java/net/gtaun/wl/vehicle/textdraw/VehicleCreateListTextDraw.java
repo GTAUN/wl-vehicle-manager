@@ -21,18 +21,16 @@ package net.gtaun.wl.vehicle.textdraw;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.gtaun.shoebill.SampObjectFactory;
-import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.constant.TextDrawFont;
 import net.gtaun.shoebill.data.Color;
-import net.gtaun.shoebill.event.PlayerEventHandler;
 import net.gtaun.shoebill.event.player.PlayerClickPlayerTextDrawEvent;
 import net.gtaun.shoebill.object.Destroyable;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.PlayerTextdraw;
+import net.gtaun.util.event.Attentions;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.util.event.EventManager.HandlerPriority;
-import net.gtaun.util.event.ManagedEventManager;
+import net.gtaun.util.event.EventManagerNode;
+import net.gtaun.util.event.HandlerPriority;
 import net.gtaun.wl.common.textdraw.TextDrawUtils;
 import net.gtaun.wl.vehicle.VehicleManagerService;
 
@@ -45,9 +43,8 @@ public class VehicleCreateListTextDraw implements Destroyable
 	
 	
 	protected final Player player;
-	protected final Shoebill shoebill;
 	protected final EventManager rootEventManager;
-	protected final ManagedEventManager eventManager;
+	protected final EventManagerNode eventManagerNode;
 	protected final VehicleManagerService vehicleManager;
 	protected final Integer[] modelIds;
 	protected final ClickCallback clickCallback;
@@ -56,24 +53,21 @@ public class VehicleCreateListTextDraw implements Destroyable
 	
 	
 	public VehicleCreateListTextDraw
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, final VehicleManagerService vehicleManager, Integer[] modelIds, ClickCallback callback)
+	(final Player player, final EventManager rootEventManager, final VehicleManagerService vehicleManager, Integer[] modelIds, ClickCallback callback)
 	{
 		this.player = player;
-		this.shoebill = shoebill;
-		this.rootEventManager = eventManager;
-		this.eventManager = new ManagedEventManager(eventManager);
+		this.rootEventManager = rootEventManager;
+		this.eventManagerNode = rootEventManager.createChildNode();
 		this.vehicleManager = vehicleManager;
 		this.modelIds = modelIds;
 		this.clickCallback = callback;
-		
-		SampObjectFactory factory = shoebill.getSampObjectFactory();
 		
 		int baseX = 2 + (10 - modelIds.length) * 64 / 2;
 		
 		items = new ArrayList<>(modelIds.length);
 		for (int i=0; i<modelIds.length; i++)
 		{
-			PlayerTextdraw textdraw = TextDrawUtils.createPlayerText(factory, player, baseX+64*i, 400, "_");
+			PlayerTextdraw textdraw = TextDrawUtils.createPlayerText(player, baseX+64*i, 400, "_");
 			textdraw.setFont(TextDrawFont.MODEL_PREVIEW);
 			textdraw.setPreviewModel(modelIds[i]);
 			textdraw.setPreviewModelRotation(-10.0f, 0.0f, -20.0f, 0.8f);
@@ -85,7 +79,21 @@ public class VehicleCreateListTextDraw implements Destroyable
 			items.add(textdraw);
 		}
 		
-		this.eventManager.registerHandler(PlayerClickPlayerTextDrawEvent.class, player, playerEventHandler, HandlerPriority.NORMAL);
+		this.eventManagerNode.registerHandler(PlayerClickPlayerTextDrawEvent.class, HandlerPriority.NORMAL, Attentions.create().object(player), (e) ->
+		{
+			PlayerTextdraw textdraw = e.getPlayerTextdraw();
+			if (textdraw != null)
+			{
+				int index = items.indexOf(textdraw);
+				if (index != -1)
+				{
+					e.setProcessed();
+					clickCallback.onClick(modelIds[index]);
+				}
+				
+				destroy();
+			}
+		});
 	}
 	
 	@Override
@@ -106,7 +114,7 @@ public class VehicleCreateListTextDraw implements Destroyable
 	{
 		if (isDestroyed()) return;
 
-		eventManager.cancelAll();
+		eventManagerNode.cancelAll();
 		player.cancelSelectTextDraw();
 		
 		for (PlayerTextdraw textdraw : items) textdraw.destroy();
@@ -119,23 +127,4 @@ public class VehicleCreateListTextDraw implements Destroyable
 		
 		player.selectTextDraw(new Color(255, 255, 255, 128));
 	}
-	
-	private PlayerEventHandler playerEventHandler = new PlayerEventHandler()
-	{
-		protected void onPlayerClickPlayerTextDraw(PlayerClickPlayerTextDrawEvent event)
-		{
-			PlayerTextdraw textdraw = event.getPlayerTextdraw();
-			if (textdraw != null)
-			{
-				int index = items.indexOf(textdraw);
-				if (index != -1)
-				{
-					event.setProcessed();
-					clickCallback.onClick(modelIds[index]);
-				}
-				
-				destroy();
-			}
-		}
-	};
 }

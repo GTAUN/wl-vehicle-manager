@@ -18,109 +18,60 @@
 
 package net.gtaun.wl.vehicle.dialog;
 
-import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
+import net.gtaun.shoebill.common.dialog.ListDialogItemSwitch;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.wl.common.dialog.AbstractListDialog;
-import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.common.dialog.WlListDialog;
+import net.gtaun.wl.lang.LocalizedStringSet.PlayerStringSet;
 import net.gtaun.wl.vehicle.PlayerPreferences;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 
-public class PlayerPreferencesDialog extends AbstractListDialog
+public class PlayerPreferencesDialog
 {
-	public PlayerPreferencesDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerServiceImpl vehicleManagerService)
+	public static WlListDialog create(Player player, EventManager eventManager, AbstractDialog parent, VehicleManagerServiceImpl service)
 	{
-		super(player, shoebill, eventManager, parentDialog);
-		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
-		final PlayerPreferences pref = vehicleManagerService.getPlayerPreferences(player);
+		PlayerStringSet stringSet = service.getLocalizedStringSet().getStringSet(player);
+		PlayerPreferences pref = service.getPlayerPreferences(player);
 		
-		this.caption = stringSet.get(player, "Dialog.PlayerPreferencesDialog.Caption");
-		
-		dialogListItems.add(new DialogListItemSwitch(stringSet.get(player, "Dialog.PlayerPreferencesDialog.VehicleWidget"))
-		{
-			@Override
-			public boolean isSwitched()
-			{
-				return pref.isVehicleWidgetEnabled();
-			}
+		return WlListDialog.create(player, eventManager)
+			.parentDialog(parent)
+			.caption(stringSet.get("Dialog.PlayerPreferencesDialog.Caption"))
+			.item(ListDialogItemSwitch.create()
+				.itemText(stringSet.get("Dialog.PlayerPreferencesDialog.VehicleWidget"))
+				.statusSupplier(() -> pref.isVehicleWidgetEnabled())
+				.onSelect((i) -> pref.setVehicleWidgetEnabled(!pref.isVehicleWidgetEnabled()))
+				.build())
 			
-			@Override
-			public void onItemSelect()
+			.item(ListDialogItemSwitch.create()
+				.itemText(stringSet.get("Dialog.PlayerPreferencesDialog.InfiniteNitrous"))
+				.statusSupplier(() -> pref.isInfiniteNitrous())
+				.onSelect((i) -> pref.setInfiniteNitrous(!pref.isInfiniteNitrous()))
+				.build())
+				
+			.item(ListDialogItemSwitch.create()
+				.itemText(stringSet.get("Dialog.PlayerPreferencesDialog.AutoRepair"))
+				.statusSupplier(() -> pref.isAutoRepair())
+				.onSelect((i) -> pref.setAutoRepair(!pref.isAutoRepair()))
+				.build())
+				
+			.item(ListDialogItemSwitch.create()
+				.itemText(stringSet.get("Dialog.PlayerPreferencesDialog.AutoFlip"))
+				.statusSupplier(() -> pref.isAutoFlip())
+				.onSelect((i) -> pref.setAutoFlip(!pref.isAutoFlip()))
+				.build())
+				
+			.item(ListDialogItemSwitch.create()
+				.itemText(stringSet.get("Dialog.PlayerPreferencesDialog.AutoCarryPassengers"))
+				.statusSupplier(() -> pref.isAutoCarryPassengers())
+				.onSelect((i) -> pref.setAutoCarryPassengers(!pref.isAutoCarryPassengers()))
+				.build())
+			
+			.onClickOk((d, i) ->
 			{
 				player.playSound(1083, player.getLocation());
-				pref.setVehicleWidgetEnabled(!pref.isVehicleWidgetEnabled());
-				show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItemSwitch(stringSet.get(player, "Dialog.PlayerPreferencesDialog.InfiniteNitrous"))
-		{
-			@Override
-			public boolean isSwitched()
-			{
-				return pref.isInfiniteNitrous();
-			}
-			
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				pref.setInfiniteNitrous(!pref.isInfiniteNitrous());
-				show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItemSwitch(stringSet.get(player, "Dialog.PlayerPreferencesDialog.AutoRepair"))
-		{
-			@Override
-			public boolean isSwitched()
-			{
-				return pref.isAutoRepair();
-			}
-			
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				pref.setAutoRepair(!pref.isAutoRepair());
-				show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItemSwitch(stringSet.get(player, "Dialog.PlayerPreferencesDialog.AutoFlip"))
-		{
-			@Override
-			public boolean isSwitched()
-			{
-				return pref.isAutoFlip();
-			}
-			
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				pref.setAutoFlip(!pref.isAutoFlip());
-				show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItemSwitch(stringSet.get(player, "Dialog.PlayerPreferencesDialog.AutoCarryPassengers"))
-		{
-			@Override
-			public boolean isSwitched()
-			{
-				return pref.isAutoCarryPassengers();
-			}
-			
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				pref.setAutoCarryPassengers(!pref.isAutoCarryPassengers());
-				show();
-			}
-		});
+				i.getCurrentDialog().show();
+			})
+			.build();
 	}
 }

@@ -25,8 +25,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import net.gtaun.shoebill.SampObjectStore;
-import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.Filter;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
@@ -35,32 +33,38 @@ import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.UnitUtils;
-import net.gtaun.wl.common.dialog.AbstractPageListDialog;
-import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.common.dialog.WlPageListDialog;
+import net.gtaun.wl.lang.LocalizedStringSet.PlayerStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 
-public class EmptyVehicleListDialog extends AbstractPageListDialog
+
+public class EmptyVehicleListDialog extends WlPageListDialog
 {
-	private final VehicleManagerServiceImpl vehicleManagerService;
+	private final VehicleManagerServiceImpl service;
 	private final Comparator<Vehicle> comparator;
 	private final Filter<Vehicle> filter;
 	
+	private final PlayerStringSet stringSet;
 	
-	public EmptyVehicleListDialog(Player player, Shoebill shoebill, EventManager eventManager, AbstractDialog parentDialog, VehicleManagerServiceImpl vehicleManagerService, Comparator<Vehicle> comparator, Filter<Vehicle> filter)
+	
+	public EmptyVehicleListDialog(Player player, EventManager eventManager, AbstractDialog parent, VehicleManagerServiceImpl service, Comparator<Vehicle> comparator, Filter<Vehicle> filter)
 	{
-		super(player, shoebill, eventManager, parentDialog);
-		this.vehicleManagerService = vehicleManagerService;
+		super(player, eventManager);
+		setParentDialog(parent);
+		
+		this.service = service;
 		this.comparator = comparator;
 		this.filter = filter;
+		this.stringSet = service.getLocalizedStringSet().getStringSet(player);
+		
+		setCaption(() -> stringSet.format("Dialog.EmptyVehicleListDialog.Caption", getCurrentPage() + 1, getMaxPage() + 1));
 	}
 	
 	@Override
 	public void show()
 	{
-		final SampObjectStore store = shoebill.getSampObjectStore();
-		final Collection<Vehicle> vehicles = store.getVehicles();
-		final Collection<Player> players = store.getPlayers();
-		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		Collection<Vehicle> vehicles = Vehicle.get();
+		Collection<Player> players = Player.get();
 		
 		Location playerLoc = player.getLocation();
 		
@@ -70,40 +74,32 @@ public class EmptyVehicleListDialog extends AbstractPageListDialog
 		SortedSet<Vehicle> sortedVehicles = new TreeSet<>(comparator);
 		for (Vehicle vehicle : vehicles)
 		{
-			if (occupiedVehicles.contains(vehicle) == false && vehicleManagerService.isOwned(vehicle) == false && filter.isAcceptable(vehicle))
+			if (occupiedVehicles.contains(vehicle) == false && service.isOwned(vehicle) == false && filter.isAcceptable(vehicle))
 			{
 				sortedVehicles.add(vehicle);
 			}
 		}
 		
-		dialogListItems.clear();
-		for (final Vehicle vehicle : sortedVehicles)
+		items.clear();
+		for (Vehicle vehicle : sortedVehicles)
 		{
-			final float distance = playerLoc.distance(vehicle.getLocation());
-			dialogListItems.add(new DialogListItem()
-			{
-				@Override
-				public String toItemString()
+			float distance = playerLoc.distance(vehicle.getLocation());
+			addItem(() ->
 				{
-					String format = stringSet.get(player, "Dialog.EmptyVehicleListDialog.Item");
-					if (player.isAdmin()) format = stringSet.get(player, "Dialog.EmptyVehicleListDialog.ItemAdmin");
+					String format = stringSet.get("Dialog.EmptyVehicleListDialog.Item");
+					if (player.isAdmin()) format = stringSet.get("Dialog.EmptyVehicleListDialog.ItemAdmin");
 					
-					final int modelId = vehicle.getModelId();
-					final String modelName = VehicleModel.getName(modelId);
+					int modelId = vehicle.getModelId();
+					String modelName = VehicleModel.getName(modelId);
 					
 					return String.format(format, vehicle.getId(), modelName, modelId, distance, UnitUtils.meterToYard(distance));
-				}
-				
-				@Override
-				public void onItemSelect()
+				}, (i) ->
 				{
-					player.playSound(1083, player.getLocation());
-					new VehicleDialog(player, shoebill, rootEventManager, EmptyVehicleListDialog.this, vehicle, vehicleManagerService).show();
-				}
-			});
+					player.playSound(1083);
+					VehicleDialog.create(player, eventManagerNode.getParent(), this, vehicle, service).show();
+				});
 		}
 
-		this.caption = stringSet.format(player, "Dialog.EmptyVehicleListDialog.Caption", getCurrentPage() + 1, getMaxPage() + 1);
 		super.show();
 	}
 }

@@ -21,74 +21,69 @@ package net.gtaun.wl.vehicle.dialog;
 import java.util.Collection;
 import java.util.Date;
 
-import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.UnitUtils;
-import net.gtaun.wl.common.dialog.AbstractMsgboxDialog;
-import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.common.dialog.WlMsgboxDialog;
+import net.gtaun.wl.lang.LocalizedStringSet.PlayerStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 
-public class PlayerStatisticDialog extends AbstractMsgboxDialog
+public class PlayerStatisticDialog
 {
-	private final VehicleManagerServiceImpl vehicleManagerService;
-	
-	
-	public PlayerStatisticDialog(Player player, Shoebill shoebill, EventManager rootEventManager, AbstractDialog parentDialog, final VehicleManagerServiceImpl vehicleManagerService)
+	public static WlMsgboxDialog create(Player player, EventManager eventManager, AbstractDialog parent, VehicleManagerServiceImpl service)
 	{
-		super(player, shoebill, rootEventManager, parentDialog);
-		this.vehicleManagerService = vehicleManagerService;
-	}
-	
-	@Override
-	public void show()
-	{
-		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		PlayerStringSet stringSet = service.getLocalizedStringSet().getStringSet(player);
 		
-		long spawnCount = 0, driveCount = 0, driveSecondCount = 0;
-		double damageCount = 0.0f, driveOdometer = 0.0f;
-		Date lastUpdate = new Date(0);
-		
-		Collection<PlayerVehicleStatistic> stats = vehicleManagerService.getPlayerVehicleStatistics(player);
-		for (PlayerVehicleStatistic stat : stats)
-		{
-			spawnCount += stat.getSpawnCount();
-			driveCount += stat.getDriveCount();
-			driveSecondCount += stat.getDriveTimeCount();
-			damageCount += stat.getDamageCount();
-			driveOdometer += stat.getDriveOdometer();
-			
-			Date update = stat.getLastUpdate();
-			if (update != null && lastUpdate.before(update)) lastUpdate = update;
-		}
-		
-		this.caption = stringSet.get(player, "Dialog.PlayerStatisticDialog.Caption");
-		String textFormat = stringSet.get(player, "Dialog.PlayerStatisticDialog.Text");
+		return WlMsgboxDialog.create(player, eventManager)
+			.parentDialog(parent)
+			.caption(stringSet.get("Dialog.PlayerStatisticDialog.Caption"))
+			.message((d) ->
+			{
+				long spawnCount = 0, driveCount = 0, driveSecondCount = 0;
+				double damageCount = 0.0f, driveOdometer = 0.0f;
+				Date lastUpdate = new Date(0);
+				
+				Collection<PlayerVehicleStatistic> stats = service.getPlayerVehicleStatistics(player);
+				for (PlayerVehicleStatistic stat : stats)
+				{
+					spawnCount += stat.getSpawnCount();
+					driveCount += stat.getDriveCount();
+					driveSecondCount += stat.getDriveTimeCount();
+					damageCount += stat.getDamageCount();
+					driveOdometer += stat.getDriveOdometer();
+					
+					Date update = stat.getLastUpdate();
+					if (update != null && lastUpdate.before(update)) lastUpdate = update;
+				}
+				
+				String textFormat = stringSet.get("Dialog.PlayerStatisticDialog.Text");
 
-		double odometer = driveOdometer / 1000.0f;
-		double avgSpeed = odometer / driveSecondCount * 60 * 60;
-		double avgScrapePer10Minutes = damageCount / 750.0f / driveSecondCount * 60 * 10;
-		
-		long seconds = driveSecondCount % 60;
-		long minutes = (driveSecondCount / 60) % 60;
-		long hours = driveSecondCount / 60 / 60;
-		String formatedTime = stringSet.format(player, "Time.HMS", hours, minutes, seconds);
+				double odometer = driveOdometer / 1000.0f;
+				double avgSpeed = odometer / driveSecondCount * 60 * 60;
+				double avgScrapePer10Minutes = damageCount / 750.0f / driveSecondCount * 60 * 10;
+				
+				long seconds = driveSecondCount % 60;
+				long minutes = (driveSecondCount / 60) % 60;
+				long hours = driveSecondCount / 60 / 60;
+				String formatedTime = stringSet.format("Time.HMS", hours, minutes, seconds);
 
-		String lastUpdateString = stringSet.get(player, "Time.Never");
-		if (lastUpdate != null) lastUpdateString = DateFormatUtils.ISO_DATETIME_FORMAT.format(lastUpdate);
-		
-		String text = String.format
-		(
-			textFormat,
-			caption, spawnCount, damageCount/1000.0f, driveCount, formatedTime,
-			odometer, UnitUtils.kmToMi(odometer), avgSpeed, UnitUtils.kmToMi(avgSpeed), avgScrapePer10Minutes,
-			lastUpdateString
-		);
-		
-		show(text);
+				String lastUpdateString = stringSet.get("Time.Never");
+				if (lastUpdate != null) lastUpdateString = DateFormatUtils.ISO_DATETIME_FORMAT.format(lastUpdate);
+				
+				String text = String.format
+				(
+					textFormat,
+					d.getCaption(), spawnCount, damageCount/1000.0f, driveCount, formatedTime,
+					odometer, UnitUtils.kmToMi(odometer), avgSpeed, UnitUtils.kmToMi(avgSpeed), avgScrapePer10Minutes,
+					lastUpdateString
+				);
+				
+				return text;
+			})
+			.build();
 	}
 }

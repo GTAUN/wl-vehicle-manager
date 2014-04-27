@@ -31,27 +31,25 @@ import java.util.Random;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.AbstractShoebillContext;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
-import net.gtaun.shoebill.common.dialog.AbstractListDialog.DialogListItem;
+import net.gtaun.shoebill.common.dialog.ListDialogItem;
 import net.gtaun.shoebill.common.player.PlayerLifecycleHolder;
-import net.gtaun.shoebill.common.player.PlayerLifecycleHolder.PlayerLifecycleObjectFactory;
 import net.gtaun.shoebill.common.vehicle.VehicleUtils;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.Velocity;
-import net.gtaun.shoebill.event.PlayerEventHandler;
 import net.gtaun.shoebill.event.player.PlayerCommandEvent;
 import net.gtaun.shoebill.event.player.PlayerConnectEvent;
 import net.gtaun.shoebill.event.player.PlayerDisconnectEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.shoebill.resource.Plugin;
+import net.gtaun.shoebill.service.Service;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.util.event.EventManager.HandlerPriority;
-import net.gtaun.util.event.ManagedEventManager;
-import net.gtaun.wl.gamemode.event.GamemodeDialogEventHandler;
-import net.gtaun.wl.gamemode.event.MainMenuDialogShowEvent;
+import net.gtaun.util.event.EventManagerNode;
+import net.gtaun.util.event.HandlerPriority;
+import net.gtaun.wl.common.dialog.WlListDialog;
+import net.gtaun.wl.gamemode.event.MainMenuDialogExtendEvent;
 import net.gtaun.wl.lang.LanguageService;
 import net.gtaun.wl.lang.LocalizedStringSet;
 import net.gtaun.wl.vehicle.dialog.VehicleDialog;
@@ -82,7 +80,7 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 	private final VehicleManagerPlugin plugin;
 	private final Datastore datastore;
 	
-	private final ManagedEventManager eventManager;
+	private final EventManagerNode eventManager;
 	private final PlayerLifecycleHolder playerLifecycleHolder;
 	
 	private final LocalizedStringSet localizedStringSet;
@@ -98,19 +96,19 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 	private Map<Player, OwnedVehicleLastPassengers> playerOwnedVehicleLastPassengers;
 	
 	
-	public VehicleManagerServiceImpl(Shoebill shoebill, EventManager rootEventManager, VehicleManagerPlugin plugin, Datastore datastore)
+	public VehicleManagerServiceImpl(EventManager rootEventManager, VehicleManagerPlugin plugin, Datastore datastore)
 	{
-		super(shoebill, rootEventManager);
+		super(rootEventManager);
 		this.plugin = plugin;
 		this.datastore = datastore;
 		
-		eventManager = new ManagedEventManager(rootEventManager);
-		playerLifecycleHolder = new PlayerLifecycleHolder(shoebill, eventManager);
+		eventManager = rootEventManager.createChildNode();
+		playerLifecycleHolder = new PlayerLifecycleHolder(eventManager);
 		
-		LanguageService languageService = shoebill.getServiceStore().getService(LanguageService.class);
+		LanguageService languageService = Service.get(LanguageService.class);
 		localizedStringSet = languageService.createStringSet(new File(plugin.getDataDir(), "text"));
 		
-		statisticManager = new VehicleStatisticManager(shoebill, eventManager, playerLifecycleHolder, this.datastore);
+		statisticManager = new VehicleStatisticManager(eventManager, playerLifecycleHolder, this.datastore);
 		
 		playerOwnedVehicles = new HashMap<>();
 		ownedVehicles = new HashSet<>();
@@ -122,21 +120,82 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 	
 	protected void onInit()
 	{
-		PlayerLifecycleObjectFactory<PlayerVehicleManagerContext> factory = new PlayerLifecycleObjectFactory<PlayerVehicleManagerContext>()
+		playerLifecycleHolder.registerClass(PlayerVehicleManagerContext.class, (eventManager, player) ->
+			new PlayerVehicleManagerContext(eventManager, player, VehicleManagerServiceImpl.this, datastore));
+		
+		eventManager.registerHandler(PlayerConnectEvent.class, HandlerPriority.NORMAL, (e) ->
 		{
-			@Override
-			public PlayerVehicleManagerContext create(Shoebill shoebill, EventManager eventManager, Player player)
+			
+		});
+		
+		eventManager.registerHandler(PlayerDisconnectEvent.class, HandlerPriority.NORMAL, (e) ->
+		{
+			Player player = e.getPlayer();
+			unownVehicle(player);
+		});
+		
+		eventManager.registerHandler(PlayerCommandEvent.class, HandlerPriority.NORMAL, (e) ->
+		{
+			if (isCommandEnabled == false) return;
+			
+			Player player = e.getPlayer();
+			
+			String command = e.getCommand();
+			String[] splits = command.split(" ", 2);
+			
+			String operation = splits[0].toLowerCase();
+			Queue<String> args = new LinkedList<>();
+			
+			if (splits.length > 1)
 			{
-				return new PlayerVehicleManagerContext(shoebill, eventManager, player, VehicleManagerServiceImpl.this, datastore);
+				String[] argsArray = splits[1].split(" ");
+				args.addAll(Arrays.asList(argsArray));
 			}
-		};
-		playerLifecycleHolder.registerClass(PlayerVehicleManagerContext.class, factory);
+			
+			if (operation.equals(commandOperation))
+			{
+				showMainDialog(player, null);
+				e.setProcessed();
+				return;
+			}
+		});
 		
-		eventManager.registerHandler(PlayerConnectEvent.class, playerEventHandler, HandlerPriority.NORMAL);
-		eventManager.registerHandler(PlayerDisconnectEvent.class, playerEventHandler, HandlerPriority.NORMAL);
-		eventManager.registerHandler(PlayerCommandEvent.class, playerEventHandler, HandlerPriority.NORMAL);
-		
-		eventManager.registerHandler(MainMenuDialogShowEvent.class, gamemodeDialogEventHandler, HandlerPriority.NORMAL);
+		eventManager.registerHandler(MainMenuDialogExtendEvent.class, HandlerPriority.NORMAL, (e) ->
+		{
+			Player player = e.getPlayer();
+			WlListDialog dialog = e.getDialog();
+			
+			dialog.getItems().add(ListDialogItem.create()
+				.itemText(localizedStringSet.get(player, "Dialog.VehicleManagerDialog.CurrentVehicle"))
+				.enabled(() -> player.isInAnyVehicle() && getOwnedVehicle(player) != player.getVehicle())
+				.onSelect((i) ->
+				{
+					player.playSound(1083, player.getLocation());
+					Vehicle vehicle = player.getVehicle();
+					if (vehicle != null) VehicleDialog.create(player, eventManager, dialog, vehicle, VehicleManagerServiceImpl.this).show();
+				})
+				.build());
+			
+			dialog.getItems().add(ListDialogItem.create()
+				.itemText(localizedStringSet.get(player, "Dialog.VehicleManagerDialog.MyVehicle"))
+				.enabled(() -> getOwnedVehicle(player) != null)
+				.onSelect((i) ->
+				{
+					player.playSound(1083, player.getLocation());
+					Vehicle vehicle = getOwnedVehicle(player);
+					if (vehicle != null) VehicleDialog.create(player, eventManager, dialog, vehicle, VehicleManagerServiceImpl.this).show();
+				})
+				.build());
+			
+			dialog.getItems().add(ListDialogItem.create()
+				.itemText(localizedStringSet.get(player, "Name.Full"))
+				.onSelect((i) ->
+				{
+					player.playSound(1083, player.getLocation());
+					showMainDialog(player, dialog);
+				})
+				.build());
+		});
 
 		addDestroyable(playerLifecycleHolder);
 		addDestroyable(statisticManager);
@@ -166,7 +225,7 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 	@Override
 	public void showMainDialog(Player player, AbstractDialog parentDialog)
 	{
-		new VehicleManagerDialog(player, shoebill, rootEventManager, parentDialog, VehicleManagerServiceImpl.this).show();
+		VehicleManagerDialog.create(player, rootEventManager, parentDialog, this).show();
 	}
 	
 	@Override
@@ -184,7 +243,7 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 			velocity = prevVehicle.getVelocity();
 		}
 		
-		Vehicle vehicle = shoebill.getSampObjectFactory().createVehicle(modelId, player.getLocation(), random.nextInt(256), random.nextInt(256), 3600);
+		Vehicle vehicle = Vehicle.create(modelId, player.getLocation(), random.nextInt(256), random.nextInt(256), 3600);
 		ownVehicle(player, vehicle);
 		
 		PlayerPreferences pref = getPlayerPreferences(player);
@@ -353,97 +412,4 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 		PlayerVehicleManagerContext context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContext.class);
 		context.getEffectivePlayerPreferences().clearLimits();
 	}
-	
-	private PlayerEventHandler playerEventHandler = new PlayerEventHandler()
-	{
-		protected void onPlayerConnect(PlayerConnectEvent event)
-		{
-			
-		}
-		
-		protected void onPlayerDisconnect(PlayerDisconnectEvent event)
-		{
-			Player player = event.getPlayer();
-			unownVehicle(player);
-		}
-		
-		protected void onPlayerCommand(PlayerCommandEvent event)
-		{
-			if (isCommandEnabled == false) return;
-			
-			Player player = event.getPlayer();
-			
-			String command = event.getCommand();
-			String[] splits = command.split(" ", 2);
-			
-			String operation = splits[0].toLowerCase();
-			Queue<String> args = new LinkedList<>();
-			
-			if (splits.length > 1)
-			{
-				String[] argsArray = splits[1].split(" ");
-				args.addAll(Arrays.asList(argsArray));
-			}
-			
-			if (operation.equals(commandOperation))
-			{
-				showMainDialog(player, null);
-				event.setProcessed();
-				return;
-			}
-		}
-	};
-	
-	private GamemodeDialogEventHandler gamemodeDialogEventHandler = new GamemodeDialogEventHandler()
-	{
-		@Override
-		protected void onMainMenuDialogShow(final MainMenuDialogShowEvent event)
-		{
-			final Player player = event.getPlayer();
-			
-			event.addItem(new DialogListItem(localizedStringSet.get(player, "Dialog.VehicleManagerDialog.CurrentVehicle"))
-			{
-				@Override
-				public boolean isEnabled()
-				{
-					return player.isInAnyVehicle() && getOwnedVehicle(player) != player.getVehicle();
-				}
-				
-				@Override
-				public void onItemSelect()
-				{
-					player.playSound(1083, player.getLocation());
-					Vehicle vehicle = player.getVehicle();
-					if (vehicle != null) new VehicleDialog(player, shoebill, eventManager, getCurrentDialog(), vehicle, VehicleManagerServiceImpl.this).show();
-				}
-			});
-			
-			event.addItem(new DialogListItem(localizedStringSet.get(player, "Dialog.VehicleManagerDialog.MyVehicle"))
-			{
-				@Override
-				public boolean isEnabled()
-				{
-					return getOwnedVehicle(player) != null;
-				}
-				
-				@Override
-				public void onItemSelect()
-				{
-					player.playSound(1083, player.getLocation());
-					Vehicle vehicle = getOwnedVehicle(player);
-					if (vehicle != null) new VehicleDialog(player, shoebill, eventManager, getCurrentDialog(), vehicle, VehicleManagerServiceImpl.this).show();
-				}
-			});
-			
-			event.addItem(new DialogListItem(localizedStringSet.get(player, "Name.Full"))
-			{
-				@Override
-				public void onItemSelect()
-				{
-					player.playSound(1083, player.getLocation());
-					showMainDialog(player, getCurrentDialog());
-				}
-			});
-		}
-	};
 }

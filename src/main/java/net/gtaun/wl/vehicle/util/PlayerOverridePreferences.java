@@ -4,13 +4,13 @@ import java.util.Deque;
 import java.util.LinkedList;
 
 import net.gtaun.shoebill.object.Player;
+import net.gtaun.util.event.Attentions;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.util.event.EventManager.HandlerPriority;
+import net.gtaun.util.event.HandlerPriority;
 import net.gtaun.wl.vehicle.PlayerOverrideLimit;
 import net.gtaun.wl.vehicle.PlayerPreferences;
 import net.gtaun.wl.vehicle.PlayerPreferencesBase;
 import net.gtaun.wl.vehicle.event.PlayerPreferencesUpdateEvent;
-import net.gtaun.wl.vehicle.event.VehicleManagerEventHandler;
 
 public class PlayerOverridePreferences implements PlayerPreferencesBase
 {
@@ -25,16 +25,8 @@ public class PlayerOverridePreferences implements PlayerPreferencesBase
 		this.preferences = preferences;
 		this.limits = new LinkedList<>();
 		
-		eventManager.registerHandler(PlayerPreferencesUpdateEvent.class, preferences, vehicleManagerEventHandler, HandlerPriority.NORMAL);
+		eventManager.registerHandler(PlayerPreferencesUpdateEvent.class, HandlerPriority.NORMAL, Attentions.create().object(preferences), (e) -> dispatchUpdateEvent());
 	}
-	
-	private VehicleManagerEventHandler vehicleManagerEventHandler = new VehicleManagerEventHandler()
-	{
-		protected void onPlayerPreferencesUpdate(PlayerPreferencesUpdateEvent event)
-		{
-			dispatchUpdateEvent();
-		};
-	};
 	
 	private void dispatchUpdateEvent()
 	{

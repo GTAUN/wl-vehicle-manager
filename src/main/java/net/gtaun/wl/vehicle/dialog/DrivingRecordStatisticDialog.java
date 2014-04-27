@@ -21,37 +21,33 @@ package net.gtaun.wl.vehicle.dialog;
 import java.util.Date;
 import java.util.List;
 
-import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.wl.common.dialog.AbstractPageListDialog;
-import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.common.dialog.WlPageListDialog;
+import net.gtaun.wl.lang.LocalizedStringSet.PlayerStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
-import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 
-public class DrivingRecordStatisticDialog extends AbstractPageListDialog
+public class DrivingRecordStatisticDialog extends WlPageListDialog
 {
-	public DrivingRecordStatisticDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerServiceImpl vehicleManagerService)
+	public DrivingRecordStatisticDialog(Player player, EventManager eventManager, AbstractDialog parent, VehicleManagerServiceImpl service)
 	{
-		super(player, shoebill, eventManager, parentDialog);
-		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		super(player, eventManager);
+		setParentDialog(parent);
 		
-		this.caption = stringSet.get(player, "Dialog.DrivingRecordStatisticDialog.Caption");
+		PlayerStringSet stringSet = service.getLocalizedStringSet().getStringSet(player);
+		setCaption(stringSet.get("Dialog.DrivingRecordStatisticDialog.Caption"));
 		
-		List<OncePlayerVehicleStatistic> stats = vehicleManagerService.getPlayerRecordedOnceStatistics(player);
-		
-		for (final OncePlayerVehicleStatistic stat : stats)
+		service.getPlayerRecordedOnceStatistics(player).forEach((stat) ->
 		{
 			List<Integer> modelIds = stat.getModelIds();
-			final int modelId = modelIds.get(0);
-			final String modelName = modelIds.size() == 1 ? VehicleModel.getName(modelId) : stringSet.get(player, "Statistic.MoveWay.Multiple");
+			int modelId = modelIds.get(0);
+			String modelName = modelIds.size() == 1 ? VehicleModel.getName(modelId) : stringSet.get("Statistic.MoveWay.Multiple");
 			String startTimeStr = DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(stat.getStartTime());
-			String endTimeStr = stringSet.get(player, "Time.NA");
+			String endTimeStr = stringSet.get("Time.NA");
 			
 			Date endTime = stat.getEndTime();
 			if (endTime != null) endTimeStr = DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(stat.getEndTime());
@@ -59,21 +55,17 @@ public class DrivingRecordStatisticDialog extends AbstractPageListDialog
 			String type;
 			switch (stat.getType())
 			{
-			case DRIVER:	type = stringSet.get(player, "Statistic.Type.Driver");	break;
-			case PASSENGER:	type = stringSet.get(player, "Statistic.Type.Passenger");	break;
-			case RACING:	type = stringSet.get(player, "Statistic.Type.Racing");	break;
-			default:		type = stringSet.get(player, "Statistic.Type.Unknown");	break;
+			case DRIVER:	type = stringSet.get("Statistic.Type.Driver");		break;
+			case PASSENGER:	type = stringSet.get("Statistic.Type.Passenger");	break;
+			case RACING:	type = stringSet.get("Statistic.Type.Racing");		break;
+			default:		type = stringSet.get("Statistic.Type.Unknown");		break;
 			}
 			
-			String item = stringSet.format(player, "Dialog.DrivingRecordStatisticDialog.Item", type, modelName, modelId, startTimeStr, endTimeStr);
-			dialogListItems.add(new DialogListItem(item)
+			String item = stringSet.format("Dialog.DrivingRecordStatisticDialog.Item", type, modelName, modelId, startTimeStr, endTimeStr);
+			addItem(item, (i) ->
 			{
-				@Override
-				public void onItemSelect()
-				{
-					new OnceStatisticDialog(player, shoebill, eventManager, DrivingRecordStatisticDialog.this, vehicleManagerService, stat).show();
-				}
+				OnceStatisticDialog.create(player, eventManager, this, service, stat).show();
 			});
-		}
+		});
 	}
 }

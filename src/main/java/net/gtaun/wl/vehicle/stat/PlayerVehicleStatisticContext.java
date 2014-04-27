@@ -25,7 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.vehicle.VehicleUtils;
 import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.constant.VehicleModel;
@@ -47,9 +46,9 @@ public class PlayerVehicleStatisticContext extends AbstractPlayerVehicleProbe
 	private OncePlayerVehicleStatisticImpl nowOnceStatistic;
 	
 	
-	public PlayerVehicleStatisticContext(Shoebill shoebill, EventManager rootEventManager, Player player, VehicleStatisticManager statisticManager, Datastore datastore)
+	public PlayerVehicleStatisticContext(EventManager rootEventManager, Player player, VehicleStatisticManager statisticManager, Datastore datastore)
 	{
-		super(shoebill, rootEventManager, player);
+		super(rootEventManager, player);
 		this.statisticManager = statisticManager;
 		this.datastore = datastore;
 		
@@ -69,7 +68,7 @@ public class PlayerVehicleStatisticContext extends AbstractPlayerVehicleProbe
 		if (vehicle != null)
 		{
 			StatisticType type = VehicleUtils.isVehicleDriver(vehicle, player) ? StatisticType.DRIVER : StatisticType.PASSENGER;
-			nowOnceStatistic = new OncePlayerVehicleStatisticImpl(shoebill, rootEventManager, player, type);
+			nowOnceStatistic = new OncePlayerVehicleStatisticImpl(rootEventManager, player, type);
 			nowOnceStatistic.start();
 		}
 	}
@@ -114,7 +113,7 @@ public class PlayerVehicleStatisticContext extends AbstractPlayerVehicleProbe
 		if (nowOnceStatistic != null) endOnceStatistic();
 		
 		StatisticType type = VehicleUtils.isVehicleDriver(vehicle, player) ? StatisticType.DRIVER : StatisticType.PASSENGER;
-		nowOnceStatistic = new OncePlayerVehicleStatisticImpl(shoebill, rootEventManager, player, type);
+		nowOnceStatistic = new OncePlayerVehicleStatisticImpl(rootEventManager, player, type);
 		nowOnceStatistic.start();
 		recordedOnceStatistics.offerFirst(nowOnceStatistic);
 	}
@@ -147,7 +146,7 @@ public class PlayerVehicleStatisticContext extends AbstractPlayerVehicleProbe
 	{
 		endOnceStatistic();
 		
-		nowOnceStatistic = new OncePlayerVehicleStatisticImpl(shoebill, rootEventManager, player, StatisticType.RACING);
+		nowOnceStatistic = new OncePlayerVehicleStatisticImpl(rootEventManager, player, StatisticType.RACING);
 		nowOnceStatistic.start();
 		recordedOnceStatistics.offerFirst(nowOnceStatistic);
 		

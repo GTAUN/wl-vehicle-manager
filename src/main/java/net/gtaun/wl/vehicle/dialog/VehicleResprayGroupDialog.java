@@ -18,18 +18,18 @@
 
 package net.gtaun.wl.vehicle.dialog;
 
-import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.wl.common.dialog.AbstractListDialog;
-import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.common.dialog.WlListDialog;
+import net.gtaun.wl.common.dialog.WlListDialog.WlListDialogBuilder;
+import net.gtaun.wl.lang.LocalizedStringSet.PlayerStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 
-public class VehicleResprayGroupDialog extends AbstractListDialog
+public class VehicleResprayGroupDialog
 {
 	public static final int VEHICLE_COLOR_TABLE_RGBA[] =
 	{
@@ -47,6 +47,7 @@ public class VehicleResprayGroupDialog extends AbstractListDialog
 		0x406C8FFF, 0x1F253BFF, 0xAB9276FF, 0x134573FF, 0x96816CFF, 0x64686AFF, 0x105082FF, 0xA19983FF, 0x385694FF, 0x525661FF,
 		0x7F6956FF, 0x8C929AFF, 0x596E87FF, 0x473532FF, 0x44624FFF, 0x730A27FF, 0x223457FF, 0x640D1BFF, 0xA3ADC6FF, 0x695853FF,
 		0x9B8B80FF, 0x620B1CFF, 0x5B5D5EFF, 0x624428FF, 0x731827FF, 0x1B376DFF, 0xEC6AAEFF, 0x000000FF,
+		
 		// SA-MP extended colours (0.3x)
 		0x177517FF, 0x210606FF, 0x125478FF, 0x452A0DFF, 0x571E1EFF, 0x010701FF, 0x25225AFF, 0x2C89AAFF, 0x8A4DBDFF, 0x35963AFF,
 		0xB7B7B7FF, 0x464C8DFF, 0x84888CFF, 0x817867FF, 0x817A26FF, 0x6A506FFF, 0x583E6FFF, 0x8CB972FF, 0x824F78FF, 0x6D276AFF,
@@ -63,61 +64,49 @@ public class VehicleResprayGroupDialog extends AbstractListDialog
 		0x561A28FF, 0x4E0E27FF, 0x706C67FF, 0x3B3E42FF, 0x2E2D33FF, 0x7B7E7DFF, 0x4A4442FF, 0x28344EFF
 	};
 	
-	
-	public VehicleResprayGroupDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerServiceImpl vehicleManagerService)
+
+	public static WlListDialog create
+	(Player player, EventManager eventManager, AbstractDialog parent, Vehicle vehicle, VehicleManagerServiceImpl service)
 	{
-		this(player, shoebill, eventManager, parentDialog, vehicle, vehicleManagerService, -1);
+		return create(player, eventManager, parent, vehicle, service, -1);
 	}
 	
-	public VehicleResprayGroupDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerServiceImpl vehicleManagerService, final int color1)
+	public static WlListDialog create
+	(Player player, EventManager eventManager, AbstractDialog parent, Vehicle vehicle, VehicleManagerServiceImpl service, int color1)
 	{
-		super(player, shoebill, eventManager, parentDialog);
-		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		if (vehicle == null) throw new NullPointerException();
 		
-		if (vehicle == null)
-		{
-			destroy();
-			return;
-		}
+		PlayerStringSet stringSet = service.getLocalizedStringSet().getStringSet(player);
 
-		String type = stringSet.get(player, "Component.Color.Primary");
-		if (color1 != -1) type = stringSet.get(player, "Component.Color.Secondary");
+		String type = stringSet.get("Component.Color.Primary");
+		if (color1 != -1) type = stringSet.get("Component.Color.Secondary");
 		
 		int modelId = vehicle.getModelId();
 		String name = VehicleModel.getName(modelId);
 		
-		this.caption = stringSet.format(player, "Dialog.VehicleResprayGroupDialog.Caption", name, type, modelId, vehicle.getHealth()/10);
-		String colorBlock = stringSet.get(player, "Dialog.VehicleResprayGroupDialog.ColorBlockText");
+		String colorBlock = stringSet.get("Dialog.VehicleResprayGroupDialog.ColorBlockText");
 		
-		for (int i=0; i<VEHICLE_COLOR_TABLE_RGBA.length; i+=10)
-		{
-			final int index = i;
-			final int max = i+10 > VEHICLE_COLOR_TABLE_RGBA.length ? VEHICLE_COLOR_TABLE_RGBA.length : i+10;
-			
-			String item = stringSet.get(player, "Dialog.VehicleResprayGroupDialog.Item");
-			for (int j=i; j<max; j++)
+		return WlListDialog.create(player, eventManager)
+			.parentDialog(parent)
+			.caption(stringSet.format("Dialog.VehicleResprayGroupDialog.Caption", name, type, modelId, vehicle.getHealth()/10))
+			.execute((WlListDialogBuilder b) ->
 			{
-				item += new Color(VEHICLE_COLOR_TABLE_RGBA[j]).toEmbeddingString() + colorBlock;
-				if (j != max-1) item += " ";
-			}
-			
-			dialogListItems.add(new DialogListItem(item)
-			{
-				@Override
-				public void onItemSelect()
+				for (int i=0; i<VEHICLE_COLOR_TABLE_RGBA.length; i+=10)
 				{
-					player.playSound(1083, player.getLocation());
-					new VehicleResprayDialog(player, shoebill, eventManager, VehicleResprayGroupDialog.this, vehicle, vehicleManagerService, index, max, color1).show();
+					int index = i;
+					int max = i+10 > VEHICLE_COLOR_TABLE_RGBA.length ? VEHICLE_COLOR_TABLE_RGBA.length : i+10;
+					
+					String item = stringSet.get("Dialog.VehicleResprayGroupDialog.Item");
+					for (int j=i; j<max; j++)
+					{
+						item += new Color(VEHICLE_COLOR_TABLE_RGBA[j]).toEmbeddingString() + colorBlock;
+						if (j != max-1) item += " ";
+					}
+					
+					b.item(item, (listItem) -> VehicleResprayDialog.create(player, eventManager, listItem.getCurrentDialog(), vehicle, service, index, max, color1).show());
 				}
-			});
-		}
-	}
-	
-	@Override
-	public void show()
-	{
-		super.show();
+			})
+			.onClickOk((d, i) -> player.playSound(1083, player.getLocation()))
+			.build();
 	}
 }

@@ -20,8 +20,8 @@ package net.gtaun.wl.vehicle.dialog;
 
 import java.util.List;
 
-import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
+import net.gtaun.shoebill.common.dialog.ListDialogItemSwitch;
 import net.gtaun.shoebill.common.vehicle.VehicleUtils;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
 import net.gtaun.shoebill.constant.VehicleModel;
@@ -31,101 +31,85 @@ import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.shoebill.object.VehicleDamage;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.wl.common.dialog.AbstractListDialog;
-import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.common.dialog.WlListDialog;
+import net.gtaun.wl.lang.LocalizedStringSet.PlayerStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 
-public class VehicleDialog extends AbstractListDialog
+public class VehicleDialog
 {
-	private final Vehicle vehicle;
-	private final VehicleManagerServiceImpl vehicleManagerService;
-	
-	
-	public VehicleDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerServiceImpl vehicleManager)
+	public static WlListDialog create
+	(Player player, EventManager eventManager, AbstractDialog parent, Vehicle vehicle, VehicleManagerServiceImpl service)
 	{
-		super(player, shoebill, eventManager, parentDialog);
-		this.vehicle = vehicle;
-		this.vehicleManagerService = vehicleManager;
-		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		if (vehicle == null) throw new NullPointerException();
 		
-		if (vehicle == null)
-		{
-			destroy();
-			return;
-		}
+		PlayerStringSet stringSet = service.getLocalizedStringSet().getStringSet(player);
 		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.GetOn"))
-		{
-			@Override
-			public boolean isEnabled()
+		return WlListDialog.create(player, eventManager)
+			.parentDialog(parent)
+			.caption((d) ->
+			{
+				int modelId = vehicle.getModelId();
+				String name = VehicleModel.getName(modelId);
+						
+				boolean owned = service.getOwnedVehicle(player) == vehicle;
+				String ownMessage = stringSet.get(owned ? "Vehicle.Owned" : "Vehicle.Normal");
+						
+				if (player.getVehicle() != vehicle)
+				{
+					Location loc = vehicle.getLocation();
+					player.setCameraLookAt(loc);
+					loc.setZ(loc.getZ() + 10.0f);
+					player.setCameraPosition(loc);
+				}
+						
+				return stringSet.format("Dialog.VehicleDialog.Caption", ownMessage, name, modelId, vehicle.getHealth()/10);
+			})
+			
+			.item(stringSet.get("Dialog.VehicleDialog.GetOn"), () ->
 			{
 				if (player.getVehicle() == vehicle) return false;
-				if (vehicleManager.getOwnedVehicle(player) == vehicle) return true;
+				if (service.getOwnedVehicle(player) == vehicle) return true;
 				if (VehicleUtils.getVehicleDriver(vehicle) != null) return false;
 				return true;
-			}
-			
-			@Override
-			public void onItemSelect()
+			}, (i) ->
 			{
 				player.playSound(1083, player.getLocation());
-				player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Dialog.VehicleDialog.GetOnMessage", VehicleModel.getName(vehicle.getModelId())));
+				stringSet.sendMessage(Color.LIGHTBLUE, "Dialog.VehicleDialog.GetOnMessage", VehicleModel.getName(vehicle.getModelId()));
 				vehicle.putPlayer(player, 0);
-				destroy();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.OwnThisVehicle"))
-		{
-			@Override
-			public boolean isEnabled()
+			})
+			
+			.item(stringSet.get("Dialog.VehicleDialog.OwnThisVehicle"), () ->
 			{
-				if (vehicleManager.isOwned(vehicle)) return false;
+				if (service.isOwned(vehicle)) return false;
 				if (VehicleUtils.getVehicleDriver(vehicle) != player) return false;
 				return true;
-			}
-			
-			@Override
-			public void onItemSelect()
+			}, (i) ->
 			{
 				player.playSound(1057, player.getLocation());
-				player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Dialog.VehicleDialog.OwnMessage", VehicleModel.getName(vehicle.getModelId())));
-				vehicleManager.ownVehicle(player, vehicle);
-				show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.FetchAndGetOn"))
-		{
-			@Override
-			public boolean isEnabled()
+				stringSet.sendMessage(Color.LIGHTBLUE, "Dialog.VehicleDialog.OwnMessage", VehicleModel.getName(vehicle.getModelId()));
+				service.ownVehicle(player, vehicle);
+				i.getCurrentDialog().show();
+			})
+			
+			.item(stringSet.get("Dialog.VehicleDialog.FetchAndGetOn"), () ->
 			{
-				if (vehicleManager.isOwned(vehicle) == false) return false;
+				if (service.isOwned(vehicle) == false) return false;
 				if (player.getVehicle() == vehicle) return false;
 				return true;
-			}
-			
-			@Override
-			public void onItemSelect()
+			}, (i) ->
 			{
 				player.playSound(1083, player.getLocation());
-				
+						
 				vehicle.setLocation(player.getLocation());
 				vehicle.putPlayer(player, 0);
-
-				player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Dialog.VehicleDialog.FetchMessage", VehicleModel.getName(vehicle.getModelId())));
-				destroy();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.Repair"))
-		{
-			@Override
-			public boolean isEnabled()
+	
+				stringSet.sendMessage(Color.LIGHTBLUE, "Dialog.VehicleDialog.FetchMessage", VehicleModel.getName(vehicle.getModelId()));	
+			})
+			
+			.item(stringSet.get("Dialog.VehicleDialog.Repair"), () ->
 			{
 				if (VehicleUtils.isVehicleDriver(vehicle, player) == false) return false;
-				
+					
 				VehicleDamage damage = vehicle.getDamage();
 				if (damage.getDoors() != 0) return true;
 				if (damage.getLights() != 0) return true;
@@ -133,163 +117,91 @@ public class VehicleDialog extends AbstractListDialog
 				if (damage.getTires() != 0) return true;
 				if (vehicle.getHealth() < 1000.0f) return true;
 				return false;
-			}
-			
-			@Override
-			public void onItemSelect()
+			}, (i) ->
 			{
 				player.playSound(1133, player.getLocation());
 				vehicle.repair();
-				show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.Flip"))
-		{
-			@Override
-			public boolean isEnabled()
-			{
-				return VehicleUtils.isVehicleDriver(vehicle, player);
-			}
+				i.getCurrentDialog().show();
+			})
 			
-			@Override
-			public void onItemSelect()
+			.item(stringSet.get("Dialog.VehicleDialog.Flip"), () -> VehicleUtils.isVehicleDriver(vehicle, player), (i) ->
 			{
 				player.playSound(1083, player.getLocation());
 				vehicle.setLocation(vehicle.getLocation());
-				show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.ChangeColor"))
-		{
-			@Override
-			public boolean isEnabled()
-			{
-				return VehicleUtils.isVehicleDriver(vehicle, player);
-			}
+				i.getCurrentDialog().show();
+			})
 			
-			@Override
-			public void onItemSelect()
+			.item(stringSet.get("Dialog.VehicleDialog.ChangeColor"), () -> VehicleUtils.isVehicleDriver(vehicle, player), (i) ->
 			{
 				player.playSound(1083, player.getLocation());
-				new VehicleResprayGroupDialog(player, shoebill, eventManager, VehicleDialog.this, vehicle, vehicleManager).show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.KickPassengers"))
-		{
-			@Override
-			public boolean isEnabled()
+				VehicleResprayGroupDialog.create(player, eventManager, i.getCurrentDialog(), vehicle, service).show();
+			})
+			
+			.item(stringSet.get("Dialog.VehicleDialog.KickPassengers"), () ->
 			{
 				if (VehicleUtils.getVehiclePassengers(vehicle).isEmpty()) return false;
 				return VehicleUtils.isVehicleDriver(vehicle, player);
-			}
-			
-			@Override
-			public void onItemSelect()
+			}, (i) ->
 			{
 				player.playSound(1083, player.getLocation());
 				List<Player> passengers = VehicleUtils.getVehiclePassengers(vehicle);
 				for (Player passenger : passengers)
 				{
-					passenger.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Dialog.VehicleDialog.KickPassengerMessage", player.getName()));
+					stringSet.forOthers(passenger).sendMessage(Color.LIGHTBLUE, "Dialog.VehicleDialog.KickPassengerMessage", player.getName());
 					passenger.removeFromVehicle();
 				}
 				
-				player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Dialog.VehicleDialog.KickCompleteMessage", passengers.size()));
-				destroy();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.Modifications"))
-		{
-			@Override
-			public boolean isEnabled()
+				stringSet.sendMessage(Color.LIGHTBLUE, "Dialog.VehicleDialog.KickCompleteMessage", passengers.size());
+			})
+			
+			.item(stringSet.get("Dialog.VehicleDialog.Modifications"), () ->
 			{
 				if (VehicleUtils.isVehicleDriver(vehicle, player) == false) return false;
 				return VehicleComponentModel.isVehicleSupportAnyComponment(vehicle.getModelId());
-			}
+			}, (i) ->
+			{
+				player.playSound(1083, player.getLocation());
+				VehicleComponentDialog.create(player, eventManager, i.getCurrentDialog(), vehicle, service).show();
+			})
+				
+			.item(ListDialogItemSwitch.create()
+				.enabled(() -> VehicleUtils.isVehicleDriver(vehicle, player))
+				.statusSupplier(() -> vehicle.getState().getDoors() != 0)
+				.onSelect((i) ->
+				{
+					player.playSound(1083, player.getLocation());
+					vehicle.getState().setDoors(vehicle.getState().getDoors() ^ 1);
+					i.getCurrentDialog().show();
+				})
+				.build())
+				
+			.item(stringSet.get("Dialog.VehicleDialog.PersonalStatistics"), (i) -> 
+			{
+				player.playSound(1083, player.getLocation());
+				PlayerVehicleStatisticDialog.create(player, eventManager, i.getCurrentDialog(), vehicle, service).show();
+			})
 			
-			@Override
-			public void onItemSelect()
+			.item(stringSet.get("Dialog.VehicleDialog.GlobalStatistics"), (i) ->
 			{
 				player.playSound(1083, player.getLocation());
-				new VehicleComponentDialog(player, shoebill, eventManager, VehicleDialog.this, vehicle, vehicleManager).show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItemSwitch(stringSet.get(player, "Dialog.VehicleDialog.LockDoors"))
-		{
-			@Override
-			public boolean isEnabled()
-			{
-				return VehicleUtils.isVehicleDriver(vehicle, player);
-			}
+				GlobalVehicleStatisticDialog.create(player, eventManager, i.getCurrentDialog(), vehicle, service).show();
+			})
 			
-			@Override
-			public boolean isSwitched()
+			.onShow((d) ->
 			{
-				return vehicle.getState().getDoors() != 0;
-			}
+				if (player.getVehicle() == vehicle) return;
+				
+				Location loc = vehicle.getLocation();
+				player.setCameraLookAt(loc);
+				loc.setZ(loc.getZ() + 10.0f);
+				player.setCameraPosition(loc);
+			})
 			
-			@Override
-			public void onItemSelect()
+			.onClose((d, t) ->
 			{
-				player.playSound(1083, player.getLocation());
-				vehicle.getState().setDoors(vehicle.getState().getDoors() ^ 1);
-				show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.PersonalStatistics"))
-		{
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				new PlayerVehicleStatisticDialog(player, shoebill, eventManager, VehicleDialog.this, vehicle, vehicleManager).show();
-			}
-		});
-		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleDialog.GlobalStatistics"))
-		{
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				new GlobalVehicleStatisticDialog(player, shoebill, eventManager, VehicleDialog.this, vehicle, vehicleManager).show();
-			}
-		});
-	}
-	
-	@Override
-	public void show()
-	{
-		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
-		
-		int modelId = vehicle.getModelId();
-		String name = VehicleModel.getName(modelId);
-		
-		boolean owned = vehicleManagerService.getOwnedVehicle(player) == vehicle;
-		String ownMessage = owned ? stringSet.get(player, "Vehicle.Owned") : stringSet.get(player, "Vehicle.Normal");
-		
-		if (player.getVehicle() != vehicle)
-		{
-			Location loc = vehicle.getLocation();
-			player.setCameraLookAt(loc);
-			loc.setZ(loc.getZ() + 10.0f);
-			player.setCameraPosition(loc);
-		}
-		
-		this.caption = stringSet.format(player, "Dialog.VehicleDialog.Caption", ownMessage, name, modelId, vehicle.getHealth()/10);
-		super.show();
-	}
-	
-	@Override
-	protected void destroy()
-	{
-		if (player.getVehicle() != vehicle) player.setCameraBehind();
-		super.destroy();
+				if (player.getVehicle() != vehicle) player.setCameraBehind();
+			})
+			
+			.build();
 	}
 }

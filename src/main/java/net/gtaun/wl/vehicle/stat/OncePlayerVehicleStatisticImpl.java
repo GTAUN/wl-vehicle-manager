@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
@@ -45,9 +44,9 @@ public class OncePlayerVehicleStatisticImpl extends AbstractPlayerVehicleProbe i
 	private Date endTime;
 	
 	
-	public OncePlayerVehicleStatisticImpl(Shoebill shoebill, EventManager rootEventManager, Player player, StatisticType type)
+	public OncePlayerVehicleStatisticImpl(EventManager rootEventManager, Player player, StatisticType type)
 	{
-		super(shoebill, rootEventManager, player);
+		super(rootEventManager, player);
 		this.type = type;
 		
 		modelIds = new ArrayList<>();

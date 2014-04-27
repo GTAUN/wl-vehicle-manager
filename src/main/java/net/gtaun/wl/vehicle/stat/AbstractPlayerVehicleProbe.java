@@ -21,21 +21,17 @@ package net.gtaun.wl.vehicle.stat;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.player.AbstractPlayerContext;
 import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.data.Location;
-import net.gtaun.shoebill.event.PlayerEventHandler;
-import net.gtaun.shoebill.event.VehicleEventHandler;
 import net.gtaun.shoebill.event.player.PlayerStateChangeEvent;
-import net.gtaun.shoebill.event.vehicle.VehicleUpdateDamageEvent;
 import net.gtaun.shoebill.event.vehicle.VehicleUpdateEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Timer;
 import net.gtaun.shoebill.object.Vehicle;
-import net.gtaun.shoebill.object.Timer.TimerCallback;
+import net.gtaun.util.event.Attentions;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.util.event.EventManager.HandlerPriority;
+import net.gtaun.util.event.HandlerPriority;
 
 public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
 {
@@ -48,10 +44,37 @@ public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
 	private float lastVehicleHealth;
 	
 	
-	public AbstractPlayerVehicleProbe(Shoebill shoebill, EventManager rootEventManager, Player player)
+	public AbstractPlayerVehicleProbe(EventManager rootEventManager, Player player)
 	{
-		super(shoebill, rootEventManager, player);
-		timer = shoebill.getSampObjectFactory().createTimer(1000, timerCallback);
+		super(rootEventManager, player);
+		timer = Timer.create(1000, (factualInterval) ->
+		{
+			if (allowableStates.contains(player.getState()) == false) return;
+			
+			Vehicle vehicle = player.getVehicle();
+			if (vehicle == null) return;
+			
+			float speed = vehicle.getVelocity().speed3d() * 50;
+			if (speed > 0.02f)
+			{
+				onVehicleTick(vehicle);
+			}
+			
+			Location location = vehicle.getLocation();
+			float distance = location.distance(lastVehicleLocation);
+			if (distance == Float.POSITIVE_INFINITY) distance = 0.0f;
+			
+			if (distance > 0.0f && distance < 150.0f && distance > speed*2/3)
+			{
+				onVehicleMove(vehicle, distance);
+			}
+			else
+			{
+				onVehicleMove(vehicle, speed);
+			}
+			
+			lastVehicleLocation = location;
+		});
 		
 		allowableStates = new HashSet<>();
 		allowableStates.add(PlayerState.DRIVER);
@@ -94,23 +117,7 @@ public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
 	{
 		setNowVehicle(player.getVehicle());
 		
-		eventManager.registerHandler(PlayerStateChangeEvent.class, player, playerEventHandler, HandlerPriority.MONITOR);
-
-		eventManager.registerHandler(VehicleUpdateEvent.class, vehicleEventHandler, HandlerPriority.MONITOR);
-		eventManager.registerHandler(VehicleUpdateDamageEvent.class, vehicleEventHandler, HandlerPriority.MONITOR);
-		
-		timer.start();
-	}
-	
-	@Override
-	protected void onDestroy()
-	{
-		timer.destroy();
-	}
-	
-	private PlayerEventHandler playerEventHandler = new PlayerEventHandler()
-	{
-		protected void onPlayerStateChange(PlayerStateChangeEvent event)
+		eventManager.registerHandler(PlayerStateChangeEvent.class, HandlerPriority.MONITOR, Attentions.create().object(player), (e) ->
 		{
 			if (allowableStates.contains(player.getState()))
 			{
@@ -121,14 +128,11 @@ public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
 			{
 				setNowVehicle(null);
 			}
-		}
-	};
-	
-	private VehicleEventHandler vehicleEventHandler = new VehicleEventHandler()
-	{
-		protected void onVehicleUpdate(VehicleUpdateEvent event)
+		});
+
+		eventManager.registerHandler(VehicleUpdateEvent.class, HandlerPriority.MONITOR, (e) ->
 		{
-			Vehicle vehicle = event.getVehicle();
+			Vehicle vehicle = e.getVehicle();
 			if (allowableStates.contains(player.getState()) == false || vehicle != player.getVehicle()) return;
 			
 			AbstractPlayerVehicleProbe.this.onVehicleUpdate(vehicle);
@@ -140,41 +144,16 @@ public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
 				if (damage <= 1000.0f) onVehicleDamage(vehicle, damage);
 			}
 			lastVehicleHealth = health;
-		}
-	};
-
-	private TimerCallback timerCallback = new TimerCallback()
+		});
+		
+		timer.start();
+	}
+	
+	@Override
+	protected void onDestroy()
 	{
-		@Override
-		public void onTick(int factualInterval)
-		{
-			if (allowableStates.contains(player.getState()) == false) return;
-			
-			Vehicle vehicle = player.getVehicle();
-			if (vehicle == null) return;
-			
-			float speed = vehicle.getVelocity().speed3d() * 50;
-			if (speed > 0.02f)
-			{
-				onVehicleTick(vehicle);
-			}
-			
-			Location location = vehicle.getLocation();
-			float distance = location.distance(lastVehicleLocation);
-			if (distance == Float.POSITIVE_INFINITY) distance = 0.0f;
-			
-			if (distance > 0.0f && distance < 150.0f && distance > speed*2/3)
-			{
-				onVehicleMove(vehicle, distance);
-			}
-			else
-			{
-				onVehicleMove(vehicle, speed);
-			}
-			
-			lastVehicleLocation = location;
-		}
-	};
+		timer.destroy();
+	}
 
 	protected void onVehicleUpdate(Vehicle vehicle)
 	{

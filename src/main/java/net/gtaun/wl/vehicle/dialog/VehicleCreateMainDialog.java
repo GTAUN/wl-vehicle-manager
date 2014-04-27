@@ -20,27 +20,26 @@ package net.gtaun.wl.vehicle.dialog;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.constant.VehicleModel.VehicleType;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.wl.common.dialog.AbstractListDialog;
-import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.common.dialog.WlListDialog;
+import net.gtaun.wl.lang.LocalizedStringSet.PlayerStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 import net.gtaun.wl.vehicle.util.VehicleTextUtils;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-public class VehicleCreateMainDialog extends AbstractListDialog
+public class VehicleCreateMainDialog extends WlListDialog
 {
 	private static final Map<String, int[]> COMMON_VEHICLES = new HashMap<>();
 	static
 	{
-		// 数据提供 by yinjin116s (aka. 52_PLA)
+		// FIXME: Support multi languages
+		// Data collection by yinjin116s (aka. 52_PLA)
 		COMMON_VEHICLES.put("跑车/肌肉车",	new int[] {602, 429, 402, 506, 477, 439, 480, 555, 475, 603});
 		COMMON_VEHICLES.put("超级跑车",		new int[] {541, 415, 411, 451,558});
 		COMMON_VEHICLES.put("运动跑车",		new int[] {562, 589, 496, 565, 559, 587, 560, 550});
@@ -55,54 +54,43 @@ public class VehicleCreateMainDialog extends AbstractListDialog
 	}
 	
 	
-	public VehicleCreateMainDialog(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final VehicleManagerServiceImpl vehicleManagerService)
+	public VehicleCreateMainDialog(Player player, EventManager eventManager, AbstractDialog parent, VehicleManagerServiceImpl service)
 	{
-		super(player, shoebill, eventManager, parentDialog);
-		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		super(player, eventManager);
+		setParentDialog(parent);
 		
-		this.caption = stringSet.get(player, "Dialog.VehicleCreateMainDialog.Caption");
+		PlayerStringSet stringSet = service.getLocalizedStringSet().getStringSet(player);
+		setCaption(stringSet.get("Dialog.VehicleCreateMainDialog.Caption"));
+		setClickOkHandler((d, i) -> player.playSound(1083));
 		
-		dialogListItems.add(new DialogListItem(stringSet.get(player, "Dialog.VehicleCreateMainDialog.ItemAll"))
+		addItem(stringSet.get("Dialog.VehicleCreateMainDialog.ItemAll"), (i) ->
 		{
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				int[] vehicleModelIds = ArrayUtils.toPrimitive(VehicleModel.getIds().toArray(new Integer[0]));
-				new VehicleCreateListDialog(player, shoebill, eventManager, VehicleCreateMainDialog.this, vehicleManagerService, stringSet.get(player, "Dialog.VehicleCreateMainDialog.AllVehicleText"), vehicleModelIds).show();
-			}
+			int[] vehicleModelIds = ArrayUtils.toPrimitive(VehicleModel.getIds().toArray(new Integer[0]));
+			new VehicleCreateListDialog(player, eventManager, this, service, stringSet.get("Dialog.VehicleCreateMainDialog.AllVehicleText"), vehicleModelIds).show();
 		});
 		
-		for (Entry<String, int[]> entry : COMMON_VEHICLES.entrySet())
+		for (Map.Entry<String, int[]> entry : COMMON_VEHICLES.entrySet())
 		{
-			final String setname = entry.getKey();
-			final int[] set = entry.getValue();
+			String setName = entry.getKey();
+			int[] set = entry.getValue();
 			
-			final String itemName = stringSet.format(player, "Dialog.VehicleCreateMainDialog.ItemCommon", setname);
-			dialogListItems.add(new DialogListItem(itemName)
+			String itemName = stringSet.format("Dialog.VehicleCreateMainDialog.ItemCommon", setName);
+			
+			addItem(itemName, (d) ->
 			{
-				@Override
-				public void onItemSelect()
-				{
-					player.playSound(1083, player.getLocation());
-					new VehicleCreateListDialog(player, shoebill, eventManager, VehicleCreateMainDialog.this, vehicleManagerService, itemName, set).show();
-				}
+				new VehicleCreateListDialog(player, eventManager, this, service, itemName, set).show();
 			});
 		}
 		
-		for (final VehicleType type : VehicleType.values())
+		for (VehicleType type : VehicleType.values())
 		{			
-			final String typename = VehicleTextUtils.getVehicleTypeName(stringSet, player, type);
-			final String itemName = stringSet.format(player, "Dialog.VehicleCreateMainDialog.ItemType", typename);
-			dialogListItems.add(new DialogListItem(itemName)
+			String typeName = VehicleTextUtils.getVehicleTypeName(stringSet, type);
+			String itemName = stringSet.format("Dialog.VehicleCreateMainDialog.ItemType", typeName);
+			
+			addItem(itemName, (d) ->
 			{
-				@Override
-				public void onItemSelect()
-				{
-					player.playSound(1083, player.getLocation());
-					int[] vehicleModelIds = ArrayUtils.toPrimitive(VehicleModel.getIds(type).toArray(new Integer[0]));
-					new VehicleCreateListDialog(player, shoebill, eventManager, VehicleCreateMainDialog.this, vehicleManagerService, itemName, vehicleModelIds).show();
-				}
+				int[] vehicleModelIds = ArrayUtils.toPrimitive(VehicleModel.getIds(type).toArray(new Integer[0]));
+				new VehicleCreateListDialog(player, eventManager, VehicleCreateMainDialog.this, service, itemName, vehicleModelIds).show();
 			});
 		}
 	}

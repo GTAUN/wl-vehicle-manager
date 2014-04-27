@@ -20,7 +20,6 @@ package net.gtaun.wl.vehicle.dialog;
 
 import java.util.Set;
 
-import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
 import net.gtaun.shoebill.constant.VehicleComponentSlot;
@@ -29,74 +28,63 @@ import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.wl.common.dialog.AbstractListDialog;
-import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.common.dialog.WlListDialog;
+import net.gtaun.wl.common.dialog.WlListDialog.WlListDialogBuilder;
+import net.gtaun.wl.lang.LocalizedStringSet.PlayerStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 import net.gtaun.wl.vehicle.util.VehicleTextUtils;
 
-public class VehicleComponentDialog extends AbstractListDialog
+public class VehicleComponentDialog
 {
-	private final VehicleManagerServiceImpl vehicleManagerService;
-	private final Vehicle vehicle;
-	
-	
-	public VehicleComponentDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerServiceImpl vehicleManagerService)
+	public static WlListDialog create(Player player, EventManager eventManager, AbstractDialog parent, Vehicle vehicle, VehicleManagerServiceImpl service)
 	{
-		super(player, shoebill, eventManager, parentDialog);
-		this.vehicleManagerService = vehicleManagerService;
-		this.vehicle = vehicle;
-		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
-
-		final int vehcileModelId = vehicle.getModelId();
-		
-		final String paintjobItem = stringSet.get(player, "Component.Paintjob");
-		if (VehicleModel.isPrintjobSupported(vehcileModelId)) dialogListItems.add(new DialogListItem(paintjobItem)
-		{
-			@Override
-			public void onItemSelect()
-			{
-				player.playSound(1083, player.getLocation());
-				new VehicleComponentPaintjobDialog(player, shoebill, eventManager, VehicleComponentDialog.this, vehicle, vehicleManagerService).show();
-			}
-		});
-		
-		for (final VehicleComponentSlot slot : VehicleComponentModel.getVehicleSupportedSlots(vehcileModelId))
-		{
-			final Set<Integer> components = VehicleComponentModel.getSlotSupportedComponents(vehcileModelId, slot);
-			final String slotName = VehicleTextUtils.getComponentSlotName(stringSet, player, slot);
-			final String curName = VehicleComponentModel.getName(vehicle.getComponent().get(slot));
-			
-			final String item = stringSet.format(player, "Dialog.VehicleComponentDialog.Item", slotName, curName, components.size());
-			dialogListItems.add(new DialogListItem(item)
-			{
-				@Override
-				public void onItemSelect()
-				{
-					player.playSound(1083, player.getLocation());
-					new VehicleComponentAddDialog(player, shoebill, rootEventManager, VehicleComponentDialog.this, vehicle, vehicleManagerService, slot).show();
-				}
-			});
-		}
-	}
-	
-	@Override
-	public void show()
-	{
-		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		PlayerStringSet stringSet = service.getLocalizedStringSet().getStringSet(player);
 		
 		int modelId = vehicle.getModelId();
 		String name = VehicleModel.getName(modelId);
 		
-		if (player.getVehicle() != vehicle)
-		{
-			Location loc = vehicle.getLocation();
-			player.setCameraLookAt(loc);
-			loc.setZ(loc.getZ() + 10.0f);
-			player.setCameraPosition(loc);
-		}
-		
-		this.caption = stringSet.format(player, "Dialog.VehicleComponentDialog.Caption", name, modelId, vehicle.getHealth()/10);
-		super.show();
+		return WlListDialog.create(player, eventManager)
+			.parentDialog(parent)
+			.caption((d) -> stringSet.format("Dialog.VehicleComponentDialog.Caption", name, modelId, vehicle.getHealth()/10))
+			.execute((WlListDialogBuilder b) ->
+			{
+				String paintjobItem = stringSet.get("Component.Paintjob");
+				if (VehicleModel.isPaintjobSupported(modelId)) b.item(paintjobItem, (i) ->
+				{
+					new VehicleComponentPaintjobDialog(player, eventManager, i.getCurrentDialog(), vehicle, service).show();	
+				});
+				
+				for (VehicleComponentSlot slot : VehicleComponentModel.getVehicleSupportedSlots(modelId))
+				{
+					Set<Integer> components = VehicleComponentModel.getSlotSupportedComponents(modelId, slot);
+					String slotName = VehicleTextUtils.getComponentSlotName(stringSet, slot);
+					String curName = VehicleComponentModel.getName(vehicle.getComponent().get(slot));
+					
+					String itemText = stringSet.format("Dialog.VehicleComponentDialog.Item", slotName, curName, components.size());
+					b.item(itemText, (i) ->
+					{
+						VehicleComponentAddDialog.create(player, eventManager, i.getCurrentDialog(), vehicle, service, slot).show();
+					});
+				}
+			})
+			.onClickOk((d, i) ->
+			{
+				player.playSound(1083, player.getLocation());
+			})
+			.onShow((d) ->
+			{
+				if (player.getVehicle() == vehicle) return;
+				
+				Location loc = vehicle.getLocation();
+				player.setCameraLookAt(loc);
+				loc.setZ(loc.getZ() + 10.0f);
+				player.setCameraPosition(loc);
+			})
+			.onClose((d, t) ->
+			{
+				if (player.getVehicle() == vehicle) return;
+				player.setCameraBehind();
+			})
+			.build();
 	}
 }

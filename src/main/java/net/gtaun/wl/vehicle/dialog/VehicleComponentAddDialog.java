@@ -20,7 +20,6 @@ package net.gtaun.wl.vehicle.dialog;
 
 import java.util.Set;
 
-import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
 import net.gtaun.shoebill.constant.VehicleComponentSlot;
@@ -29,63 +28,47 @@ import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.wl.common.dialog.AbstractListDialog;
-import net.gtaun.wl.lang.LocalizedStringSet;
+import net.gtaun.wl.common.dialog.WlListDialog;
+import net.gtaun.wl.common.dialog.WlListDialog.WlListDialogBuilder;
+import net.gtaun.wl.lang.LocalizedStringSet.PlayerStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 import net.gtaun.wl.vehicle.util.VehicleTextUtils;
 
-public class VehicleComponentAddDialog extends AbstractListDialog
-{
-	private final VehicleManagerServiceImpl vehicleManagerService;
-	private final Vehicle vehicle;
-	private final VehicleComponentSlot componentSlot;
-	
-	
-	public VehicleComponentAddDialog
-	(final Player player, final Shoebill shoebill, final EventManager eventManager, final AbstractDialog parentDialog, final Vehicle vehicle, final VehicleManagerServiceImpl vehicleManagerService, final VehicleComponentSlot slot)
+public class VehicleComponentAddDialog
+{	
+	public static WlListDialog create
+	(Player player, EventManager eventManager, AbstractDialog parent, Vehicle vehicle, VehicleManagerServiceImpl service, VehicleComponentSlot slot)
 	{
-		super(player, shoebill, eventManager, parentDialog);
-		this.vehicleManagerService = vehicleManagerService;
-		this.vehicle = vehicle;
-		this.componentSlot = slot;
-		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
+		PlayerStringSet stringSet = service.getLocalizedStringSet().getStringSet(player);
 
-		final int modelId = vehicle.getModelId();
-		final String name = VehicleModel.getName(modelId);
-		
-		final Set<Integer> components = VehicleComponentModel.getSlotSupportedComponents(modelId, slot);
-		final String slotName = VehicleTextUtils.getComponentSlotName(stringSet, player, slot);
-		
-		for (final int cid : components)
-		{
-			final String componentName = VehicleComponentModel.getName(cid);
-			final String item = stringSet.format(player, "Dialog.VehicleComponentAddDialog.Item", slotName, componentName);
-			
-			dialogListItems.add(new DialogListItem(item)
-			{
-				@Override
-				public void onItemSelect()
-				{
-					player.playSound(1133, player.getLocation());
-					player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Dialog.VehicleComponentAddDialog.AddMessage", name, slotName, componentName));
-					
-					vehicle.getComponent().add(cid);
-					showParentDialog();
-				}
-			});
-		}
-	}
-	
-	@Override
-	public void show()
-	{
-		final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
-		
 		int modelId = vehicle.getModelId();
 		String name = VehicleModel.getName(modelId);
-		String slotName = VehicleTextUtils.getComponentSlotName(stringSet, player, componentSlot);
 		
-		this.caption = stringSet.format(player, "Dialog.VehicleComponentAddDialog.Caption", name, slotName);
-		super.show();
+		Set<Integer> components = VehicleComponentModel.getSlotSupportedComponents(modelId, slot);
+		String slotName = VehicleTextUtils.getComponentSlotName(stringSet, slot);
+		
+		return WlListDialog.create(player, eventManager)
+			.parentDialog(parent)
+			.caption(stringSet.format("Dialog.VehicleComponentAddDialog.Caption", name, slotName))
+			.execute((WlListDialogBuilder b) ->
+			{
+				for (int cid : components)
+				{
+					String componentName = VehicleComponentModel.getName(cid);
+					String itemText = stringSet.format("Dialog.VehicleComponentAddDialog.Item", slotName, componentName);
+					
+					b.item(itemText, (i) ->
+					{
+						stringSet.sendMessage(Color.LIGHTBLUE, "Dialog.VehicleComponentAddDialog.AddMessage", name, slotName, componentName);
+						vehicle.getComponent().add(cid);
+					});
+				}
+			})
+			.onClickOk((d, i) ->
+			{
+				player.playSound(1133, player.getLocation());
+				d.showParentDialog();
+			})
+			.build();
 	}
 }
