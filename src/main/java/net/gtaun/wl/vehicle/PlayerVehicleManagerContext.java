@@ -91,6 +91,14 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 		this.vehicleManagerService = vehicleManager;
 		this.datastore = datastore;
 		
+		String uniqueId = player.getName();
+		
+		PlayerPreferencesImpl pref = datastore.createQuery(PlayerPreferencesImpl.class).filter("playerUniqueId", uniqueId).get();
+		if (pref != null) pref.setContext(eventManager, player);
+		else pref = new PlayerPreferencesImpl(eventManager, player, uniqueId);
+		playerPreferences = pref;
+		effectivePlayerPreferences = new PlayerOverridePreferences(pref, eventManager);
+		
 		timer = Timer.create(10000, (factualInterval) ->
 		{
 			if (player.getState() == PlayerState.DRIVER)
@@ -103,16 +111,7 @@ class PlayerVehicleManagerContext extends AbstractPlayerContext
 				}
 			}
 		});
-		
 		addDestroyable(timer);
-		
-		String uniqueId = player.getName();
-		
-		PlayerPreferencesImpl pref = datastore.createQuery(PlayerPreferencesImpl.class).filter("playerUniqueId", uniqueId).get();
-		if (pref != null) pref.setContext(eventManager, player);
-		else pref = new PlayerPreferencesImpl(eventManager, player, uniqueId);
-		playerPreferences = pref;
-		effectivePlayerPreferences = new PlayerOverridePreferences(pref, eventManager);
 		
 		rootEventManager.registerHandler(PlayerPreferencesUpdateEvent.class, HandlerPriority.NORMAL, Attentions.create().object(effectivePlayerPreferences), (e) ->
 		{

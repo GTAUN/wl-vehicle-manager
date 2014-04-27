@@ -47,6 +47,10 @@ public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
 	public AbstractPlayerVehicleProbe(EventManager rootEventManager, Player player)
 	{
 		super(rootEventManager, player);
+
+		allowableStates = new HashSet<>();
+		allowableStates.add(PlayerState.DRIVER);
+		
 		timer = Timer.create(1000, (factualInterval) ->
 		{
 			if (allowableStates.contains(player.getState()) == false) return;
@@ -75,9 +79,6 @@ public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
 			
 			lastVehicleLocation = location;
 		});
-		
-		allowableStates = new HashSet<>();
-		allowableStates.add(PlayerState.DRIVER);
 	}
 	
 	protected void allowState(PlayerState state)

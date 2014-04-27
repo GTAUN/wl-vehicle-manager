@@ -29,7 +29,6 @@ import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.dialog.WlListDialog;
-import net.gtaun.wl.common.dialog.WlListDialog.WlListDialogBuilder;
 import net.gtaun.wl.lang.LocalizedStringSet.PlayerStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 import net.gtaun.wl.vehicle.util.VehicleTextUtils;
@@ -46,7 +45,7 @@ public class VehicleComponentDialog
 		return WlListDialog.create(player, eventManager)
 			.parentDialog(parent)
 			.caption((d) -> stringSet.format("Dialog.VehicleComponentDialog.Caption", name, modelId, vehicle.getHealth()/10))
-			.execute((WlListDialogBuilder b) ->
+			.execute((b) ->
 			{
 				String paintjobItem = stringSet.get("Component.Paintjob");
 				if (VehicleModel.isPaintjobSupported(modelId)) b.item(paintjobItem, (i) ->

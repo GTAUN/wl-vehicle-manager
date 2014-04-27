@@ -25,7 +25,6 @@ import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.dialog.WlListDialog;
-import net.gtaun.wl.common.dialog.WlListDialog.WlListDialogBuilder;
 import net.gtaun.wl.lang.LocalizedStringSet.PlayerStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 
@@ -89,7 +88,7 @@ public class VehicleResprayGroupDialog
 		return WlListDialog.create(player, eventManager)
 			.parentDialog(parent)
 			.caption(stringSet.format("Dialog.VehicleResprayGroupDialog.Caption", name, type, modelId, vehicle.getHealth()/10))
-			.execute((WlListDialogBuilder b) ->
+			.execute((b) ->
 			{
 				for (int i=0; i<VEHICLE_COLOR_TABLE_RGBA.length; i+=10)
 				{

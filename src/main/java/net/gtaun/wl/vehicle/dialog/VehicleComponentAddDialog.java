@@ -29,7 +29,6 @@ import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.dialog.WlListDialog;
-import net.gtaun.wl.common.dialog.WlListDialog.WlListDialogBuilder;
 import net.gtaun.wl.lang.LocalizedStringSet.PlayerStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 import net.gtaun.wl.vehicle.util.VehicleTextUtils;
@@ -50,7 +49,7 @@ public class VehicleComponentAddDialog
 		return WlListDialog.create(player, eventManager)
 			.parentDialog(parent)
 			.caption(stringSet.format("Dialog.VehicleComponentAddDialog.Caption", name, slotName))
-			.execute((WlListDialogBuilder b) ->
+			.execute((b) ->
 			{
 				for (int cid : components)
 				{
