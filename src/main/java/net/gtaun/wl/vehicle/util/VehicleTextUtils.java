@@ -14,6 +14,7 @@ public final class VehicleTextUtils
 	private static final Map<VehicleComponentSlot, String> COMPONENT_SLOT_NAME_KEYS = new HashMap<>();
 	static
 	{
+		COMPONENT_SLOT_NAME_KEYS.put(null,								"Component.Slot.Unknown");
 		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.SPOILER,		"Component.Slot.Spoiler");
 		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.SPOILER,		"Component.Slot.Spoiler");
 		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.HOOD,			"Component.Slot.Hood");
@@ -29,12 +30,13 @@ public final class VehicleTextUtils
 		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.REAR_BUMPER,	"Component.Slot.RearBumper");
 		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.VENT_RIGHT,	"Component.Slot.VentRight");
 		COMPONENT_SLOT_NAME_KEYS.put(VehicleComponentSlot.VENT_LEFT,	"Component.Slot.VentLeft");
-		COMPONENT_SLOT_NAME_KEYS.put(null,								"Component.Slot.Unknown");
 	}
 	
 	private static final Map<VehicleType, String> VEHICLE_TYPE_NAME_KEYS = new HashMap<>();
 	static
 	{
+		VEHICLE_TYPE_NAME_KEYS.put(null,						"Vehicle.Type.Unknown");
+		VEHICLE_TYPE_NAME_KEYS.put(VehicleType.UNKNOWN, 		"Vehicle.Type.Unknown");
 		VEHICLE_TYPE_NAME_KEYS.put(VehicleType.BICYCLE,			"Vehicle.Type.Bicycle");
 		VEHICLE_TYPE_NAME_KEYS.put(VehicleType.MOTORBIKE,		"Vehicle.Type.Motorbike");
 		VEHICLE_TYPE_NAME_KEYS.put(VehicleType.CAR,				"Vehicle.Type.Car");
@@ -45,7 +47,6 @@ public final class VehicleTextUtils
 		VEHICLE_TYPE_NAME_KEYS.put(VehicleType.AIRCRAFT,		"Vehicle.Type.Aircraft");
 		VEHICLE_TYPE_NAME_KEYS.put(VehicleType.HELICOPTER,		"Vehicle.Type.Helicopter");
 		VEHICLE_TYPE_NAME_KEYS.put(VehicleType.TANK, 			"Vehicle.Type.Tank");
-		VEHICLE_TYPE_NAME_KEYS.put(null,						"Vehicle.Type.Unknown");
 	}
 	
 
