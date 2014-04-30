@@ -23,19 +23,10 @@ import java.util.Comparator;
 import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.object.Vehicle;
 
-public class NearbyVehicleComparator implements Comparator<Vehicle>
+public class VehicleComparators
 {
-	private final Location location;
-	
-	
-	public NearbyVehicleComparator(Location loc)
+	public static Comparator<Vehicle> nearby(Location loc)
 	{
-		location = loc;
-	}
-
-	@Override
-	public int compare(Vehicle o1, Vehicle o2)
-	{
-		return (int) (o1.getLocation().distance(location) - o2.getLocation().distance(location));
+		return (o1, o2) -> (int) (o1.getLocation().distance(loc) - o2.getLocation().distance(loc));
 	}
 }

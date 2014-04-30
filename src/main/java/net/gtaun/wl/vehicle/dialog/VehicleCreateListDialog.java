@@ -88,7 +88,6 @@ public class VehicleCreateListDialog extends WlPageListDialog
 	private Comparator<Integer> modelIdComparator;
 	
 	
-	
 	public VehicleCreateListDialog
 	(Player player, EventManager eventManager, AbstractDialog parent, VehicleManagerServiceImpl service, String setName, int[] modelIds)
 	{

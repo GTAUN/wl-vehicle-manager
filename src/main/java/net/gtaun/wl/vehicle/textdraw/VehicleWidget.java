@@ -20,7 +20,7 @@ package net.gtaun.wl.vehicle.textdraw;
 
 import static net.gtaun.wl.common.textdraw.TextDrawUtils.convertCharacters;
 import net.gtaun.shoebill.common.ColorUtils;
-import net.gtaun.shoebill.common.player.AbstractPlayerContext;
+import net.gtaun.shoebill.common.player.PlayerLifecycleObject;
 import net.gtaun.shoebill.constant.TextDrawAlign;
 import net.gtaun.shoebill.constant.TextDrawFont;
 import net.gtaun.shoebill.data.Color;
@@ -36,7 +36,7 @@ import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic;
 import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic.StatisticType;
 
-public class VehicleWidget extends AbstractPlayerContext
+public class VehicleWidget extends PlayerLifecycleObject
 {
 	private final VehicleManagerServiceImpl vehicleManagerService;
 	

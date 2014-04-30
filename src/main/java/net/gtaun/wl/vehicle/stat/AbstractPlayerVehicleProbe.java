@@ -21,7 +21,7 @@ package net.gtaun.wl.vehicle.stat;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.gtaun.shoebill.common.player.AbstractPlayerContext;
+import net.gtaun.shoebill.common.player.PlayerLifecycleObject;
 import net.gtaun.shoebill.constant.PlayerState;
 import net.gtaun.shoebill.data.Location;
 import net.gtaun.shoebill.event.player.PlayerStateChangeEvent;
@@ -33,7 +33,7 @@ import net.gtaun.util.event.Attentions;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.util.event.HandlerPriority;
 
-public abstract class AbstractPlayerVehicleProbe extends AbstractPlayerContext
+public abstract class AbstractPlayerVehicleProbe extends PlayerLifecycleObject
 {
 	private final Timer timer;
 	private final Set<PlayerState> allowableStates;

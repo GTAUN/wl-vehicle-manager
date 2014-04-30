@@ -21,11 +21,11 @@ package net.gtaun.wl.vehicle.dialog;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-import net.gtaun.shoebill.common.Filter;
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.Location;
@@ -37,17 +37,16 @@ import net.gtaun.wl.common.dialog.WlPageListDialog;
 import net.gtaun.wl.lang.LocalizedStringSet.PlayerStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 
-
 public class EmptyVehicleListDialog extends WlPageListDialog
 {
 	private final VehicleManagerServiceImpl service;
 	private final Comparator<Vehicle> comparator;
-	private final Filter<Vehicle> filter;
+	private final Predicate<Vehicle> filter;
 	
 	private final PlayerStringSet stringSet;
 	
 	
-	public EmptyVehicleListDialog(Player player, EventManager eventManager, AbstractDialog parent, VehicleManagerServiceImpl service, Comparator<Vehicle> comparator, Filter<Vehicle> filter)
+	public EmptyVehicleListDialog(Player player, EventManager eventManager, AbstractDialog parent, VehicleManagerServiceImpl service, Comparator<Vehicle> comparator, Predicate<Vehicle> filter)
 	{
 		super(player, eventManager);
 		setParentDialog(parent);
@@ -71,33 +70,31 @@ public class EmptyVehicleListDialog extends WlPageListDialog
 		Set<Vehicle> occupiedVehicles = new HashSet<>();
 		for (Player player : players) if (player.isInAnyVehicle()) occupiedVehicles.add(player.getVehicle());
 		
-		SortedSet<Vehicle> sortedVehicles = new TreeSet<>(comparator);
-		for (Vehicle vehicle : vehicles)
-		{
-			if (occupiedVehicles.contains(vehicle) == false && service.isOwned(vehicle) == false && filter.isAcceptable(vehicle))
-			{
-				sortedVehicles.add(vehicle);
-			}
-		}
+		List<Vehicle> sortedVehicles = vehicles.stream()
+			.filter((v) -> !occupiedVehicles.contains(v))
+			.filter((v) -> service.isOwned(v))
+			.filter(filter)
+			.sorted(comparator)
+			.collect(Collectors.toList());
 		
 		items.clear();
 		for (Vehicle vehicle : sortedVehicles)
 		{
 			float distance = playerLoc.distance(vehicle.getLocation());
 			addItem(() ->
-				{
-					String format = stringSet.get("Dialog.EmptyVehicleListDialog.Item");
-					if (player.isAdmin()) format = stringSet.get("Dialog.EmptyVehicleListDialog.ItemAdmin");
+			{
+				String format = stringSet.get("Dialog.EmptyVehicleListDialog.Item");
+				if (player.isAdmin()) format = stringSet.get("Dialog.EmptyVehicleListDialog.ItemAdmin");
 					
-					int modelId = vehicle.getModelId();
-					String modelName = VehicleModel.getName(modelId);
+				int modelId = vehicle.getModelId();
+				String modelName = VehicleModel.getName(modelId);
 					
-					return String.format(format, vehicle.getId(), modelName, modelId, distance, UnitUtils.meterToYard(distance));
-				}, (i) ->
-				{
-					player.playSound(1083);
-					VehicleDialog.create(player, eventManagerNode.getParent(), this, vehicle, service).show();
-				});
+				return String.format(format, vehicle.getId(), modelName, modelId, distance, UnitUtils.meterToYard(distance));
+			}, (i) ->
+			{
+				player.playSound(1083);
+				VehicleDialog.create(player, eventManagerNode.getParent(), this, vehicle, service).show();
+			});
 		}
 
 		super.show();

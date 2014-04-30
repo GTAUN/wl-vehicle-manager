@@ -29,8 +29,8 @@ import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.common.dialog.WlListDialog;
 import net.gtaun.wl.lang.LocalizedStringSet.PlayerStringSet;
 import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
-import net.gtaun.wl.vehicle.util.DistanceVehicleFilter;
-import net.gtaun.wl.vehicle.util.NearbyVehicleComparator;
+import net.gtaun.wl.vehicle.util.VehicleComparators;
+import net.gtaun.wl.vehicle.util.VehicleFilters;
 
 public class VehicleManagerDialog
 {
@@ -66,7 +66,7 @@ public class VehicleManagerDialog
 				Location loc = player.getLocation();
 				new EmptyVehicleListDialog(
 					player, eventManager, i.getCurrentDialog(), service,
-					new NearbyVehicleComparator(loc), new DistanceVehicleFilter(loc, 500.0f)
+					VehicleComparators.nearby(loc), VehicleFilters.distance(loc, 500.0f)
 				).show();
 			})
 			

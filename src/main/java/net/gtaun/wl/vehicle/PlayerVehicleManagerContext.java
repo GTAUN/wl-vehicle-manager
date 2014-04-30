@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.gtaun.shoebill.common.player.AbstractPlayerContext;
+import net.gtaun.shoebill.common.player.PlayerLifecycleObject;
 import net.gtaun.shoebill.common.vehicle.VehicleUtils;
 import net.gtaun.shoebill.constant.PlayerKey;
 import net.gtaun.shoebill.constant.PlayerState;
@@ -55,7 +55,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.code.morphia.Datastore;
 
-class PlayerVehicleManagerContext extends AbstractPlayerContext
+class PlayerVehicleManagerContext extends PlayerLifecycleObject
 {
 	private static final Map<String, Integer> VEHICLE_SHORT_NAMES = createVehicleShortNames();
 	private static Map<String, Integer> createVehicleShortNames()
