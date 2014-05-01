@@ -52,8 +52,7 @@ import net.gtaun.wl.vehicle.textdraw.VehicleWidget;
 import net.gtaun.wl.vehicle.util.PlayerOverridePreferences;
 
 import org.apache.commons.lang3.StringUtils;
-
-import com.google.code.morphia.Datastore;
+import org.mongodb.morphia.Datastore;
 
 class PlayerVehicleManagerContext extends PlayerLifecycleObject
 {

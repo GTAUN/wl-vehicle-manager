@@ -19,19 +19,22 @@
 package net.gtaun.wl.vehicle;
 
 import java.io.File;
+import java.util.Arrays;
 
 import net.gtaun.shoebill.common.ConfigurablePlugin;
 import net.gtaun.wl.vehicle.stat.GlobalVehicleStatisticImpl;
 import net.gtaun.wl.vehicle.stat.PlayerVehicleStatisticImpl;
 
+import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.Morphia;
+import org.mongodb.morphia.mapping.DefaultCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.code.morphia.Datastore;
-import com.google.code.morphia.Morphia;
-import com.google.code.morphia.mapping.DefaultCreator;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
 
 public class VehicleManagerPlugin extends ConfigurablePlugin
 {
@@ -57,7 +60,18 @@ public class VehicleManagerPlugin extends ConfigurablePlugin
 	{
 		config = new VehicleManagerConfig(new File(getDataDir(), "config.yml"));
 		
-		mongoClient = new MongoClient(config.getDbHost());
+		if (config.getDbUser().isEmpty() || config.getDbPass().isEmpty())
+		{
+			mongoClient = new MongoClient(config.getDbHost());
+		}
+		else
+		{
+			mongoClient = new MongoClient
+			(
+				Arrays.asList(new ServerAddress(config.getDbHost())),
+				Arrays.asList(MongoCredential.createMongoCRCredential(config.getDbName(), config.getDbName(), config.getDbPass().toCharArray()))
+			);
+		}
 		
 		morphia = new Morphia();
 		morphia.getMapper().getOptions().objectFactory = new DefaultCreator()
@@ -71,14 +85,7 @@ public class VehicleManagerPlugin extends ConfigurablePlugin
 		morphia.map(GlobalVehicleStatisticImpl.class);
 		morphia.map(PlayerVehicleStatisticImpl.class);
 		
-		if (config.getDbUser().isEmpty() || config.getDbPass().isEmpty())
-		{
-			datastore = morphia.createDatastore(mongoClient, config.getDbName());
-		}
-		else
-		{
-			datastore = morphia.createDatastore(mongoClient, config.getDbName(), config.getDbUser(), config.getDbPass().toCharArray());
-		}
+		datastore = morphia.createDatastore(mongoClient, config.getDbName());
 		
 		vehicleManagerSerivce = new VehicleManagerServiceImpl(getEventManager(), this, datastore);
 		registerService(VehicleManagerService.class, vehicleManagerSerivce);

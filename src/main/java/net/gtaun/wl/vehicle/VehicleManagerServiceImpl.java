@@ -60,7 +60,7 @@ import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatisticImpl;
 import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
 import net.gtaun.wl.vehicle.stat.VehicleStatisticManager;
 
-import com.google.code.morphia.Datastore;
+import org.mongodb.morphia.Datastore;
 
 public class VehicleManagerServiceImpl extends AbstractShoebillContext implements VehicleManagerService
 {

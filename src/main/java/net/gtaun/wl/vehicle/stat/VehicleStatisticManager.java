@@ -32,7 +32,7 @@ import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Timer;
 import net.gtaun.util.event.EventManager;
 
-import com.google.code.morphia.Datastore;
+import org.mongodb.morphia.Datastore;
 
 public class VehicleStatisticManager extends AbstractShoebillContext
 {

@@ -20,9 +20,9 @@ package net.gtaun.wl.vehicle.stat;
 
 import java.util.Date;
 
-import com.google.code.morphia.annotations.Entity;
-import com.google.code.morphia.annotations.Id;
-import com.google.code.morphia.annotations.PostLoad;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.PostLoad;
 
 @Entity("GlobalVehicleStatistic")
 public class GlobalVehicleStatisticImpl implements GlobalVehicleStatistic

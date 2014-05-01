@@ -23,11 +23,10 @@ import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.vehicle.event.PlayerPreferencesUpdateEvent;
 
 import org.bson.types.ObjectId;
-
-import com.google.code.morphia.annotations.Entity;
-import com.google.code.morphia.annotations.Id;
-import com.google.code.morphia.annotations.Indexed;
-import com.google.code.morphia.annotations.Transient;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Indexed;
+import org.mongodb.morphia.annotations.Transient;
 
 @Entity("VehicleManagerPlayerPreferences")
 public final class PlayerPreferencesImpl implements PlayerPreferences

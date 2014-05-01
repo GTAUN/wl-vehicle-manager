@@ -33,7 +33,7 @@ import net.gtaun.shoebill.object.Vehicle;
 import net.gtaun.util.event.EventManager;
 import net.gtaun.wl.vehicle.stat.OncePlayerVehicleStatistic.StatisticType;
 
-import com.google.code.morphia.Datastore;
+import org.mongodb.morphia.Datastore;
 
 public class PlayerVehicleStatisticContext extends AbstractPlayerVehicleProbe
 {
