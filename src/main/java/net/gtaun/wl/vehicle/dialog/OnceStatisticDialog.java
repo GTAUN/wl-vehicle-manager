@@ -56,7 +56,7 @@ public class OnceStatisticDialog
 		String startTimeStr = (startTime == null) ?
 			stringSet.get("Time.NA") : DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(startTime);
 		
-		Date endTime = stat.getEndTime();	
+		Date endTime = stat.getEndTime();
 		String endTimeStr = (endTime == null) ?
 			stringSet.get("Time.NA") : DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(endTime);
 		

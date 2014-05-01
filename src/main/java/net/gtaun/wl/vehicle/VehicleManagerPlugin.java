@@ -76,12 +76,12 @@ public class VehicleManagerPlugin extends ConfigurablePlugin
 		morphia = new Morphia();
 		morphia.getMapper().getOptions().objectFactory = new DefaultCreator()
 		{
-            @Override
-            protected ClassLoader getClassLoaderForClass(String clazz, DBObject object)
-            {
-                return getClass().getClassLoader();
-            }
-        };
+			@Override
+			protected ClassLoader getClassLoaderForClass(String clazz, DBObject object)
+			{
+				return getClass().getClassLoader();
+			}
+		};
 		morphia.map(GlobalVehicleStatisticImpl.class);
 		morphia.map(PlayerVehicleStatisticImpl.class);
 		

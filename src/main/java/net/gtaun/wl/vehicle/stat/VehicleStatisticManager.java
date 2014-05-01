@@ -65,9 +65,10 @@ public class VehicleStatisticManager extends AbstractShoebillContext
 		saveTimer = Timer.create(1000*60*5, (factualInterval) -> save());
 		saveTimer.start();
 		
-		addDestroyable(saveTimer);		
+		addDestroyable(saveTimer);
 	}
 	
+	@Override
 	protected void onDestroy()
 	{
 		save();

@@ -118,6 +118,7 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 		init();
 	}
 	
+	@Override
 	protected void onInit()
 	{
 		playerLifecycleHolder.registerClass(PlayerVehicleManagerContext.class, (eventManager, player) ->
@@ -201,6 +202,7 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 		addDestroyable(statisticManager);
 	}
 
+	@Override
 	protected void onDestroy()
 	{
 		

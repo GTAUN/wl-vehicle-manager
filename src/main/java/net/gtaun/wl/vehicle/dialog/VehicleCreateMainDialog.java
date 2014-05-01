@@ -83,7 +83,7 @@ public class VehicleCreateMainDialog extends WlListDialog
 		}
 		
 		for (VehicleType type : VehicleType.values())
-		{			
+		{
 			String typeName = VehicleTextUtils.getVehicleTypeName(stringSet, type);
 			String itemName = stringSet.format("Dialog.VehicleCreateMainDialog.ItemType", typeName);
 			

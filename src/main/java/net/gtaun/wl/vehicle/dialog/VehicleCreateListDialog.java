@@ -110,10 +110,10 @@ public class VehicleCreateListDialog extends WlPageListDialog
 			(int) (service.getPlayerVehicleStatistic(player, o2).getDriveCount() - service.getPlayerVehicleStatistic(player, o1).getDriveCount()));
 		
 		modelIdComparators.add((o1, o2) ->
-			(int) (VehicleModel.getSeats(o2) - VehicleModel.getSeats(o1)));
+			(VehicleModel.getSeats(o2) - VehicleModel.getSeats(o1)));
 		
 		modelIdComparators.add((o1, o2) ->
-			(int) (VehicleModel.getType(o1).ordinal() - VehicleModel.getType(o2).ordinal()));
+			(VehicleModel.getType(o1).ordinal() - VehicleModel.getType(o2).ordinal()));
 		
 		modelIdComparator = modelIdComparators.get(0);
 		changeSortMode(0);

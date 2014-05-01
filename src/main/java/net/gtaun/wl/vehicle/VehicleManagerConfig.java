@@ -43,7 +43,7 @@ public class VehicleManagerConfig
 		config.setDefault("mongodb.host", "localhost:27017");
 		config.setDefault("mongodb.dbName", "VehicleManager");
 		config.setDefault("mongodb.user", "");
-		config.setDefault("mongodb.pass", "");	
+		config.setDefault("mongodb.pass", "");
 		config.setDefault("menuCommand.vehicleManager", "/v");
 		config.setDefault("menuCommand.myVehicle", "/myveh");
 		config.setDefault("nearbyVehicleDialog.distance", "500.0");

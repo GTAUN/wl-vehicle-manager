@@ -34,7 +34,7 @@ import net.gtaun.wl.vehicle.VehicleManagerServiceImpl;
 import net.gtaun.wl.vehicle.util.VehicleTextUtils;
 
 public class VehicleComponentAddDialog
-{	
+{
 	public static WlListDialog create
 	(Player player, EventManager eventManager, AbstractDialog parent, Vehicle vehicle, VehicleManagerServiceImpl service, VehicleComponentSlot slot)
 	{

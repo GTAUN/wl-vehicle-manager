@@ -103,7 +103,7 @@ public class VehicleDialog
 				vehicle.setLocation(player.getLocation());
 				vehicle.putPlayer(player, 0);
 	
-				stringSet.sendMessage(Color.LIGHTBLUE, "Dialog.VehicleDialog.FetchMessage", VehicleModel.getName(vehicle.getModelId()));	
+				stringSet.sendMessage(Color.LIGHTBLUE, "Dialog.VehicleDialog.FetchMessage", VehicleModel.getName(vehicle.getModelId()));
 			})
 			
 			.item(stringSet.get("Dialog.VehicleDialog.Repair"), () ->
@@ -175,7 +175,7 @@ public class VehicleDialog
 				})
 				.build())
 				
-			.item(stringSet.get("Dialog.VehicleDialog.PersonalStatistics"), (i) -> 
+			.item(stringSet.get("Dialog.VehicleDialog.PersonalStatistics"), (i) ->
 			{
 				player.playSound(1083, player.getLocation());
 				PlayerVehicleStatisticDialog.create(player, eventManager, i.getCurrentDialog(), vehicle, service).show();

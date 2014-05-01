@@ -50,7 +50,7 @@ public class VehicleComponentDialog
 				String paintjobItem = stringSet.get("Component.Paintjob");
 				if (VehicleModel.isPaintjobSupported(modelId)) b.item(paintjobItem, (i) ->
 				{
-					new VehicleComponentPaintjobDialog(player, eventManager, i.getCurrentDialog(), vehicle, service).show();	
+					new VehicleComponentPaintjobDialog(player, eventManager, i.getCurrentDialog(), vehicle, service).show();
 				});
 				
 				for (VehicleComponentSlot slot : VehicleComponentModel.getVehicleSupportedSlots(modelId))
