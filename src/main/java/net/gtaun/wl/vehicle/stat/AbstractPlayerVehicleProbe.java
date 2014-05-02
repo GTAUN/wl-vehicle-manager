@@ -118,7 +118,7 @@ public abstract class AbstractPlayerVehicleProbe extends PlayerLifecycleObject
 	{
 		setNowVehicle(player.getVehicle());
 		
-		eventManager.registerHandler(PlayerStateChangeEvent.class, HandlerPriority.MONITOR, Attentions.create().object(player), (e) ->
+		eventManagerNode.registerHandler(PlayerStateChangeEvent.class, HandlerPriority.MONITOR, Attentions.create().object(player), (e) ->
 		{
 			if (allowableStates.contains(player.getState()))
 			{
@@ -131,7 +131,7 @@ public abstract class AbstractPlayerVehicleProbe extends PlayerLifecycleObject
 			}
 		});
 
-		eventManager.registerHandler(VehicleUpdateEvent.class, HandlerPriority.MONITOR, (e) ->
+		eventManagerNode.registerHandler(VehicleUpdateEvent.class, HandlerPriority.MONITOR, (e) ->
 		{
 			Vehicle vehicle = e.getVehicle();
 			if (allowableStates.contains(player.getState()) == false || vehicle != player.getVehicle()) return;

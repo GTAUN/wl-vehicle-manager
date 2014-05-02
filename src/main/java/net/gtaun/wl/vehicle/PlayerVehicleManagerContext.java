@@ -93,10 +93,10 @@ class PlayerVehicleManagerContext extends PlayerLifecycleObject
 		String uniqueId = player.getName();
 		
 		PlayerPreferencesImpl pref = datastore.createQuery(PlayerPreferencesImpl.class).filter("playerUniqueId", uniqueId).get();
-		if (pref != null) pref.setContext(eventManager, player);
-		else pref = new PlayerPreferencesImpl(eventManager, player, uniqueId);
+		if (pref != null) pref.setContext(eventManagerNode, player);
+		else pref = new PlayerPreferencesImpl(eventManagerNode, player, uniqueId);
 		playerPreferences = pref;
-		effectivePlayerPreferences = new PlayerOverridePreferences(pref, eventManager);
+		effectivePlayerPreferences = new PlayerOverridePreferences(pref, eventManagerNode);
 		
 		timer = Timer.create(10000, (factualInterval) ->
 		{
@@ -140,7 +140,7 @@ class PlayerVehicleManagerContext extends PlayerLifecycleObject
 	@Override
 	protected void onInit()
 	{
-		eventManager.registerHandler(PlayerTextEvent.class, HandlerPriority.MONITOR, Attentions.create().object(player), (e) ->
+		eventManagerNode.registerHandler(PlayerTextEvent.class, HandlerPriority.MONITOR, Attentions.create().object(player), (e) ->
 		{
 			final LocalizedStringSet stringSet = vehicleManagerService.getLocalizedStringSet();
 			
@@ -189,7 +189,7 @@ class PlayerVehicleManagerContext extends PlayerLifecycleObject
 			player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Command.CreateVehicle.Message", VehicleModel.getName(vehicle.getModelId())));
 		});
 
-		eventManager.registerHandler(PlayerKeyStateChangeEvent.class, HandlerPriority.NORMAL, Attentions.create().object(player), (e) ->
+		eventManagerNode.registerHandler(PlayerKeyStateChangeEvent.class, HandlerPriority.NORMAL, Attentions.create().object(player), (e) ->
 		{
 			Player player = e.getPlayer();
 			PlayerState state = player.getState();
@@ -235,7 +235,7 @@ class PlayerVehicleManagerContext extends PlayerLifecycleObject
 			createOrDestroySpeedometerWidget();
 		});
 		
-		eventManager.registerHandler(PlayerStateChangeEvent.class, HandlerPriority.NORMAL, Attentions.create().object(player), (e) ->
+		eventManagerNode.registerHandler(PlayerStateChangeEvent.class, HandlerPriority.NORMAL, Attentions.create().object(player), (e) ->
 		{
 			Player player = e.getPlayer();
 			PlayerKeyState state = player.getKeyState();
@@ -270,7 +270,7 @@ class PlayerVehicleManagerContext extends PlayerLifecycleObject
 			}
 		});
 		
-		eventManager.registerHandler(VehicleUpdateEvent.class, HandlerPriority.BOTTOM, (e) ->
+		eventManagerNode.registerHandler(VehicleUpdateEvent.class, HandlerPriority.BOTTOM, (e) ->
 		{
 			Vehicle vehicle = e.getVehicle();
 			if (player.getState() != PlayerState.DRIVER || vehicle != player.getVehicle()) return;
@@ -300,7 +300,7 @@ class PlayerVehicleManagerContext extends PlayerLifecycleObject
 			if (effectivePlayerPreferences.isAutoRepair() && vehicle.getHealth() < 1000.0f) vehicle.repair();
 		});
 		
-		eventManager.registerHandler(VehicleUpdateDamageEvent.class, HandlerPriority.BOTTOM, (e) ->
+		eventManagerNode.registerHandler(VehicleUpdateDamageEvent.class, HandlerPriority.BOTTOM, (e) ->
 		{
 			Vehicle vehicle = e.getVehicle();
 			if (player.getState() != PlayerState.DRIVER || vehicle != player.getVehicle()) return;
