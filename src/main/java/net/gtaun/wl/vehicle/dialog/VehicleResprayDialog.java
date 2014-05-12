@@ -60,7 +60,7 @@ public class VehicleResprayDialog
 					});
 				}
 			})
-			.onClickOk((d, i) -> player.playSound(1083, player.getLocation()))
+			.onClickOk((d, i) -> player.playSound(1083))
 			.build();
 	}
 }

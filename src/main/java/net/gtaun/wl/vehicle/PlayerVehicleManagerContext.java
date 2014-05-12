@@ -183,7 +183,7 @@ class PlayerVehicleManagerContext extends PlayerLifecycleObject
 				modelId = VEHICLE_SHORT_NAMES.get(name);
 			}
 			
-			player.playSound(1057, player.getLocation());
+			player.playSound(1057);
 			Vehicle vehicle = vehicleManagerService.createOwnVehicle(player, modelId);
 			vehicle.putPlayer(player, 0);
 			player.sendMessage(Color.LIGHTBLUE, stringSet.format(player, "Command.CreateVehicle.Message", VehicleModel.getName(vehicle.getModelId())));

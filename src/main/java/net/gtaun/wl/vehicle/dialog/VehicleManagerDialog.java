@@ -106,7 +106,7 @@ public class VehicleManagerDialog
 					.message(message)
 					.build().show();
 			})
-			.onClickOk((d, i) -> player.playSound(1083, player.getLocation()))
+			.onClickOk((d, i) -> player.playSound(1083))
 			.build();
 	}
 }

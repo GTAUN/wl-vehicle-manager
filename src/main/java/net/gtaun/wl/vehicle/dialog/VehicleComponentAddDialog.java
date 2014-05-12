@@ -65,7 +65,7 @@ public class VehicleComponentAddDialog
 			})
 			.onClickOk((d, i) ->
 			{
-				player.playSound(1133, player.getLocation());
+				player.playSound(1133);
 				d.showParentDialog();
 			})
 			.build();

@@ -171,7 +171,7 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 				.enabled(() -> player.isInAnyVehicle() && getOwnedVehicle(player) != player.getVehicle())
 				.onSelect((i) ->
 				{
-					player.playSound(1083, player.getLocation());
+					player.playSound(1083);
 					Vehicle vehicle = player.getVehicle();
 					if (vehicle != null) VehicleDialog.create(player, eventManager, dialog, vehicle, VehicleManagerServiceImpl.this).show();
 				})
@@ -182,7 +182,7 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 				.enabled(() -> getOwnedVehicle(player) != null)
 				.onSelect((i) ->
 				{
-					player.playSound(1083, player.getLocation());
+					player.playSound(1083);
 					Vehicle vehicle = getOwnedVehicle(player);
 					if (vehicle != null) VehicleDialog.create(player, eventManager, dialog, vehicle, VehicleManagerServiceImpl.this).show();
 				})
@@ -192,7 +192,7 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 				.itemText(localizedStringSet.get(player, "Name.Full"))
 				.onSelect((i) ->
 				{
-					player.playSound(1083, player.getLocation());
+					player.playSound(1083);
 					showMainDialog(player, dialog);
 				})
 				.build());

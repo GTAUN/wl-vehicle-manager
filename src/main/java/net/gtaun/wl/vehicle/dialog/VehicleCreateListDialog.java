@@ -67,7 +67,7 @@ public class VehicleCreateListDialog extends WlPageListDialog
 		@Override
 		public void onItemSelect()
 		{
-			player.playSound(1057, player.getLocation());
+			player.playSound(1057);
 			
 			Vehicle vehicle = vehicleManagerService.createOwnVehicle(player, modelId);
 			vehicle.putPlayer(player, 0);
@@ -134,7 +134,7 @@ public class VehicleCreateListDialog extends WlPageListDialog
 			.selectedIndex(() -> modelIdComparators.indexOf(modelIdComparator))
 			.onRadioItemSelect((item, index) ->
 			{
-				player.playSound(1083, player.getLocation());
+				player.playSound(1083);
 				modelIdComparator = modelIdComparators.get(index);
 				changeSortMode(index);
 				show();
@@ -161,7 +161,7 @@ public class VehicleCreateListDialog extends WlPageListDialog
 		previewTextdraw = new VehicleCreateListTextDraw(player, eventManagerNode.getParent(), vehicleManagerService, nowIds, (modelId) ->
 		{
 			player.cancelDialog();
-			player.playSound(1057, player.getLocation());
+			player.playSound(1057);
 			
 			Vehicle vehicle = vehicleManagerService.createOwnVehicle(player, modelId);
 			vehicle.putPlayer(player, 0);

@@ -49,7 +49,7 @@ public class VehicleComponentPaintjobDialog extends WlListDialog
 			
 			addItem(item, (d) ->
 			{
-				player.playSound(1134, player.getLocation());
+				player.playSound(1134);
 				stringSet.sendMessage(Color.LIGHTBLUE, "PaintMessage", name, paintjobId);
 				
 				vehicle.setPaintjob(paintjobId);

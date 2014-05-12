@@ -69,7 +69,7 @@ public class PlayerPreferencesDialog
 			
 			.onClickOk((d, i) ->
 			{
-				player.playSound(1083, player.getLocation());
+				player.playSound(1083);
 				i.getCurrentDialog().show();
 			})
 			.build();

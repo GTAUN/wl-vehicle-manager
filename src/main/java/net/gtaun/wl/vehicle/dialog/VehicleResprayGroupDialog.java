@@ -105,7 +105,7 @@ public class VehicleResprayGroupDialog
 					b.item(item, (listItem) -> VehicleResprayDialog.create(player, eventManager, listItem.getCurrentDialog(), vehicle, service, index, max, color1).show());
 				}
 			})
-			.onClickOk((d, i) -> player.playSound(1083, player.getLocation()))
+			.onClickOk((d, i) -> player.playSound(1083))
 			.build();
 	}
 }

@@ -73,7 +73,7 @@ public class VehicleDialog
 				return true;
 			}, (i) ->
 			{
-				player.playSound(1083, player.getLocation());
+				player.playSound(1083);
 				stringSet.sendMessage(Color.LIGHTBLUE, "Dialog.VehicleDialog.GetOnMessage", VehicleModel.getName(vehicle.getModelId()));
 				vehicle.putPlayer(player, 0);
 			})
@@ -85,7 +85,7 @@ public class VehicleDialog
 				return true;
 			}, (i) ->
 			{
-				player.playSound(1057, player.getLocation());
+				player.playSound(1057);
 				stringSet.sendMessage(Color.LIGHTBLUE, "Dialog.VehicleDialog.OwnMessage", VehicleModel.getName(vehicle.getModelId()));
 				service.ownVehicle(player, vehicle);
 				i.getCurrentDialog().show();
@@ -98,7 +98,7 @@ public class VehicleDialog
 				return true;
 			}, (i) ->
 			{
-				player.playSound(1083, player.getLocation());
+				player.playSound(1083);
 						
 				vehicle.setLocation(player.getLocation());
 				vehicle.putPlayer(player, 0);
@@ -119,21 +119,21 @@ public class VehicleDialog
 				return false;
 			}, (i) ->
 			{
-				player.playSound(1133, player.getLocation());
+				player.playSound(1133);
 				vehicle.repair();
 				i.getCurrentDialog().show();
 			})
 			
 			.item(stringSet.get("Dialog.VehicleDialog.Flip"), () -> VehicleUtils.isVehicleDriver(vehicle, player), (i) ->
 			{
-				player.playSound(1083, player.getLocation());
+				player.playSound(1083);
 				vehicle.setLocation(vehicle.getLocation());
 				i.getCurrentDialog().show();
 			})
 			
 			.item(stringSet.get("Dialog.VehicleDialog.ChangeColor"), () -> VehicleUtils.isVehicleDriver(vehicle, player), (i) ->
 			{
-				player.playSound(1083, player.getLocation());
+				player.playSound(1083);
 				VehicleResprayGroupDialog.create(player, eventManager, i.getCurrentDialog(), vehicle, service).show();
 			})
 			
@@ -143,7 +143,7 @@ public class VehicleDialog
 				return VehicleUtils.isVehicleDriver(vehicle, player);
 			}, (i) ->
 			{
-				player.playSound(1083, player.getLocation());
+				player.playSound(1083);
 				List<Player> passengers = VehicleUtils.getVehiclePassengers(vehicle);
 				for (Player passenger : passengers)
 				{
@@ -160,7 +160,7 @@ public class VehicleDialog
 				return VehicleComponentModel.isVehicleSupportAnyComponment(vehicle.getModelId());
 			}, (i) ->
 			{
-				player.playSound(1083, player.getLocation());
+				player.playSound(1083);
 				VehicleComponentDialog.create(player, eventManager, i.getCurrentDialog(), vehicle, service).show();
 			})
 				
@@ -169,7 +169,7 @@ public class VehicleDialog
 				.statusSupplier(() -> vehicle.getState().getDoors() != 0)
 				.onSelect((i) ->
 				{
-					player.playSound(1083, player.getLocation());
+					player.playSound(1083);
 					vehicle.getState().setDoors(vehicle.getState().getDoors() ^ 1);
 					i.getCurrentDialog().show();
 				})
@@ -177,13 +177,13 @@ public class VehicleDialog
 				
 			.item(stringSet.get("Dialog.VehicleDialog.PersonalStatistics"), (i) ->
 			{
-				player.playSound(1083, player.getLocation());
+				player.playSound(1083);
 				PlayerVehicleStatisticDialog.create(player, eventManager, i.getCurrentDialog(), vehicle, service).show();
 			})
 			
 			.item(stringSet.get("Dialog.VehicleDialog.GlobalStatistics"), (i) ->
 			{
-				player.playSound(1083, player.getLocation());
+				player.playSound(1083);
 				GlobalVehicleStatisticDialog.create(player, eventManager, i.getCurrentDialog(), vehicle, service).show();
 			})
 			
