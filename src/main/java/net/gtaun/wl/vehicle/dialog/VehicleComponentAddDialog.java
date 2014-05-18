@@ -21,6 +21,7 @@ package net.gtaun.wl.vehicle.dialog;
 import java.util.Set;
 
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
+import net.gtaun.shoebill.common.dialog.ListDialog.AbstractListDialogBuilder;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
 import net.gtaun.shoebill.constant.VehicleComponentSlot;
 import net.gtaun.shoebill.constant.VehicleModel;
@@ -55,8 +56,9 @@ public class VehicleComponentAddDialog
 				{
 					String componentName = VehicleComponentModel.getName(cid);
 					String itemText = stringSet.format("Dialog.VehicleComponentAddDialog.Item", slotName, componentName);
-					
-					b.item(itemText, (i) ->
+
+					// XXX: Buggy Eclipse JDT Compiler
+					((AbstractListDialogBuilder<?,?>) b).item(itemText, (i) ->
 					{
 						stringSet.sendMessage(Color.LIGHTBLUE, "Dialog.VehicleComponentAddDialog.AddMessage", name, slotName, componentName);
 						vehicle.getComponent().add(cid);

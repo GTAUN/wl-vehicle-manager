@@ -19,6 +19,7 @@
 package net.gtaun.wl.vehicle.dialog;
 
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
+import net.gtaun.shoebill.common.dialog.ListDialog.AbstractListDialogBuilder;
 import net.gtaun.shoebill.constant.VehicleModel;
 import net.gtaun.shoebill.data.Color;
 import net.gtaun.shoebill.object.Player;
@@ -101,8 +102,9 @@ public class VehicleResprayGroupDialog
 						item += new Color(VEHICLE_COLOR_TABLE_RGBA[j]).toEmbeddingString() + colorBlock;
 						if (j != max-1) item += " ";
 					}
-					
-					b.item(item, (listItem) -> VehicleResprayDialog.create(player, eventManager, listItem.getCurrentDialog(), vehicle, service, index, max, color1).show());
+
+					// XXX: Buggy Eclipse JDT Compiler
+					((AbstractListDialogBuilder<?, ?>) b).item(item, (listItem) -> VehicleResprayDialog.create(player, eventManager, listItem.getCurrentDialog(), vehicle, service, index, max, color1).show());
 				}
 			})
 			.onClickOk((d, i) -> player.playSound(1083))

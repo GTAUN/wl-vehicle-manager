@@ -21,6 +21,7 @@ package net.gtaun.wl.vehicle.dialog;
 import java.util.Set;
 
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
+import net.gtaun.shoebill.common.dialog.ListDialog.AbstractListDialogBuilder;
 import net.gtaun.shoebill.constant.VehicleComponentModel;
 import net.gtaun.shoebill.constant.VehicleComponentSlot;
 import net.gtaun.shoebill.constant.VehicleModel;
@@ -48,7 +49,9 @@ public class VehicleComponentDialog
 			.execute((b) ->
 			{
 				String paintjobItem = stringSet.get("Component.Paintjob");
-				if (VehicleModel.isPaintjobSupported(modelId)) b.item(paintjobItem, (i) ->
+				
+				// XXX: Buggy Eclipse JDT Compiler
+				if (VehicleModel.isPaintjobSupported(modelId)) ((AbstractListDialogBuilder<?, ?>) b).item(paintjobItem, (i) ->
 				{
 					new VehicleComponentPaintjobDialog(player, eventManager, i.getCurrentDialog(), vehicle, service).show();
 				});
@@ -60,7 +63,9 @@ public class VehicleComponentDialog
 					String curName = VehicleComponentModel.getName(vehicle.getComponent().get(slot));
 					
 					String itemText = stringSet.format("Dialog.VehicleComponentDialog.Item", slotName, curName, components.size());
-					b.item(itemText, (i) ->
+					
+					// XXX: Buggy Eclipse JDT Compiler
+					((AbstractListDialogBuilder<?, ?>) b).item(itemText, (i) ->
 					{
 						VehicleComponentAddDialog.create(player, eventManager, i.getCurrentDialog(), vehicle, service, slot).show();
 					});
