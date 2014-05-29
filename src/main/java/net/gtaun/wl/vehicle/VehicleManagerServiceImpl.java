@@ -121,8 +121,8 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 	@Override
 	protected void onInit()
 	{
-		playerLifecycleHolder.registerClass(PlayerVehicleManagerContext.class, (eventManager, player) ->
-			new PlayerVehicleManagerContext(eventManager, player, VehicleManagerServiceImpl.this, datastore));
+		playerLifecycleHolder.registerClass(PlayerVehicleManagerContent.class, (eventManager, player) ->
+			new PlayerVehicleManagerContent(eventManager, player, VehicleManagerServiceImpl.this, datastore));
 		
 		eventManager.registerHandler(PlayerConnectEvent.class, HandlerPriority.NORMAL, (e) ->
 		{
@@ -376,42 +376,42 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 	@Override
 	public PlayerPreferences getPlayerPreferences(Player player)
 	{
-		PlayerVehicleManagerContext context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContext.class);
+		PlayerVehicleManagerContent context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContent.class);
 		return context.getPlayerPreferences();
 	}
 	
 	@Override
 	public PlayerPreferencesBase getEffectivePlayerPreferences(Player player)
 	{
-		PlayerVehicleManagerContext context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContext.class);
+		PlayerVehicleManagerContent context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContent.class);
 		return context.getEffectivePlayerPreferences();
 	}
 
 	@Override
 	public void addOverrideLimit(Player player, PlayerOverrideLimit limit)
 	{
-		PlayerVehicleManagerContext context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContext.class);
+		PlayerVehicleManagerContent context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContent.class);
 		context.getEffectivePlayerPreferences().addLimit(limit);
 	}
 	
 	@Override
 	public void removeOverrideLimit(Player player, PlayerOverrideLimit limit)
 	{
-		PlayerVehicleManagerContext context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContext.class);
+		PlayerVehicleManagerContent context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContent.class);
 		context.getEffectivePlayerPreferences().removeLimit(limit);
 	}
 	
 	@Override
 	public boolean hasOverrideLimit(Player player, PlayerOverrideLimit limit)
 	{
-		PlayerVehicleManagerContext context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContext.class);
+		PlayerVehicleManagerContent context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContent.class);
 		return context.getEffectivePlayerPreferences().hasLimit(limit);
 	}
 	
 	@Override
 	public void clearOverrideLimits(Player player)
 	{
-		PlayerVehicleManagerContext context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContext.class);
+		PlayerVehicleManagerContent context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContent.class);
 		context.getEffectivePlayerPreferences().clearLimits();
 	}
 }
