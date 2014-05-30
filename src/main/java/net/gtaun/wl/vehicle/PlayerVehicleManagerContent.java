@@ -271,10 +271,11 @@ class PlayerVehicleManagerContent extends PlayerLifecycleObject
 			createOrDestroySpeedometerWidget();
 		});
 
+		// FIXME: e.getVehicle() == null
 		eventManagerNode.registerHandler(VehicleUpdateEvent.class, HandlerPriority.BOTTOM, (e) ->
 		{
 			Vehicle vehicle = e.getVehicle();
-			if (player.getState() != PlayerState.DRIVER || vehicle != player.getVehicle()) return;
+			if (player.getState() != PlayerState.DRIVER || vehicle != player.getVehicle() || vehicle == null) return;
 
 			int modelId = vehicle.getModelId();
 			if (effectivePlayerPreferences.isAutoFlip() && VehicleModel.getType(modelId) != VehicleType.AIRCRAFT)
