@@ -121,11 +121,12 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 
 		playerOwnedVehicleLastPassengers = new WeakHashMap<>();
 
+		commonVehicles = new HashMap<>();
 		File commonVehiclesFile = new File(plugin.getDataDir(), "commonVehicles.yml");
 		try
 		{
 			Map<String, Object> map = (Map<String, Object>) new Yaml().load(new FileInputStream(commonVehiclesFile));
-			Map<String, Object>[] vehicleGroups = (Map<String, Object>[]) map.get(commonVehicles);
+			List<Map<String, Object>> vehicleGroups = (List<Map<String,Object>>) map.get("commonVehicles");
 			for (Map<String, Object> group : vehicleGroups)
 			{
 				String name = group.get("name").toString();
