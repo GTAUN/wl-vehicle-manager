@@ -19,6 +19,8 @@
 package net.gtaun.wl.vehicle;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -61,6 +63,7 @@ import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
 import net.gtaun.wl.vehicle.stat.VehicleStatisticManager;
 
 import org.mongodb.morphia.Datastore;
+import org.yaml.snakeyaml.Yaml;
 
 public class VehicleManagerServiceImpl extends AbstractShoebillContext implements VehicleManagerService
 {
@@ -68,91 +71,111 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 	{
 		final long lastUpdate;
 		final List<Player> passengers;
-		
+
 		private OwnedVehicleLastPassengers(long lastUpdate, List<Player> passengers)
 		{
 			this.lastUpdate = lastUpdate;
 			this.passengers = passengers;
 		}
 	}
-	
-	
+
+
 	private final VehicleManagerPlugin plugin;
 	private final Datastore datastore;
-	
+
 	private final EventManagerNode eventManager;
 	private final PlayerLifecycleHolder playerLifecycleHolder;
-	
+
 	private final LocalizedStringSet localizedStringSet;
-	
+
 	private boolean isCommandEnabled = true;
 	private String commandOperation = "/v";
-	
+
 	private VehicleStatisticManager statisticManager;
-	
+
 	private Map<Player, Vehicle> playerOwnedVehicles;
 	private Set<Vehicle> ownedVehicles;
-	
+
 	private Map<Player, OwnedVehicleLastPassengers> playerOwnedVehicleLastPassengers;
-	
-	
+
+	private Map<String, List<Integer>> commonVehicles;
+
+
+	@SuppressWarnings("unchecked")
 	public VehicleManagerServiceImpl(EventManager rootEventManager, VehicleManagerPlugin plugin, Datastore datastore)
 	{
 		super(rootEventManager);
 		this.plugin = plugin;
 		this.datastore = datastore;
-		
+
 		eventManager = rootEventManager.createChildNode();
 		playerLifecycleHolder = new PlayerLifecycleHolder(eventManager);
-		
+
 		LanguageService languageService = Service.get(LanguageService.class);
 		localizedStringSet = languageService.createStringSet(new File(plugin.getDataDir(), "text"));
-		
+
 		statisticManager = new VehicleStatisticManager(eventManager, playerLifecycleHolder, this.datastore);
-		
+
 		playerOwnedVehicles = new HashMap<>();
 		ownedVehicles = new HashSet<>();
-		
+
 		playerOwnedVehicleLastPassengers = new WeakHashMap<>();
-		
+
+		File commonVehiclesFile = new File(plugin.getDataDir(), "commonVehicles.yml");
+		try
+		{
+			Map<String, Object> map = (Map<String, Object>) new Yaml().load(new FileInputStream(commonVehiclesFile));
+			Map<String, Object>[] vehicleGroups = (Map<String, Object>[]) map.get(commonVehicles);
+			for (Map<String, Object> group : vehicleGroups)
+			{
+				String name = group.get("name").toString();
+				List<Integer> modelIds = (List<Integer>) group.get("modelIds");
+				commonVehicles.put(name, modelIds);
+			}
+		}
+		catch (Throwable e)
+		{
+			VehicleManagerPlugin.LOGGER.info(commonVehiclesFile + " failed to load!");
+		}
+
 		init();
 	}
-	
+
 	@Override
 	protected void onInit()
 	{
 		playerLifecycleHolder.registerClass(PlayerVehicleManagerContent.class, (eventManager, player) ->
 			new PlayerVehicleManagerContent(eventManager, player, VehicleManagerServiceImpl.this, datastore));
-		
+
 		eventManager.registerHandler(PlayerConnectEvent.class, HandlerPriority.NORMAL, (e) ->
 		{
-			
+
 		});
-		
+
 		eventManager.registerHandler(PlayerDisconnectEvent.class, HandlerPriority.NORMAL, (e) ->
 		{
 			Player player = e.getPlayer();
 			unownVehicle(player);
 		});
-		
+
 		eventManager.registerHandler(PlayerCommandEvent.class, HandlerPriority.NORMAL, (e) ->
 		{
 			if (isCommandEnabled == false) return;
-			
+
 			Player player = e.getPlayer();
-			
+
 			String command = e.getCommand();
 			String[] splits = command.split(" ", 2);
-			
+
 			String operation = splits[0].toLowerCase();
 			Queue<String> args = new LinkedList<>();
-			
+
 			if (splits.length > 1)
 			{
 				String[] argsArray = splits[1].split(" ");
 				args.addAll(Arrays.asList(argsArray));
 			}
-			
+
 			if (operation.equals(commandOperation))
 			{
 				showMainDialog(player, null);
@@ -160,12 +183,12 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 				return;
 			}
 		});
-		
+
 		eventManager.registerHandler(MainMenuDialogExtendEvent.class, HandlerPriority.NORMAL, (e) ->
 		{
 			Player player = e.getPlayer();
 			WlListDialog dialog = e.getDialog();
-			
+
 			dialog.getItems().add(ListDialogItem.create()
 				.itemText(localizedStringSet.get(player, "Dialog.VehicleManagerDialog.CurrentVehicle"))
 				.enabled(() -> player.isInAnyVehicle() && getOwnedVehicle(player) != player.getVehicle())
@@ -176,7 +199,7 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 					if (vehicle != null) VehicleDialog.create(player, eventManager, dialog, vehicle, VehicleManagerServiceImpl.this).show();
 				})
 				.build());
-			
+
 			dialog.getItems().add(ListDialogItem.create()
 				.itemText(localizedStringSet.get(player, "Dialog.VehicleManagerDialog.MyVehicle"))
 				.enabled(() -> getOwnedVehicle(player) != null)
@@ -187,7 +210,7 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 					if (vehicle != null) VehicleDialog.create(player, eventManager, dialog, vehicle, VehicleManagerServiceImpl.this).show();
 				})
 				.build());
-			
+
 			dialog.getItems().add(ListDialogItem.create()
 				.itemText(localizedStringSet.get(player, "Name.Full"))
 				.onSelect((i) ->
@@ -205,36 +228,36 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 	@Override
 	protected void onDestroy()
 	{
-		
+
 	}
-	
+
 	public LocalizedStringSet getLocalizedStringSet()
 	{
 		return localizedStringSet;
 	}
-	
+
 	public OwnedVehicleLastPassengers getOwnedVehicleLastPassengers(Player player)
 	{
 		return playerOwnedVehicleLastPassengers.get(player);
 	}
-	
+
 	@Override
 	public Plugin getPlugin()
 	{
 		return plugin;
 	}
-	
+
 	@Override
 	public void showMainDialog(Player player, AbstractDialog parentDialog)
 	{
 		VehicleManagerDialog.create(player, rootEventManager, parentDialog, this).show();
 	}
-	
+
 	@Override
 	public Vehicle createOwnVehicle(Player player, int modelId)
 	{
 		Random random = new Random();
-		
+
 		Vehicle prevVehicle = player.getVehicle();
 
 		List<Player> passengers = null;
@@ -244,10 +267,10 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 			passengers = VehicleUtils.getVehiclePassengers(prevVehicle);
 			velocity = prevVehicle.getVelocity();
 		}
-		
+
 		Vehicle vehicle = Vehicle.create(modelId, player.getLocation(), random.nextInt(256), random.nextInt(256), 3600);
 		ownVehicle(player, vehicle);
-		
+
 		PlayerPreferences pref = getPlayerPreferences(player);
 		if (pref.isAutoCarryPassengers())
 		{
@@ -265,9 +288,9 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 				for (int i=0; i<limits; i++) vehicle.putPlayer(passengers.get(i), i+1);
 			}
 		}
-		
+
 		if (velocity != null) vehicle.setVelocity(velocity);
-		
+
 		statisticManager.getPlayerVehicleStatistic(player, modelId).onSpawn();
 		statisticManager.getGlobalVehicleStatistic(modelId).onSpawn();
 		return vehicle;
@@ -277,39 +300,39 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 	public void ownVehicle(Player player, Vehicle vehicle)
 	{
 		if (playerOwnedVehicles.containsKey(player)) unownVehicle(player);
-		
+
 		playerOwnedVehicles.put(player, vehicle);
 		ownedVehicles.add(vehicle);
 	}
-	
+
 	@Override
 	public void unownVehicle(Player player)
 	{
 		Vehicle vehicle = playerOwnedVehicles.get(player);
 		if (vehicle == null) return;
-		
+
 		playerOwnedVehicles.remove(player);
 		ownedVehicles.remove(vehicle);
-		
+
 		if (vehicle.isStatic() == false)
 		{
 			playerOwnedVehicleLastPassengers.put(player, new OwnedVehicleLastPassengers(System.currentTimeMillis(), VehicleUtils.getVehiclePassengers(vehicle)));
 			vehicle.destroy();
 		}
 	}
-	
+
 	@Override
 	public Vehicle getOwnedVehicle(Player player)
 	{
 		Vehicle vehicle = playerOwnedVehicles.get(player);
 		if (vehicle == null) return null;
-		
+
 		if (vehicle.isDestroyed())
 		{
 			unownVehicle(player);
 			vehicle = null;
 		}
-		
+
 		return vehicle;
 	}
 
@@ -342,44 +365,44 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 	{
 		return statisticManager.getPlayerVehicleStatistics(player);
 	}
-	
+
 	@Override
 	public OncePlayerVehicleStatistic getPlayerCurrentOnceStatistic(Player player)
 	{
 		return statisticManager.getPlayerCurrentOnceStatistic(player);
 	}
-	
+
 	@Override
 	public List<OncePlayerVehicleStatistic> getPlayerRecordedOnceStatistics(Player player)
 	{
 		return statisticManager.getPlayerRecordedOnceStatistics(player);
 	}
-	
+
 	@Override
 	public OncePlayerVehicleStatisticImpl startRacingStatistic(Player player)
 	{
 		return statisticManager.startRacingStatistic(player);
 	}
-	
+
 	@Override
 	public void endRacingStatistic(Player player)
 	{
 		statisticManager.endRacingStatistic(player);
 	}
-	
+
 	@Override
 	public boolean isRacingStatistic(Player player)
 	{
 		return statisticManager.isRacingStatistic(player);
 	}
-	
+
 	@Override
 	public PlayerPreferences getPlayerPreferences(Player player)
 	{
 		PlayerVehicleManagerContent context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContent.class);
 		return context.getPlayerPreferences();
 	}
-	
+
 	@Override
 	public PlayerPreferencesBase getEffectivePlayerPreferences(Player player)
 	{
@@ -393,25 +416,31 @@ public class VehicleManagerServiceImpl extends AbstractShoebillContext implement
 		PlayerVehicleManagerContent context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContent.class);
 		context.getEffectivePlayerPreferences().addLimit(limit);
 	}
-	
+
 	@Override
 	public void removeOverrideLimit(Player player, PlayerOverrideLimit limit)
 	{
 		PlayerVehicleManagerContent context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContent.class);
 		context.getEffectivePlayerPreferences().removeLimit(limit);
 	}
-	
+
 	@Override
 	public boolean hasOverrideLimit(Player player, PlayerOverrideLimit limit)
 	{
 		PlayerVehicleManagerContent context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContent.class);
 		return context.getEffectivePlayerPreferences().hasLimit(limit);
 	}
-	
+
 	@Override
 	public void clearOverrideLimits(Player player)
 	{
 		PlayerVehicleManagerContent context = playerLifecycleHolder.getObject(player, PlayerVehicleManagerContent.class);
 		context.getEffectivePlayerPreferences().clearLimits();
+	}
+
+	@Override
+	public Map<String, List<Integer>> getCommonVehicles()
+	{
+		return commonVehicles;
 	}
 }

@@ -20,6 +20,7 @@ package net.gtaun.wl.vehicle;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import net.gtaun.shoebill.common.dialog.AbstractDialog;
 import net.gtaun.shoebill.object.Player;
@@ -33,26 +34,26 @@ import net.gtaun.wl.vehicle.stat.PlayerVehicleStatistic;
 public interface VehicleManagerService extends Service
 {
 	Plugin getPlugin();
-	
+
 	void showMainDialog(Player player, AbstractDialog parentDialog);
-	
+
 	Vehicle createOwnVehicle(Player player, int modelId);
-	
+
 	/**
 	 * 设置玩家拥有的车辆。
-	 * 
+	 *
 	 * @param player 目标玩家
 	 * @param vehicle 目标车辆
 	 */
 	void ownVehicle(Player player, Vehicle vehicle);
 	void unownVehicle(Player player);
-	
+
 	Vehicle getOwnedVehicle(Player player);
 	boolean isOwned(Vehicle vehicle);
 
 	PlayerPreferences getPlayerPreferences(Player player);
 	PlayerPreferencesBase getEffectivePlayerPreferences(Player player);
-	
+
 	void addOverrideLimit(Player player, PlayerOverrideLimit limit);
 	void removeOverrideLimit(Player player, PlayerOverrideLimit limit);
 	boolean hasOverrideLimit(Player player, PlayerOverrideLimit limit);
@@ -66,8 +67,10 @@ public interface VehicleManagerService extends Service
 
 	OncePlayerVehicleStatistic getPlayerCurrentOnceStatistic(Player player);
 	List<OncePlayerVehicleStatistic> getPlayerRecordedOnceStatistics(Player player);
-	
+
 	OncePlayerVehicleStatistic startRacingStatistic(Player player);
 	void endRacingStatistic(Player player);
 	boolean isRacingStatistic(Player player);
+
+	Map<String, List<Integer>> getCommonVehicles();
 }
