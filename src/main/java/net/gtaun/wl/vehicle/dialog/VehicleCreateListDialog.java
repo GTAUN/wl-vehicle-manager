@@ -47,20 +47,20 @@ public class VehicleCreateListDialog extends WlPageListDialog
 		private final int modelId;
 		private final long driveCount;
 		private final long globalDriveCount;
-		
+
 		public ListDialogItemVehicle(int modelId)
 		{
 			this.modelId = modelId;
-			
+
 			String name = VehicleModel.getName(modelId);
 			int seats = VehicleModel.getSeats(modelId);
 
 			PlayerVehicleStatistic stat = vehicleManagerService.getPlayerVehicleStatistic(player, modelId);
 			GlobalVehicleStatistic globalStat = vehicleManagerService.getGlobalVehicleStatistic(modelId);
-			
+
 			driveCount = stat.getDriveCount();
 			globalDriveCount = globalStat.getDriveCount();
-			
+
 			setItemText(() -> stringSet.format("Dialog.VehicleCreateListDialog.Item", name, modelId, seats, driveCount, globalDriveCount));
 		}
 
@@ -68,60 +68,60 @@ public class VehicleCreateListDialog extends WlPageListDialog
 		public void onItemSelect()
 		{
 			player.playSound(1057);
-			
+
 			Vehicle vehicle = vehicleManagerService.createOwnVehicle(player, modelId);
 			vehicle.putPlayer(player, 0);
 			player.sendMessage(Color.LIGHTBLUE, stringSet.format("Dialog.VehicleCreateListDialog.CreateMessage", VehicleModel.getName(vehicle.getModelId())));
 			destroy();
 		}
 	}
-	
+
 
 	private final VehicleManagerServiceImpl vehicleManagerService;
 	private final PlayerStringSet stringSet;
-	
+
 	private final Integer[] modelIds;
-	
+
 	private VehicleCreateListTextDraw previewTextdraw;
-	
+
 	private List<Comparator<Integer>> modelIdComparators;
 	private Comparator<Integer> modelIdComparator;
-	
-	
+
+
 	public VehicleCreateListDialog
 	(Player player, EventManager eventManager, AbstractDialog parent, VehicleManagerServiceImpl service, String setName, int[] modelIds)
 	{
 		super(player, eventManager);
 		setParentDialog(parent);
-		
+
 		this.vehicleManagerService = service;
 		this.modelIds = ArrayUtils.toObject(modelIds);
 		this.stringSet = vehicleManagerService.getLocalizedStringSet().getStringSet(player);
 
 		setCaption((d) -> stringSet.format("Dialog.VehicleCreateListDialog.Caption", setName, getCurrentPage() + 1, getMaxPage() + 1));
-		
-		
+
+
 		modelIdComparators = new ArrayList<>();
-		
+
 		modelIdComparators.add((o1, o2) ->
 			(int) (service.getGlobalVehicleStatistic(o2).getDriveCount() - service.getGlobalVehicleStatistic(o1).getDriveCount()));
-		
+
 		modelIdComparators.add((o1, o2) ->
 			(int) (service.getPlayerVehicleStatistic(player, o2).getDriveCount() - service.getPlayerVehicleStatistic(player, o1).getDriveCount()));
-		
+
 		modelIdComparators.add((o1, o2) ->
 			(VehicleModel.getSeats(o2) - VehicleModel.getSeats(o1)));
-		
+
 		modelIdComparators.add((o1, o2) ->
 			(VehicleModel.getType(o1).ordinal() - VehicleModel.getType(o2).ordinal()));
-		
+
 		modelIdComparator = modelIdComparators.get(0);
 		changeSortMode(0);
-		
-		
+
+
 		setCloseHandler((d, t) -> destroyPreviewTextdraw());
 	}
-	
+
 	private void changeSortMode(int mode)
 	{
 		items.clear();
@@ -132,7 +132,7 @@ public class VehicleCreateListDialog extends WlPageListDialog
 			.item(stringSet.get("Vehicle.SortMode.Seats"),			Color.LIGHTGREEN)
 			.item(stringSet.get("Vehicle.SortMode.Type"),			Color.LIGHTYELLOW)
 			.selectedIndex(() -> modelIdComparators.indexOf(modelIdComparator))
-			.onRadioItemSelect((item, index) ->
+			.onRadioItemSelect((dialogItem, item, index) ->
 			{
 				player.playSound(1083);
 				modelIdComparator = modelIdComparators.get(index);
@@ -140,40 +140,40 @@ public class VehicleCreateListDialog extends WlPageListDialog
 				show();
 			})
 			.build());
-		
+
 		Arrays.sort(this.modelIds, modelIdComparator);
 		for (int modelId : modelIds) items.add(new ListDialogItemVehicle(modelId));
 	}
-	
+
 	@Override
 	public void show()
 	{
 		super.show();
 		showPreviewTextdraw();
 	}
-	
+
 	private void showPreviewTextdraw()
 	{
 		destroyPreviewTextdraw();
-		
+
 		int index = getCurrentPage() * getItemsPerPage();
 		Integer[] nowIds = ArrayUtils.subarray(modelIds, index, index+getItemsPerPage());
 		previewTextdraw = new VehicleCreateListTextDraw(player, eventManagerNode.getParent(), vehicleManagerService, nowIds, (modelId) ->
 		{
 			player.cancelDialog();
 			player.playSound(1057);
-			
+
 			Vehicle vehicle = vehicleManagerService.createOwnVehicle(player, modelId);
 			vehicle.putPlayer(player, 0);
 			stringSet.sendMessage(Color.LIGHTBLUE, "Dialog.VehicleCreateListDialog.CreateMessage", VehicleModel.getName(vehicle.getModelId()));
 		});
 		previewTextdraw.show();
 	}
-	
+
 	private void destroyPreviewTextdraw()
 	{
 		if (previewTextdraw == null) return;
-		
+
 		previewTextdraw.destroy();
 		previewTextdraw = null;
 	}
